@@ -1,0 +1,74 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { content, profile } from "../i18n/content";
+
+const es = content.es;
+const title = "Amaury Gomez CV";
+const description = "Curriculum vitae descargable de Amaury Gomez.";
+---
+
+<BaseLayout title={title} description={description} lang="es">
+  <main class="min-h-screen bg-[#070B14] px-6 py-10 text-[#F7F3EA]">
+    <div class="mx-auto max-w-4xl space-y-8">
+      <header class="border-b border-white/10 pb-6">
+        <h1 class="text-3xl font-semibold">{profile.name}</h1>
+        <p class="mt-2 text-sm text-[#A8B0C2]">{es.profile.summary}</p>
+        <div class="mt-3 flex flex-wrap gap-4 text-sm text-[#A8B0C2]">
+          <a href={`mailto:${profile.email}`}>{profile.email}</a>
+          <a href={profile.github} target="_blank" rel="noreferrer">{profile.github}</a>
+        </div>
+      </header>
+
+      <section>
+        <h2 class="text-xl font-semibold">Experiencia</h2>
+        <div class="mt-4 space-y-5">
+          {es.experience.map((job) => (
+            <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h3 class="text-lg font-semibold">
+                {job.role} · {job.company}
+              </h3>
+              <p class="mt-1 text-sm text-[#E8B96B]">{job.period}</p>
+              <p class="mt-3 text-sm leading-7 text-[#F7F3EA]/85">{job.summary}</p>
+              <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-[#A8B0C2]">
+                {job.highlights.map((highlight) => <li>{highlight}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-semibold">Stack</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+          {Object.entries(es.techStack).map(([title, items]) => (
+            <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h3 class="text-sm font-semibold uppercase tracking-[0.16em] text-[#E8B96B]">
+                {title}
+              </h3>
+              <p class="mt-3 text-sm leading-7 text-[#A8B0C2]">{items.join(", ")}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="grid gap-4 md:grid-cols-2">
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <h2 class="text-xl font-semibold">Educacion</h2>
+          <ul class="mt-4 space-y-2 text-sm text-[#A8B0C2]">
+            {es.education.map((item) => (
+              <li>
+                <strong class="text-[#F7F3EA]">{item.degree}</strong> · {item.school} · {item.period}
+              </li>
+            ))}
+          </ul>
+        </article>
+        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+          <h2 class="text-xl font-semibold">Certificaciones</h2>
+          <ul class="mt-4 space-y-2 text-sm text-[#A8B0C2]">
+            {es.certifications.map((item) => <li>{item}</li>)}
+          </ul>
+        </article>
+      </section>
+    </div>
+  </main>
+</BaseLayout>

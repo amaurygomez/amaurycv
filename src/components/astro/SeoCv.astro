@@ -1,0 +1,149 @@
+---
+import { content, profile } from "../../i18n/content";
+
+const es = content.es;
+---
+
+<!--
+  Crawler-only semantic CV. Indexable by Google/LinkedIn but removed from
+  the accessibility tree (aria-hidden + tabindex=-1 + inert on the wrapper)
+  so screen readers start with the real app instead of a duplicate dump.
+
+  CSS rule: visually-hidden via clip-path so the layout is unaffected.
+-->
+<div
+  class="seo-cv-fallback"
+  aria-hidden="true"
+  tabindex="-1"
+  data-nosnippet="false"
+>
+  <h1>{profile.name}</h1>
+  <p>{es.profile.summary}</p>
+  <p>Email: {profile.email}</p>
+  <p>GitHub: {profile.github}</p>
+  <p>{profile.locationEs}</p>
+
+  <h2>Roles</h2>
+  <ul>
+    {es.profile.roles.map((r) => <li>{r}</li>)}
+  </ul>
+
+  <h2>Pilares</h2>
+  <ul>
+    {
+      es.pillars.map((p) => (
+        <li>
+          <strong>{p.title}:</strong> {p.text}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Experiencia</h2>
+  {
+    es.experience.map((job) => (
+      <article>
+        <h3>
+          {job.role} · {job.company} · {job.period}
+        </h3>
+        <p>{job.summary}</p>
+        <ul>
+          {job.highlights.map((h) => (
+            <li>{h}</li>
+          ))}
+        </ul>
+        <p>
+          <em>Stack:</em> {job.tags.join(", ")}
+        </p>
+      </article>
+    ))
+  }
+
+  <h2>Habilidades</h2>
+  {
+    es.skillGroups.map((g) => (
+      <section>
+        <h3>{g.title}</h3>
+        <ul>
+          {g.skills.map((s) => (
+            <li>{s.name}</li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  <h2>Stack tecnológico</h2>
+  <ul>
+    {
+      Object.entries(es.techStack).map(([category, items]) => (
+        <li>
+          <strong>{category}:</strong> {items.join(", ")}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Educación</h2>
+  <ul>
+    {
+      es.education.map((e) => (
+        <li>
+          {e.degree} · {e.school} · {e.period}
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2>Certificaciones</h2>
+  <ul>
+    {es.certifications.map((c) => <li>{c}</li>)}
+  </ul>
+</div>
+
+<!--
+  No-JS fallback: when JavaScript (and therefore the interactive world) is
+  unavailable, reveal the semantic CV instead of a black page. The <noscript>
+  style override unhides the crawler block and restores readable layout.
+-->
+<noscript>
+  <style>
+    .seo-cv-fallback {
+      position: static !important;
+      width: auto !important;
+      height: auto !important;
+      margin: 0 auto !important;
+      padding: 2.5rem 1.5rem !important;
+      overflow: visible !important;
+      clip: auto !important;
+      white-space: normal !important;
+      pointer-events: auto !important;
+      max-width: 52rem;
+      color: #f7f3ea;
+      line-height: 1.6;
+    }
+    .seo-cv-fallback h1,
+    .seo-cv-fallback h2,
+    .seo-cv-fallback h3 {
+      color: #e8b96b;
+    }
+    .seo-cv-fallback a {
+      color: #5eead4;
+    }
+  </style>
+</noscript>
+
+<style>
+  .seo-cv-fallback {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+    pointer-events: none;
+  }
+</style>

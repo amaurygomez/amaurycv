@@ -1,0 +1,69 @@
+---
+// Fontsource imported via JS so Vite's asset pipeline rewrites the woff2
+// urls into hashed /_astro/ paths. The @import in index.css would also
+// emit @font-face rules, but Tailwind's PostCSS does not rewrite their
+// urls — resulting in /_astro/files/inter-latin-wght-normal.woff2 404s.
+// @ts-expect-error - fontsource has no .d.ts but resolves at runtime
+import "@fontsource-variable/inter";
+import "../index.css";
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage?: string;
+  lang?: "es" | "en";
+}
+
+const {
+  title,
+  description,
+  ogImage = "/og.png",
+  lang = "es",
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+---
+
+<!doctype html>
+<html lang={lang} class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#070B14" />
+    <meta name="color-scheme" content="dark" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
+    <meta property="og:locale" content={lang === "es" ? "es_DO" : "en_US"} />
+    <meta property="og:site_name" content="AG World" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL(ogImage, Astro.site).toString()} />
+
+    <link rel="alternate" hreflang="es" href={canonical} />
+    <link rel="alternate" hreflang="en" href={canonical} />
+    <link rel="alternate" hreflang="x-default" href={canonical} />
+
+    <slot name="head" />
+  </head>
+  <!-- overflow-hidden is required on DESKTOP so the fullscreen Pixi canvas
+       doesn't allow body scroll, but on mobile/tablet (≤1023px) the vertical
+       career portfolio MUST scroll. Apply the lock only at the lg breakpoint
+       (matches WorldApp's mobile/desktop split). -->
+  <body class="bg-[#070B14] text-[#F7F3EA] antialiased lg:overflow-hidden">
+    <slot />
+  </body>
+</html>
