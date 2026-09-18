@@ -12,7 +12,8 @@
     "typecheck": "astro check",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "assets:fetch": "node scripts/fetch-assets.mjs"
+    "assets:fetch": "node scripts/fetch-assets.mjs",
+    "cv:pdf": "node scripts/cv-pdf.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

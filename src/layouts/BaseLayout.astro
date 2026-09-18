@@ -12,6 +12,7 @@ interface Props {
   description: string;
   ogImage?: string;
   lang?: "es" | "en";
+  lockScroll?: boolean;
 }
 
 const {
@@ -19,6 +20,7 @@ const {
   description,
   ogImage = "/og.png",
   lang = "es",
+  lockScroll = true,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
@@ -63,7 +65,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site).toString();
        doesn't allow body scroll, but on mobile/tablet (≤1023px) the vertical
        career portfolio MUST scroll. Apply the lock only at the lg breakpoint
        (matches WorldApp's mobile/desktop split). -->
-  <body class="bg-[#070B14] text-[#F7F3EA] antialiased lg:overflow-hidden">
+  <body class:list={["bg-[#070B14] text-[#F7F3EA] antialiased", { "lg:overflow-hidden": lockScroll }]}>
     <slot />
   </body>
 </html>

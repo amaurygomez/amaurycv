@@ -28,7 +28,7 @@ const CTA_ITEMS = [
   },
   {
     key: "cv",
-    href: profile.cvPath,
+    href: profile.cvPdf.es,
     labelEs: "Descargar CV",
     labelEn: "Download CV",
     icon: Download,
@@ -83,10 +83,10 @@ export function FloatingJourneyCta() {
               return (
                 <a
                   key={item.key}
-                  href={item.href}
+                  href={item.key === "cv" ? profile.cvPdf[lang] : item.href}
                   target={item.key === "cv" || item.key === "contact" ? undefined : "_blank"}
                   rel={item.key === "cv" || item.key === "contact" ? undefined : "noreferrer"}
-                  download={item.key === "cv" ? "Amaury-Gomez-CV" : undefined}
+                  download={item.key === "cv" ? true : undefined}
                   aria-label={label}
                   className={baseClass}
                 >

@@ -284,7 +284,8 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
             GitHub
           </a>
           <a
-            href={profile.cvPath}
+            href={profile.cvPdf[lang]}
+            download
             className="inline-flex items-center gap-2 rounded-full border border-[#E8B96B]/35 px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-[0.16em] text-[#F7F3EA] transition hover:border-[#E8B96B] hover:text-[#E8B96B]"
           >
             <Download size={13} strokeWidth={2.6} />

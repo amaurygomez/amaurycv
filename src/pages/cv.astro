@@ -1,74 +1,214 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { content, profile } from "../i18n/content";
+import { content, profile, type Lang } from "../i18n/content";
 
-const es = content.es;
 const title = "Amaury Gomez CV";
 const description = "Curriculum vitae descargable de Amaury Gomez.";
+
+const labels: Record<Lang, Record<string, string>> = {
+  es: {
+    download: "Descargar PDF",
+    back: "Volver al portafolio",
+    experience: "Experiencia",
+    stack: "Stack",
+    education: "Educación",
+    certifications: "Certificaciones",
+    verified: "Verificables en",
+  },
+  en: {
+    download: "Download PDF",
+    back: "Back to portfolio",
+    experience: "Experience",
+    stack: "Stack",
+    education: "Education",
+    certifications: "Certifications",
+    verified: "Verified at",
+  },
+};
+
+const langs: Lang[] = ["es", "en"];
 ---
 
-<BaseLayout title={title} description={description} lang="es">
-  <main class="min-h-screen bg-[#070B14] px-6 py-10 text-[#F7F3EA]">
-    <div class="mx-auto max-w-4xl space-y-8">
-      <header class="border-b border-white/10 pb-6">
-        <h1 class="text-3xl font-semibold">{profile.name}</h1>
-        <p class="mt-2 text-sm text-[#A8B0C2]">{es.profile.summary}</p>
-        <div class="mt-3 flex flex-wrap gap-4 text-sm text-[#A8B0C2]">
-          <a href={`mailto:${profile.email}`}>{profile.email}</a>
-          <a href={profile.github} target="_blank" rel="noreferrer">{profile.github}</a>
-        </div>
-      </header>
+<BaseLayout title={title} description={description} lang="es" lockScroll={false}>
+  <script is:inline>
+    if (new URLSearchParams(location.search).get("lang") === "en") {
+      document.documentElement.dataset.cvLang = "en";
+      document.documentElement.lang = "en";
+    }
+  </script>
+  <main class="cv-doc min-h-screen bg-[#070B14] px-6 py-10 text-[#F7F3EA]">
+    {langs.map((lang) => {
+      const c = content[lang];
+      const t = labels[lang];
+      const other: Lang = lang === "es" ? "en" : "es";
+      return (
+        <div class="mx-auto max-w-4xl space-y-8" data-lang={lang}>
+          <nav class="cv-toolbar flex flex-wrap items-center justify-between gap-3 text-sm">
+            <a href="/" class="text-[#A8B0C2] transition hover:text-[#E8B96B]">← {t.back}</a>
+            <div class="flex items-center gap-3">
+              <a
+                href={other === "en" ? "/cv?lang=en" : "/cv"}
+                class="rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#A8B0C2] transition hover:border-[#E8B96B]/50 hover:text-[#E8B96B]"
+              >
+                {other.toUpperCase()}
+              </a>
+              <a
+                href={profile.cvPdf[lang]}
+                download
+                class="rounded-full border border-[#E8B96B]/50 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#E8B96B] transition hover:bg-[#E8B96B] hover:text-[#070B14]"
+              >
+                {t.download}
+              </a>
+            </div>
+          </nav>
 
-      <section>
-        <h2 class="text-xl font-semibold">Experiencia</h2>
-        <div class="mt-4 space-y-5">
-          {es.experience.map((job) => (
-            <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <h3 class="text-lg font-semibold">
-                {job.role} · {job.company}
-              </h3>
-              <p class="mt-1 text-sm text-[#E8B96B]">{job.period}</p>
-              <p class="mt-3 text-sm leading-7 text-[#F7F3EA]/85">{job.summary}</p>
-              <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-[#A8B0C2]">
-                {job.highlights.map((highlight) => <li>{highlight}</li>)}
+          <header class="border-b border-white/10 pb-6">
+            <h1 class="text-3xl font-semibold">{profile.name}</h1>
+            <p class="mt-2 text-sm text-[#A8B0C2]">{c.profile.summary}</p>
+            <div class="mt-3 flex flex-wrap gap-4 text-sm text-[#A8B0C2]">
+              <span>{lang === "es" ? profile.locationEs : profile.location}</span>
+              <a href={`mailto:${profile.email}`}>{profile.email}</a>
+              <a href={profile.github} target="_blank" rel="noreferrer">{profile.github}</a>
+            </div>
+          </header>
+
+          <section>
+            <h2 class="text-xl font-semibold">{t.experience}</h2>
+            <div class="mt-4 space-y-5">
+              {c.experience.map((job) => (
+                <article class="cv-card rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                  <h3 class="text-lg font-semibold">
+                    {job.role} · {job.company}
+                  </h3>
+                  <p class="cv-accent mt-1 text-sm text-[#E8B96B]">{job.period}</p>
+                  <p class="mt-3 text-sm leading-7 text-[#F7F3EA]/85">{job.summary}</p>
+                  <ul class="mt-3 list-disc space-y-1 pl-5 text-sm text-[#A8B0C2]">
+                    {job.highlights.map((highlight) => <li>{highlight}</li>)}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section>
+            <h2 class="text-xl font-semibold">{t.stack}</h2>
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+              {Object.entries(c.techStack).map(([group, items]) => (
+                <article class="cv-card rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+                  <h3 class="cv-accent text-sm font-semibold uppercase tracking-[0.16em] text-[#E8B96B]">
+                    {group}
+                  </h3>
+                  <p class="mt-3 text-sm leading-7 text-[#A8B0C2]">{items.join(", ")}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section class="grid gap-4 md:grid-cols-2">
+            <article class="cv-card rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h2 class="text-xl font-semibold">{t.education}</h2>
+              <ul class="mt-4 space-y-2 text-sm text-[#A8B0C2]">
+                {c.education.map((item) => (
+                  <li>
+                    <strong class="text-[#F7F3EA]">{item.degree}</strong> · {item.school} · {item.period}
+                  </li>
+                ))}
               </ul>
             </article>
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <h2 class="text-xl font-semibold">Stack</h2>
-        <div class="mt-4 grid gap-4 md:grid-cols-2">
-          {Object.entries(es.techStack).map(([title, items]) => (
-            <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-              <h3 class="text-sm font-semibold uppercase tracking-[0.16em] text-[#E8B96B]">
-                {title}
-              </h3>
-              <p class="mt-3 text-sm leading-7 text-[#A8B0C2]">{items.join(", ")}</p>
+            <article class="cv-card rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+              <h2 class="text-xl font-semibold">{t.certifications}</h2>
+              <ul class="mt-4 space-y-2 text-sm text-[#A8B0C2]">
+                {c.certifications.map((item) => <li>{item}</li>)}
+              </ul>
+              <p class="mt-4 text-sm text-[#A8B0C2]">
+                {t.verified}{" "}
+                <a href={profile.credly} target="_blank" rel="noreferrer" class="cv-accent text-[#E8B96B] underline">
+                  credly.com/users/aegrdz
+                </a>
+              </p>
             </article>
-          ))}
+          </section>
         </div>
-      </section>
-
-      <section class="grid gap-4 md:grid-cols-2">
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <h2 class="text-xl font-semibold">Educacion</h2>
-          <ul class="mt-4 space-y-2 text-sm text-[#A8B0C2]">
-            {es.education.map((item) => (
-              <li>
-                <strong class="text-[#F7F3EA]">{item.degree}</strong> · {item.school} · {item.period}
-              </li>
-            ))}
-          </ul>
-        </article>
-        <article class="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-          <h2 class="text-xl font-semibold">Certificaciones</h2>
-          <ul class="mt-4 space-y-2 text-sm text-[#A8B0C2]">
-            {es.certifications.map((item) => <li>{item}</li>)}
-          </ul>
-        </article>
-      </section>
-    </div>
+      );
+    })}
   </main>
 </BaseLayout>
+
+<style is:global>
+  [data-lang="en"] {
+    display: none;
+  }
+  html[data-cv-lang="en"] [data-lang="en"] {
+    display: block;
+  }
+  html[data-cv-lang="en"] [data-lang="es"] {
+    display: none;
+  }
+
+  @media print {
+    @page {
+      size: Letter;
+      margin: 0.5in;
+    }
+    html,
+    body,
+    .cv-doc {
+      background: #fff !important;
+    }
+    .cv-doc {
+      padding: 0 !important;
+    }
+    .cv-doc,
+    .cv-doc * {
+      color: #1a1a1a !important;
+    }
+    .cv-doc .cv-accent {
+      color: #1f3a5f !important;
+    }
+    .cv-toolbar {
+      display: none !important;
+    }
+    .cv-doc h1 {
+      font-size: 20pt;
+    }
+    .cv-doc h2 {
+      font-size: 12.5pt;
+      border-bottom: 1px solid #d4d9e1;
+      padding-bottom: 2px;
+      break-after: avoid;
+    }
+    .cv-doc h3 {
+      font-size: 10.5pt;
+      break-after: avoid;
+    }
+    .cv-doc .text-sm,
+    .cv-doc .leading-7 {
+      font-size: 9.5pt;
+      line-height: 1.45;
+    }
+    .cv-doc header {
+      padding-bottom: 0;
+      border: 0;
+    }
+    .cv-doc .space-y-8 > :not(:last-child) {
+      margin-block-end: 14px;
+    }
+    .cv-doc .space-y-5 > :not(:last-child) {
+      margin-block-end: 8px;
+    }
+    .cv-doc .md\:grid-cols-2 {
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 16px;
+    }
+    .cv-card {
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+    .cv-card .mt-3,
+    .cv-card .mt-4 {
+      margin-top: 4px;
+    }
+  }
+</style>

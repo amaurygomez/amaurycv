@@ -77,6 +77,6 @@ test("cta links point to the expected targets", async ({ page }) => {
     ctaNav.getByRole("link", { name: /Descargar CV|Download CV/i })
   ).toHaveAttribute(
     "href",
-    "/cv"
+    /\/Amaury-Gomez-CV-(ES|EN)\.pdf$/
   );
 });

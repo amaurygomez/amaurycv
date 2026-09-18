@@ -63,7 +63,9 @@ const sharedProfile = {
   email: "aegrdz@outlook.com",
   github: "https://github.com/amaurygomez",
   githubHandle: "amaurygomez",
+  credly: "https://www.credly.com/users/aegrdz",
   cvPath: "/cv",
+  cvPdf: { es: "/Amaury-Gomez-CV-ES.pdf", en: "/Amaury-Gomez-CV-EN.pdf" },
 };
 
 export const profile = sharedProfile;

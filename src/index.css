@@ -51,15 +51,6 @@ body {
   color: var(--ag-text);
 }
 
-/* Desktop locks the viewport so the iso world owns the screen.
-   Mobile/tablet scroll the document naturally — fixed-position wrappers
-   on small screens would break momentum scroll and pull-to-refresh. */
-@media (min-width: 1024px) {
-  body {
-    overflow: hidden;
-  }
-}
-
 :focus-visible {
   outline: 2px solid var(--ag-gold);
   outline-offset: 2px;
