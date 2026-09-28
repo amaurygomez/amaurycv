@@ -1,15 +1,5 @@
-/**
- * Isometric projection helpers (2:1 ratio — Habbo-style).
- *
- * Coordinate system:
- *   x: grid columns (→)
- *   y: grid rows    (↓)
- *   z: height level (↑ out of the floor)
- *
- * Screen coords:
- *   px = (x - y) * (TILE_W / 2)
- *   py = (x + y) * (TILE_H / 2) - z * TILE_H
- */
+// 2:1 isometric projection. x runs along grid columns, y along grid rows and
+// z lifts a point off the floor, measured in tile heights.
 
 export const TILE_W = 64;
 export const TILE_H = 32;
@@ -21,15 +11,6 @@ export function iso(x: number, y: number, z = 0): { x: number; y: number } {
   };
 }
 
-/** Diamond polygon points for a floor tile at (x,y). */
-export function tileDiamond(x: number, y: number): string {
-  const { x: cx, y: cy } = iso(x, y);
-  const w = TILE_W / 2;
-  const h = TILE_H / 2;
-  return `${cx},${cy} ${cx + w},${cy + h} ${cx},${cy + TILE_H} ${cx - w},${cy + h}`;
-}
-
-/** Bounding box of an N×M floor in iso projection. */
 export function floorBounds(cols: number, rows: number) {
   const tl = iso(0, rows - 1);
   const tr = iso(cols - 1, 0);

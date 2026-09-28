@@ -1,11 +1,7 @@
-/**
- * Barrel export for all room scene modules. The WorldMap dispatcher
- * imports from here so it never needs to know individual scene file paths.
- */
-export { OriginScene } from "./originScene";
-export { PosScene } from "./posScene";
-export { BankingScene } from "./bankingScene";
-export { TelecomScene } from "./telecomScene";
-export { PublicSectorScene } from "./publicSectorScene";
-export { AILabScene } from "./aiLabScene";
-export { DisciplineScene } from "./disciplineScene";
+export { AILabScene } from "./aiLab/AILabScene";
+export { BankingScene } from "./banking/BankingScene";
+export { DisciplineScene } from "./discipline/DisciplineScene";
+export { OriginScene } from "./origin/OriginScene";
+export { PosScene } from "./pos/PosScene";
+export { PublicSectorScene } from "./publicSector/PublicSectorScene";
+export { TelecomScene } from "./telecom/TelecomScene";

@@ -1,0 +1,24 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props {
+  id: string;
+  sectionKey: string;
+  index: string;
+  label: string;
+}
+
+const { id, sectionKey, index, label } = Astro.props;
+---
+
+<section
+  id={id}
+  aria-labelledby={`${id}-title`}
+  data-section={sectionKey}
+  data-index={index}
+  data-label={label}
+  class="mt-(--sp-section) scroll-mt-20 lg:scroll-mt-10"
+>
+  <SectionHeading id={`${id}-title`} index={index} label={label} />
+  <slot />
+</section>

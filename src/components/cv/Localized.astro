@@ -1,0 +1,12 @@
+---
+import type { Lang } from "@/i18n/content";
+
+interface Props {
+  text: Record<Lang, string>;
+}
+
+const { text } = Astro.props;
+---
+
+<span data-l="es">{text.es}</span>
+<span data-l="en">{text.en}</span>

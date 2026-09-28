@@ -1,14 +1,20 @@
 @import "tailwindcss";
-/* Fontsource Inter is imported via BaseLayout.astro JS import so Vite
-   rewrites the woff2 urls into hashed /_astro/ paths. Importing it here
-   via PostCSS @import emits unhashed ./files/inter-*.woff2 references
-   that 404 in production. */
+/* Inter is imported from BaseLayout.astro: an @import here would emit font urls
+   that Vite never rewrites to hashed /_astro/ paths. */
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* Matches print and the on-screen paper view of /cv. */
+@custom-variant paper {
+  @media print {
+    @slot;
+  }
+  &:where([data-surface="paper"] *) {
+    @slot;
+  }
+}
 
-/* AG World palette — single source of truth */
 :root {
   --ag-bg: #070b14;
+  --ag-panel: #0b1020;
   --ag-floor: #101827;
   --ag-floor-alt: #152033;
   --ag-gold: #e8b96b;
@@ -20,6 +26,7 @@
 
 @theme inline {
   --color-ag-bg: var(--ag-bg);
+  --color-ag-panel: var(--ag-panel);
   --color-ag-floor: var(--ag-floor);
   --color-ag-floor-alt: var(--ag-floor-alt);
   --color-ag-gold: var(--ag-gold);
@@ -30,9 +37,54 @@
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* /cv tokens: values live in src/styles/cv.css so the paper surface can swap them. */
+@theme inline {
+  --color-desk: var(--c-desk);
+  --color-surface: var(--c-surface);
+  --color-field: var(--c-field);
+  --color-sheet: var(--c-sheet);
+  --color-ink: var(--c-ink);
+  --color-ink-muted: var(--c-ink-muted);
+  --color-ink-faint: var(--c-ink-faint);
+  --color-line: var(--c-line);
+  --color-line-strong: var(--c-line-strong);
+  --color-field-border: var(--c-field-border);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-on-accent);
+  --color-signal: var(--c-signal);
+  --color-danger: var(--c-danger);
+
+  --font-meta: var(--ff-meta);
+
+  --text-name: var(--fs-name);
+  --text-name--line-height: var(--lh-name);
+  --text-name--letter-spacing: var(--ls-name);
+  --text-headline: var(--fs-headline);
+  --text-headline--line-height: var(--lh-headline);
+  --text-headline--letter-spacing: var(--ls-headline);
+  --text-lede: var(--fs-lede);
+  --text-lede--line-height: var(--lh-lede);
+  --text-lede--letter-spacing: var(--ls-lede);
+  --text-label: var(--fs-label);
+  --text-label--line-height: var(--lh-label);
+  --text-label--letter-spacing: var(--ls-label);
+  --text-label--font-weight: var(--fw-label);
+  --text-h3: var(--fs-h3);
+  --text-h3--line-height: var(--lh-h3);
+  --text-h3--letter-spacing: var(--ls-h3);
+  --text-body: var(--fs-body);
+  --text-body--line-height: var(--lh-body);
+  --text-body--letter-spacing: var(--ls-body);
+  --text-small: var(--fs-small);
+  --text-small--line-height: var(--lh-small);
+  --text-meta: var(--fs-meta);
+  --text-meta--line-height: var(--lh-meta);
+  --text-stack: var(--fs-stack);
+  --text-stack--line-height: var(--lh-meta);
+}
+
 html,
-body,
-#root {
+body {
   height: 100%;
 }
 

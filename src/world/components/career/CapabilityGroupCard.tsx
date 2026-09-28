@@ -44,15 +44,15 @@ export function CapabilityGroupCard({
           <IconByKey iconKey={iconKey} size={16} />
         </span>
         <div className="min-w-0">
-          <div className="font-display text-[14px] leading-tight text-[#F7F3EA]">{title}</div>
+          <div className="font-display text-[14px] leading-tight text-ag-text">{title}</div>
         </div>
       </div>
-      {desc && <p className="text-[12px] leading-relaxed text-[#F7F3EA]/72">{desc}</p>}
+      {desc && <p className="text-[12px] leading-relaxed text-ag-text/72">{desc}</p>}
       <div className="flex flex-wrap gap-1.5">
         {skills.map((skill) => (
           <span
             key={skill}
-            className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10.5px] font-medium text-[#F7F3EA]/85"
+            className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[10.5px] font-medium text-ag-text/85"
           >
             {skill}
           </span>

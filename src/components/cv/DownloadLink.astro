@@ -1,0 +1,54 @@
+---
+import { statSync } from "node:fs";
+import { join } from "node:path";
+import { profile } from "@/i18n/content";
+import { cvLangs, cvUi } from "@/i18n/cv";
+import Icon from "./Icon.astro";
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+
+const fileSize = (href: string) => {
+  const bytes = statSync(join(process.cwd(), "public", href)).size;
+  return `${Math.round(bytes / 1024)} KB`;
+};
+---
+
+{cvLangs.map((lang) => {
+  const href = profile.cvPdf[lang];
+  const size = fileSize(href);
+  return compact ? (
+    <a
+      href={href}
+      download
+      type="application/pdf"
+      data-l={lang}
+      data-download={lang}
+      aria-label={`${cvUi.downloadLabel[lang]}, ${size}`}
+      class="grid size-11 place-items-center rounded-lg font-meta text-meta text-ink transition-colors duration-150 hover:text-accent"
+    >
+      PDF
+    </a>
+  ) : (
+    <a
+      href={href}
+      download
+      type="application/pdf"
+      data-l={lang}
+      data-download={lang}
+      aria-label={`${cvUi.downloadLabel[lang]}, ${size}`}
+      class="group block"
+    >
+      <span class="flex items-center gap-2 text-small font-medium text-ink transition-colors duration-150 group-hover:text-accent">
+        <Icon name="download" />
+        {cvUi.download[lang]}
+      </span>
+      <span class="mt-1 block pl-6 font-meta text-meta text-ink-faint tabular-nums">
+        {cvUi.downloadMeta[lang]} · {size}
+      </span>
+    </a>
+  );
+})}

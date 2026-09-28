@@ -1,8 +1,3 @@
-/**
- * Desktop-only entrypoint. Imports the full AG World stack including the
- * Pixi-based WorldStageCanvas. Loaded via React.lazy from WorldApp so the
- * 600KB+ pixi bundle stays out of the mobile graph.
- */
 import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ContactPanel } from "./components/ContactPanel";
@@ -25,7 +20,7 @@ export function DesktopEntry() {
   const reducedMotion = useReducedMotion();
   const worldRef = useRef<HTMLDivElement>(null);
   const [introDone, setIntroDone] = useState(
-    typeof window !== "undefined" && window.localStorage.getItem(INTRO_STORAGE_KEY) === "1"
+    typeof window !== "undefined" && window.localStorage.getItem(INTRO_STORAGE_KEY) === "1",
   );
   const [shouldLoadCanvas, setShouldLoadCanvas] = useState(false);
   const { activeZone } = useWorld();
@@ -40,7 +35,7 @@ export function DesktopEntry() {
           observer.disconnect();
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
     observer.observe(root);
     return () => observer.disconnect();
@@ -52,19 +47,14 @@ export function DesktopEntry() {
   }, []);
 
   return (
-    <div ref={worldRef} className="fixed inset-0 overflow-hidden bg-[#070B14] text-[#F7F3EA]">
+    <div ref={worldRef} className="fixed inset-0 overflow-hidden bg-ag-bg text-ag-text">
       <WorldIdleOverlay dimmed={!introDone} reducedMotion={reducedMotion} />
 
       <div
         className="absolute inset-0 transition-[opacity,transform,filter] duration-500 ease-out"
         style={{
-          // Three layered states:
-          //  - pre-intro: heavy dim + blur (boot feel).
-          //  - idle:      full presence.
-          //  - active zone: light dim only — no global blur. The active zone
-          //    stays sharp; non-selected zones are softened via per-zone alpha
-          //    in WorldMap (sceneAlpha). Heavy blur here was making the whole
-          //    world unreadable and burying the selected scene.
+          // An open zone only dims the stage slightly: WorldMap already fades the
+          // other rooms, and a global blur would also blur the selected one.
           opacity: !introDone ? 0.24 : activeZone ? 0.92 : 1,
           transform: !introDone ? "scale(0.96)" : "scale(1)",
           filter: !introDone ? "blur(3px)" : "none",
@@ -207,9 +197,7 @@ function WorldIdleOverlay({
 function WorldStageFallback() {
   return (
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(94,234,212,0.08),transparent_30%),linear-gradient(180deg,#070B14_0%,#0B1020_100%)]">
-      <div className="absolute inset-0 opacity-[0.018] [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:100%_18px,18px_100%]" />
+      <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:100%_18px,18px_100%] opacity-[0.018]" />
     </div>
   );
 }
-
-export default DesktopEntry;

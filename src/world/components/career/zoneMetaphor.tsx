@@ -7,24 +7,24 @@ import {
   OriginMetaphor,
   PublicSectorAuditMetaphor,
   TelecomCoverageMetaphor,
-} from "../metaphors";
-import type { ZoneId } from "../../types";
+} from "@/world/components/metaphors";
+import type { ZoneId } from "@/world/types";
 
 export function renderZoneMetaphor(zoneId: ZoneId, accent: string, className?: string): ReactNode {
   switch (zoneId) {
-    case "telecom-quality":
+    case "telecom":
       return <TelecomCoverageMetaphor accent={accent} className={className} />;
-    case "public-security":
+    case "public-sector":
       return <PublicSectorAuditMetaphor accent={accent} className={className} />;
-    case "banking-finance":
+    case "banking":
       return <BankingAutomationMetaphor accent={accent} className={className} />;
-    case "software-factory":
+    case "pos":
       return <PosTerminalMetaphor accent={accent} className={className} />;
-    case "personal-lab":
+    case "ai-lab":
       return <AILabMetaphor accent={accent} className={className} />;
-    case "discipline-life":
+    case "discipline":
       return <DisciplineMetaphor accent={accent} className={className} />;
-    case "education-path":
+    case "origin":
       return <OriginMetaphor accent={accent} className={className} />;
     default:
       return null;

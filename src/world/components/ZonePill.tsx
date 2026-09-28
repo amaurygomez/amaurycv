@@ -28,9 +28,9 @@ import {
   Zap,
 } from "lucide-react";
 import type { ComponentType } from "react";
-import { useLanguage } from "../../hooks/useLanguage";
-import { useWorld } from "../state/useWorld";
-import { ZONE_META } from "../content/zones";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useWorld } from "@/world/state/useWorld";
+import { ZONE_META } from "@/world/content/zones";
 
 const ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
   "map-pin": MapPin,
@@ -74,21 +74,13 @@ export function ZonePill() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 12 }}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="
-            pointer-events-none absolute z-40
-            bottom-6 left-1/2 -translate-x-1/2
-            max-w-[min(94vw,640px)]
-            rounded-2xl border bg-[#0B1020]/92
-            px-4 py-3 backdrop-blur-md
-            shadow-[0_18px_40px_-20px_rgba(0,0,0,0.7)]
-          "
+          className="pointer-events-none absolute bottom-6 left-1/2 z-40 max-w-[min(94vw,640px)] -translate-x-1/2 rounded-2xl border bg-ag-panel/92 px-4 py-3 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.7)] backdrop-blur-md"
           style={{
             borderColor: `${zone.accent}40`,
             boxShadow: `0 18px 40px -20px ${zone.accent}80`,
           }}
         >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-            {/* Sector + title */}
             <div className="flex items-center gap-2.5">
               <span
                 className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
@@ -96,18 +88,17 @@ export function ZonePill() {
               />
               <div className="flex flex-col leading-tight">
                 <span
-                  className="text-[9px] font-semibold uppercase tracking-[0.22em]"
+                  className="text-[9px] font-semibold tracking-[0.22em] uppercase"
                   style={{ color: zone.accent }}
                 >
                   {(lang === "es" ? zone.sectorEs : zone.sectorEn) ?? zone.category}
                 </span>
-                <span className="font-display text-[13.5px] text-[#F7F3EA]">
+                <span className="font-display text-[13.5px] text-ag-text">
                   {lang === "es" ? zone.titleEs : zone.titleEn}
                 </span>
               </div>
             </div>
 
-            {/* Experience icons preview (up to 4) */}
             {zone.experiences && zone.experiences.length > 0 && (
               <>
                 <span
@@ -139,8 +130,7 @@ export function ZonePill() {
               </>
             )}
 
-            {/* Period */}
-            <span className="ml-auto hidden text-[10px] uppercase tracking-[0.16em] text-[#A8B0C2] sm:inline">
+            <span className="ml-auto hidden text-[10px] tracking-[0.16em] text-ag-text-muted uppercase sm:inline">
               {lang === "es" ? zone.periodEs : zone.periodEn}
             </span>
           </div>

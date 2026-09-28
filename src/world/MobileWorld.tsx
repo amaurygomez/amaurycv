@@ -1,14 +1,6 @@
-/**
- * Mobile world mode — the full isometric AG World adapted for touch.
- * Reached from the vertical story via "Explorar AG World". Reuses the same
- * canvas, zones, scenes, and panels as desktop; touch gestures (drag-pan,
- * pinch-zoom, tap-to-enter) live inside WorldStageCanvas. Lazy-imported from
- * MobileEntry so the Pixi stack stays out of the story bundle until the user
- * opts in.
- */
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowLeft, Compass } from "lucide-react";
-import { useLanguage } from "../hooks/useLanguage";
+import { useLanguage } from "@/hooks/useLanguage";
 import { ContactPanel } from "./components/ContactPanel";
 import { FloatingJourneyCta } from "./components/FloatingJourneyCta";
 import { StackPanel } from "./components/StackPanel";
@@ -25,29 +17,22 @@ export default function MobileWorld({ onExit }: { onExit: () => void }) {
   const { activeZone, tourActive, startTour } = useWorld();
   const [hintDismissed, setHintDismissed] = useState(false);
 
-  // The gesture hint earns ~7s of attention, then gets out of the way.
   useEffect(() => {
     const timer = window.setTimeout(() => setHintDismissed(true), 7000);
     return () => window.clearTimeout(timer);
   }, []);
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-[#070B14] text-[#F7F3EA]">
+    <div className="fixed inset-0 overflow-hidden bg-ag-bg text-ag-text">
       <Suspense fallback={<MobileWorldFallback />}>
         <WorldStageCanvas />
       </Suspense>
 
-      {/* Top bar: back to the vertical story + tour shortcut */}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-40 flex items-center justify-between gap-2 px-3 pt-3">
         <button
           type="button"
           onClick={onExit}
-          className="
-            pointer-events-auto inline-flex items-center gap-1.5
-            rounded-full border border-white/12 bg-[#0B1020]/85 px-3 py-2
-            text-[10px] font-semibold uppercase tracking-[0.18em] text-[#F7F3EA]
-            backdrop-blur-md
-          "
+          className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-white/12 bg-ag-panel/85 px-3 py-2 text-[10px] font-semibold tracking-[0.18em] text-ag-text uppercase backdrop-blur-md"
         >
           <ArrowLeft size={13} strokeWidth={2.6} />
           {lang === "es" ? "Mi historia" : "My story"}
@@ -56,12 +41,7 @@ export default function MobileWorld({ onExit }: { onExit: () => void }) {
           <button
             type="button"
             onClick={startTour}
-            className="
-              pointer-events-auto inline-flex items-center gap-1.5
-              rounded-full border border-[#E8B96B]/40 bg-[#0B1020]/85 px-3 py-2
-              text-[10px] font-semibold uppercase tracking-[0.18em] text-[#E8B96B]
-              backdrop-blur-md
-            "
+            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-ag-gold/40 bg-ag-panel/85 px-3 py-2 text-[10px] font-semibold tracking-[0.18em] text-ag-gold uppercase backdrop-blur-md"
           >
             <Compass size={13} strokeWidth={2.4} />
             {lang === "es" ? "Recorrido" : "Tour"}
@@ -79,11 +59,7 @@ export default function MobileWorld({ onExit }: { onExit: () => void }) {
 
       {!activeZone && !hintDismissed && (
         <div
-          className="
-            pointer-events-none absolute inset-x-4 bottom-20 z-30
-            rounded-2xl border border-white/10 bg-[#0B1020]/85 px-4 py-3
-            text-center text-[11px] leading-relaxed text-[#A8B0C2] backdrop-blur-md
-          "
+          className="pointer-events-none absolute inset-x-4 bottom-20 z-30 rounded-2xl border border-white/10 bg-ag-panel/85 px-4 py-3 text-center text-[11px] leading-relaxed text-ag-text-muted backdrop-blur-md"
           role="status"
         >
           {lang === "es"
@@ -97,15 +73,15 @@ export default function MobileWorld({ onExit }: { onExit: () => void }) {
 
 function MobileWorldFallback() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-[#070B14] text-[#A8B0C2]">
+    <div className="absolute inset-0 flex items-center justify-center bg-ag-bg text-ag-text-muted">
       <div
         role="status"
         aria-live="polite"
-        className="flex items-center gap-3 text-[11px] uppercase tracking-[0.28em]"
+        className="flex items-center gap-3 text-[11px] tracking-[0.28em] uppercase"
       >
         <span
           aria-hidden="true"
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#E8B96B]"
+          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-gold"
         />
         Cargando AG World
       </div>

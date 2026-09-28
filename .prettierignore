@@ -1,0 +1,8 @@
+node_modules
+dist
+.vercel
+.astro
+public
+sealed
+package-lock.json
+*.enc

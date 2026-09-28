@@ -1,13 +1,12 @@
 import type { Locator, Page } from "@playwright/test";
 
-// Pre-mark the intro as seen so the test starts directly in the post-intro
-// state. This avoids a class of flake where the test races the intro mount.
-export async function setIntroSeen(page: Page) {
+// Marking the intro as seen up front avoids racing the intro mount.
+async function setIntroSeen(page: Page) {
   await page.addInitScript(() => {
     try {
       window.localStorage.setItem("introSeen", "1");
     } catch {
-      // ignore — storage may be unavailable in some test contexts
+      // localStorage throws on opaque origins such as about:blank.
     }
   });
 }
@@ -24,12 +23,8 @@ export async function startExperience(page: Page) {
   await setIntroSeen(page);
   await page.goto("/");
 
-  // After localStorage skip, the intro should already be gone. But if a
-  // stale state shows the intro CTAs, click through them — never sleep
-  // and guess.
-  // Exact match: the intro CTA is "Start Journey" (capital J). Without exact,
-  // this also matches HeroPanel's "Start journey" tour CTA and accidentally
-  // starts the tour before the test does.
+  // Exact match: HeroPanel's tour button is "Start journey" and must not be
+  // clicked here, only the intro's "Start Journey".
   const startButton = page.getByRole("button", { name: "Start Journey", exact: true });
   const skipButton = page.getByRole("button", { name: /Saltar|Skip/ });
 

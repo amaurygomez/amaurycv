@@ -1,19 +1,19 @@
 import { AnimatePresence, motion } from "motion/react";
 import { Compass } from "lucide-react";
-import { useLanguage } from "../../hooks/useLanguage";
-import { ZONE_META } from "../content/zones";
-import { useWorld } from "../state/useWorld";
-import type { ZoneId } from "../types";
+import { useLanguage } from "@/hooks/useLanguage";
+import { ZONE_META } from "@/world/content/zones";
+import { useWorld } from "@/world/state/useWorld";
+import type { ZoneId } from "@/world/types";
 
 const TOUR_LENGTH = 7;
 const TOUR_ORDER: ZoneId[] = [
-  "education-path",
-  "software-factory",
-  "banking-finance",
-  "telecom-quality",
-  "public-security",
-  "personal-lab",
-  "discipline-life",
+  "origin",
+  "pos",
+  "banking",
+  "telecom",
+  "public-sector",
+  "ai-lab",
+  "discipline",
 ];
 
 const labels = {
@@ -22,10 +22,6 @@ const labels = {
   exit: { es: "Salir", en: "Exit" },
 };
 
-/**
- * Floating bottom-center control bar that appears while guided tour is active.
- * Lives outside the Pixi canvas as an HTML overlay (z-50).
- */
 export function TourControls() {
   const { tourActive, tourStep, tourNext, tourPrev, exitTour } = useWorld();
   const { lang } = useLanguage();
@@ -41,72 +37,44 @@ export function TourControls() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="
-            pointer-events-auto
-            fixed left-4 right-4 bottom-[5.4rem] z-50
-            flex items-center justify-center gap-1
-            rounded-2xl border border-[#E8B96B]/30
-            bg-[#0B1020]/90 backdrop-blur-md
-            px-2 py-2
-            shadow-[0_8px_32px_-8px_rgba(232,185,107,0.35)]
-            sm:left-1/2 sm:right-auto sm:bottom-6 sm:-translate-x-1/2 sm:rounded-full
-          "
+          className="pointer-events-auto fixed right-4 bottom-[5.4rem] left-4 z-50 flex items-center justify-center gap-1 rounded-2xl border border-ag-gold/30 bg-ag-panel/90 px-2 py-2 shadow-[0_8px_32px_-8px_rgba(232,185,107,0.35)] backdrop-blur-md sm:right-auto sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:rounded-full"
           role="toolbar"
           aria-label={lang === "es" ? "Controles de recorrido" : "Tour controls"}
         >
-          {/* Previous */}
           <button
             type="button"
             onClick={tourPrev}
             disabled={tourStep === 0}
-            className="
-              inline-flex items-center gap-1.5
-              rounded-full px-3 py-1.5
-              text-[11px] font-semibold uppercase tracking-[0.14em]
-              text-[#F7F3EA]/80 transition
-              hover:text-[#E8B96B] disabled:opacity-30 disabled:cursor-not-allowed
-            "
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text/80 uppercase transition hover:text-ag-gold disabled:cursor-not-allowed disabled:opacity-30"
           >
             {labels.prev[lang]}
           </button>
 
-          {/* Step indicator */}
-          <div className="flex min-w-0 items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E8B96B]/10 border border-[#E8B96B]/20">
-            <Compass size={11} strokeWidth={2.4} className="text-[#E8B96B]" />
-            <span className="truncate text-[11px] font-semibold tracking-[0.08em] text-[#E8B96B] tabular-nums whitespace-nowrap">
+          <div className="flex min-w-0 items-center gap-1.5 rounded-full border border-ag-gold/20 bg-ag-gold/10 px-3 py-1.5">
+            <Compass size={11} strokeWidth={2.4} className="text-ag-gold" />
+            <span className="truncate text-[11px] font-semibold tracking-[0.08em] whitespace-nowrap text-ag-gold tabular-nums">
               {tourStep + 1} / {TOUR_LENGTH} {stepLabel}
             </span>
           </div>
 
-          {/* Next */}
           <button
             type="button"
             onClick={tourNext}
-            className="
-              inline-flex items-center gap-1.5
-              rounded-full px-3 py-1.5
-              text-[11px] font-semibold uppercase tracking-[0.14em]
-              text-[#F7F3EA]/80 transition
-              hover:text-[#E8B96B]
-            "
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text/80 uppercase transition hover:text-ag-gold"
           >
-            {tourStep < TOUR_LENGTH - 1 ? labels.next[lang] : (lang === "es" ? "Finalizar" : "Finish")}
+            {tourStep < TOUR_LENGTH - 1
+              ? labels.next[lang]
+              : lang === "es"
+                ? "Finalizar"
+                : "Finish"}
           </button>
 
-          {/* Divider */}
-          <div className="h-5 w-px bg-[#E8B96B]/20 mx-1" aria-hidden />
+          <div className="mx-1 h-5 w-px bg-ag-gold/20" aria-hidden />
 
-          {/* Exit */}
           <button
             type="button"
             onClick={exitTour}
-            className="
-              inline-flex items-center
-              rounded-full px-3 py-1.5
-              text-[11px] font-semibold uppercase tracking-[0.14em]
-              text-[#A8B0C2]/70 transition
-              hover:text-[#F7F3EA]
-            "
+            className="inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text-muted/70 uppercase transition hover:text-ag-text"
             aria-label={lang === "es" ? "Salir del recorrido" : "Exit tour"}
           >
             ✕ {labels.exit[lang]}

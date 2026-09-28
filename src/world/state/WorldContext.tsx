@@ -1,48 +1,35 @@
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
-import type { ZoneId } from "../types";
-import {
-  WorldContext,
-  ZOOM_MAX,
-  ZOOM_MIN,
-  ZOOM_STEP,
-  type WorldState,
-} from "./context";
-import { ZONE_META } from "../content/zones";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { ZoneId } from "@/world/types";
+import { WorldContext, ZOOM_MAX, ZOOM_MIN, ZOOM_STEP, type WorldState } from "./context";
+import { ZONE_META } from "@/world/content/zones";
 
 function clampZoom(z: number) {
   return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
 }
 
 const TOUR_ORDER: ZoneId[] = [
-  "education-path",
-  "software-factory",
-  "banking-finance",
-  "telecom-quality",
-  "public-security",
-  "personal-lab",
-  "discipline-life",
+  "origin",
+  "pos",
+  "banking",
+  "telecom",
+  "public-sector",
+  "ai-lab",
+  "discipline",
 ];
 
 const LOBBY_START = {
-  x: ZONE_META["education-path"].bounds.x + 3.5,
-  y: ZONE_META["education-path"].bounds.y + 4.8,
+  x: ZONE_META["origin"].bounds.x + 3.5,
+  y: ZONE_META["origin"].bounds.y + 4.8,
 };
 
 const ZONE_WAYPOINTS: Record<ZoneId, { x: number; y: number }> = {
-  "telecom-quality": { x: 3.25, y: 4.35 },
-  "public-security": { x: 11.45, y: 3.8 },
-  "banking-finance": { x: 18.9, y: 4.45 },
-  "software-factory": { x: 4.4, y: 4.85 + 8 },
-  "personal-lab": { x: 10.3, y: 12.1 },
-  "discipline-life": { x: 17.3, y: 10.6 },
-  "education-path": { x: 9.8, y: 19.3 },
+  telecom: { x: 3.25, y: 4.35 },
+  "public-sector": { x: 11.45, y: 3.8 },
+  banking: { x: 18.9, y: 4.45 },
+  pos: { x: 4.4, y: 4.85 + 8 },
+  "ai-lab": { x: 10.3, y: 12.1 },
+  discipline: { x: 17.3, y: 10.6 },
+  origin: { x: 9.8, y: 19.3 },
 };
 
 export function WorldProvider({ children }: { children: ReactNode }) {
@@ -64,15 +51,12 @@ export function WorldProvider({ children }: { children: ReactNode }) {
     setCameraResetNonce((n) => n + 1);
   }, []);
 
-  // Refs for the RAF animation loop
   const posRef = useRef({ ...LOBBY_START });
   const rafRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number | null>(null);
 
-  // Whenever the active zone changes, reset the user zoom so each room
-  // starts at its hand-tuned camera. Doing this inline at the call site
-  // (instead of in a useEffect on activeZone) keeps the state updates
-  // batched and avoids the react-hooks/set-state-in-effect rule.
+  // Zoom resets here rather than in an effect on activeZone so both updates
+  // land in the same render and each room opens at its tuned framing.
   const setActiveZone = useCallback((z: ZoneId | null) => {
     setTourActive(false);
     setUserZoomRaw(1);
@@ -121,7 +105,6 @@ export function WorldProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  // Avatar animation: lerp toward waypoint when activeZone changes.
   useEffect(() => {
     const target = activeZone ? ZONE_WAYPOINTS[activeZone] : LOBBY_START;
 
@@ -210,7 +193,7 @@ export function WorldProvider({ children }: { children: ReactNode }) {
       zoomOut,
       resetZoom,
       cameraResetNonce,
-    ]
+    ],
   );
 
   return <WorldContext.Provider value={value}>{children}</WorldContext.Provider>;

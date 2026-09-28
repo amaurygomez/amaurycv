@@ -1,0 +1,203 @@
+---
+import { profile, type Lang } from "@/i18n/content";
+import { cv, cvSections, cvUi, type CvSectionKey } from "@/i18n/cv";
+import DocSection from "./DocSection.astro";
+import Icon from "./Icon.astro";
+import Role from "./Role.astro";
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const content = cv[lang];
+
+const section = (key: CvSectionKey) => {
+  const { id, index, label } = cvSections.find((item) => item.key === key)!;
+  return { id: id[lang], sectionKey: key, index, label: label[lang] };
+};
+
+// Both sheets must fit one Letter page each; scripts/cv-pdf.mjs fails the build otherwise.
+const rolesOnFirstSheet = 2;
+const firstRoles = content.experience.slice(0, rolesOnFirstSheet);
+const laterRoles = content.experience.slice(rolesOnFirstSheet);
+
+const bare = (url: string) => url.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
+const site = Astro.site!.toString();
+const experience = section("experience");
+---
+
+<article lang={lang} data-l={lang}>
+  <div class="sheet" data-page="1">
+    <header>
+      <p class="flex items-center gap-2.5 text-small text-ink-muted paper:hidden">
+        <span aria-hidden="true" class="size-1.5 rounded-full bg-signal"></span>
+        {content.availability}
+      </p>
+      <h1 class="mt-6 text-name font-semibold text-balance text-ink lg:mt-10 paper:mt-0">
+        {profile.shortName}
+      </h1>
+      <span
+        aria-hidden="true"
+        class="mt-6 block w-12 border-t-2 border-accent paper:mt-[7pt] paper:w-[36pt] paper:border-t-[0.75pt]"
+      ></span>
+      <p class="mt-5 text-headline font-medium text-ink-muted paper:mt-[6pt]">
+        {content.headline}
+        <span class="hidden text-ink-faint sm:inline"> · </span>
+        <span class="block sm:inline">{content.focus}</span>
+      </p>
+      <p class="mt-8 max-w-[36ch] text-lede text-balance paper:mt-[5pt] paper:max-w-none">
+        <span class="text-ink">{content.lede[0]}</span>{" "}
+        <span class="text-ink-muted">{content.lede[1]}</span>
+      </p>
+      <p class="mt-8 font-meta text-meta text-ink-muted paper:mt-[6pt]">
+        {content.facts.map((fact, index) => (
+          <>
+            {index > 0 && " · "}
+            <span class="whitespace-nowrap">{fact}</span>
+          </>
+        ))}
+      </p>
+      <ul class="contacts mt-2 flex flex-wrap gap-x-6 gap-y-1 text-small text-ink paper:mt-0 paper:gap-x-0 paper:text-meta paper:text-ink-muted">
+        <li class="hidden paper:list-item">{content.location}</li>
+        <li>
+          <a class="cv-link" href={`mailto:${profile.email}`}>
+            {profile.email}
+          </a>
+        </li>
+        <li>
+          <a class="cv-link" href={site}>
+            {bare(site)}
+          </a>
+        </li>
+        <li>
+          <a class="cv-link" href={profile.github}>
+            {bare(profile.github)}
+          </a>
+        </li>
+      </ul>
+      <button
+        type="button"
+        data-request-open
+        class="mt-8 flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-line-strong text-small font-medium text-ink transition-colors duration-150 hover:border-accent lg:hidden paper:hidden"
+      >
+        {cvUi.request[lang]}
+        <span aria-hidden="true">→</span>
+      </button>
+    </header>
+
+    <DocSection {...section("profile")}>
+      <p class="mt-6 max-w-[64ch] text-body text-pretty text-ink-muted paper:mt-[4pt] paper:max-w-none">
+        {content.profile}
+      </p>
+    </DocSection>
+
+    <DocSection {...experience}>
+      <p class="mt-6 text-small text-ink-muted paper:hidden">
+        {content.experienceNote}{" "}
+        <button type="button" data-request-open class="cv-link text-ink">
+          {cvUi.request[lang]}
+          <span aria-hidden="true"> →</span>
+        </button>
+      </p>
+      <p class="hidden paper:mt-[3pt] paper:block paper:text-meta paper:text-ink-faint">
+        {content.footnote}
+      </p>
+      <ol class="spine mt-10 flex flex-col gap-(--sp-role) pb-(--sp-role) paper:mt-[6pt] paper:pb-0">
+        {firstRoles.map((role) => (
+          <Role role={role} />
+        ))}
+      </ol>
+    </DocSection>
+  </div>
+
+  <div class="sheet" data-page="2">
+    <ol
+      class="spine flex flex-col gap-(--sp-role)"
+      start={rolesOnFirstSheet + 1}
+      aria-labelledby={`${experience.id}-title`}
+    >
+      {laterRoles.map((role) => (
+        <Role role={role} />
+      ))}
+    </ol>
+
+    <DocSection {...section("skills")}>
+      <dl class="mt-8 paper:mt-[5pt]">
+        {content.skills.map(({ group, items }) => (
+          <div class="grid gap-1 border-t border-line py-4 break-inside-avoid md:grid-cols-[11rem_minmax(0,1fr)] md:gap-6 paper:grid-cols-[1.25in_minmax(0,1fr)] paper:gap-[8pt] paper:border-0 paper:py-[1.5pt]">
+            <dt class="pt-0.5 font-meta text-meta tracking-[0.08em] text-ink-faint uppercase paper:pt-0 paper:text-body paper:font-semibold paper:tracking-normal paper:text-ink paper:normal-case">
+              {group}
+            </dt>
+            <dd class="text-body text-ink paper:text-ink-muted">{items.join(" · ")}</dd>
+          </div>
+        ))}
+      </dl>
+    </DocSection>
+
+    <DocSection {...section("projects")}>
+      <ul class="mt-8 space-y-6 paper:mt-[5pt] paper:space-y-[4pt]">
+        {content.projects.map((project) => (
+          <li class="break-inside-avoid">
+            <h3 class="text-h3 font-semibold text-ink">
+              {project.href ? (
+                <a class="cv-link inline-flex items-center gap-1" href={project.href}>
+                  {project.name}
+                  <Icon name="arrow-up-right" size={15} class="text-ink-faint paper:hidden" />
+                </a>
+              ) : (
+                project.name
+              )}
+              {project.href && (
+                <span class="hidden font-normal text-ink-faint paper:inline paper:text-meta">
+                  {" "}
+                  · {bare(project.href)}
+                </span>
+              )}
+            </h3>
+            <p class="mt-1.5 max-w-[64ch] text-body text-pretty text-ink-muted paper:mt-0 paper:max-w-none">
+              {project.text}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </DocSection>
+
+    <DocSection {...section("education")}>
+      <div class="mt-8 grid gap-10 md:grid-cols-2 md:gap-12 paper:mt-[5pt] paper:grid-cols-1 paper:gap-[6pt]">
+        <div>
+          <ul class="space-y-4 paper:space-y-[2pt]">
+            {content.education.map(({ degree, detail }) => (
+              <li>
+                <p class="text-body font-medium text-ink paper:font-semibold">{degree}</p>
+                <p class="text-small text-ink-muted paper:text-meta">{detail}</p>
+              </li>
+            ))}
+          </ul>
+          <h3 class="mt-8 font-meta text-meta tracking-[0.08em] text-ink-faint uppercase paper:mt-[6pt] paper:text-body paper:font-semibold paper:tracking-normal paper:text-ink paper:normal-case">
+            {cvUi.languages[lang]}
+          </h3>
+          <p class="mt-2 text-body text-ink paper:mt-0 paper:text-ink-muted">
+            {content.languages.join(" · ")}
+          </p>
+        </div>
+        <div>
+          <h3 class="font-meta text-meta tracking-[0.08em] text-ink-faint uppercase paper:text-body paper:font-semibold paper:tracking-normal paper:text-ink paper:normal-case">
+            {cvUi.certifications[lang]}
+          </h3>
+          <ul class="mt-2 space-y-2 paper:mt-0 paper:space-y-0">
+            {content.certifications.map((item) => (
+              <li class="text-small text-ink paper:text-body paper:text-ink-muted">{item}</li>
+            ))}
+          </ul>
+          <p class="mt-3 text-small text-ink-muted paper:mt-0 paper:text-body">
+            {content.certificationsNote}{" "}
+            <a class="cv-link" href={profile.credly}>
+              {bare(profile.credly)}
+            </a>
+          </p>
+        </div>
+      </div>
+    </DocSection>
+  </div>
+</article>

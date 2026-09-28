@@ -5,8 +5,10 @@ import {
   Brain,
   Camera,
   Car,
+  Cloud,
   Compass,
   CreditCard,
+  Database,
   FileBarChart,
   FileText,
   Hash,
@@ -28,35 +30,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { ComponentType } from "react";
-
-export type IconKey =
-  | "map-pin"
-  | "map"
-  | "compass"
-  | "activity"
-  | "hash"
-  | "car"
-  | "file-text"
-  | "lock"
-  | "landmark"
-  | "shield-check"
-  | "shield"
-  | "history"
-  | "bar-chart"
-  | "users"
-  | "server"
-  | "smartphone"
-  | "credit-card"
-  | "zap"
-  | "network"
-  | "file-bar-chart"
-  | "brain"
-  | "camera"
-  | "settings"
-  | "heart"
-  | "book-open"
-  | "sparkles"
-  | "layers";
+import type { SkillGroupId } from "@/i18n/content";
 
 export const ZONE_ICONS: Record<string, ComponentType<{ size?: number; className?: string }>> = {
   "map-pin": MapPin,
@@ -86,8 +60,16 @@ export const ZONE_ICONS: Record<string, ComponentType<{ size?: number; className
   "book-open": BookOpen,
   sparkles: Sparkles,
   layers: Layers,
+  database: Database,
+  cloud: Cloud,
 };
 
-export function getIcon(key: string): ComponentType<{ size?: number; className?: string }> {
-  return ZONE_ICONS[key] ?? Layers;
-}
+export const SKILL_GROUP_ICON_KEYS: Record<SkillGroupId, string> = {
+  backend: "layers",
+  frontend: "brain",
+  data: "database",
+  maps: "map",
+  devops: "cloud",
+  legacy: "file-bar-chart",
+  ai: "sparkles",
+};

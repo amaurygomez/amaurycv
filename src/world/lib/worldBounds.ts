@@ -1,4 +1,4 @@
-import { WORLD_COLS, WORLD_ROWS } from "../content/zones";
+import { WORLD_COLS, WORLD_ROWS } from "@/world/content/zones";
 import { floorBounds } from "./iso";
 
 export function getWorldBounds() {

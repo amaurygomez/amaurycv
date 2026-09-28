@@ -4,7 +4,9 @@ import { startExperience } from "./helpers";
 test("desktop journey finishes and reveals floating CTA", async ({ page }) => {
   test.setTimeout(60000);
   await startExperience(page);
-  await page.getByRole("button", { name: /Iniciar recorrido|Start journey/i }).click();
+  await page
+    .getByRole("button", { name: /Iniciar recorrido guiado|Start guided journey/i })
+    .click();
 
   for (let index = 0; index < 7; index += 1) {
     const nextButton = page
@@ -21,9 +23,7 @@ test("desktop journey finishes and reveals floating CTA", async ({ page }) => {
   });
   await expect(ctaNav.getByRole("link", { name: /Contacto|Contact/i })).toBeVisible();
   await expect(ctaNav.getByRole("link", { name: "GitHub" })).toBeVisible();
-  await expect(
-    ctaNav.getByRole("link", { name: /Descargar CV|Download CV/i })
-  ).toBeVisible();
+  await expect(ctaNav.getByRole("link", { name: /Ver CV|View CV/i })).toBeVisible();
 });
 
 test("keyboard navigation selects, opens, and closes zones", async ({ page }) => {
@@ -49,7 +49,9 @@ test("intro can be skipped", async ({ page }) => {
 test("cta links point to the expected targets", async ({ page }) => {
   test.setTimeout(60000);
   await startExperience(page);
-  await page.getByRole("button", { name: /Iniciar recorrido|Start journey/i }).click();
+  await page
+    .getByRole("button", { name: /Iniciar recorrido guiado|Start guided journey/i })
+    .click();
 
   for (let index = 0; index < 7; index += 1) {
     const nextButton = page
@@ -67,16 +69,14 @@ test("cta links point to the expected targets", async ({ page }) => {
 
   await expect(ctaNav.getByRole("link", { name: /Contacto|Contact/i })).toHaveAttribute(
     "href",
-    /mailto:/
+    /mailto:/,
   );
   await expect(ctaNav.getByRole("link", { name: "GitHub" })).toHaveAttribute(
     "href",
-    /github\.com\/amaurygomez/
+    /github\.com\/amaurygomez/,
   );
-  await expect(
-    ctaNav.getByRole("link", { name: /Descargar CV|Download CV/i })
-  ).toHaveAttribute(
+  await expect(ctaNav.getByRole("link", { name: /Ver CV|View CV/i })).toHaveAttribute(
     "href",
-    /\/Amaury-Gomez-CV-(ES|EN)\.pdf$/
+    /\/cv\?lang=(es|en)$/,
   );
 });

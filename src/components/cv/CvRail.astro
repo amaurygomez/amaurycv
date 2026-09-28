@@ -1,0 +1,86 @@
+---
+import { cvLangs, cvSections, cvUi } from "@/i18n/cv";
+import DownloadLink from "./DownloadLink.astro";
+import Icon from "./Icon.astro";
+import LangSwitch from "./LangSwitch.astro";
+import Localized from "./Localized.astro";
+
+const railLabel = "font-meta text-meta tracking-[0.16em] text-ink-faint uppercase";
+---
+
+<aside class="hidden lg:row-span-2 lg:block print:hidden">
+  <div class="sticky top-10 flex h-[calc(100dvh-5rem)] min-h-[34rem] flex-col justify-between">
+    <div>
+      <a href="/" class="group inline-flex items-center gap-3 font-meta text-meta text-ink-muted">
+        <span class="grid size-8 place-items-center rounded-md border border-line text-ink">
+          AG
+        </span>
+        <span class="transition-colors duration-150 group-hover:text-accent">← AG World</span>
+      </a>
+
+      <div class="relative mt-16 pl-5">
+        <span aria-hidden="true" class="absolute inset-y-0 left-0 w-px bg-line"></span>
+        <span
+          aria-hidden="true"
+          class="progress-fill absolute inset-y-0 left-0 w-px origin-top bg-accent"
+        ></span>
+        {cvLangs.map((lang) => (
+          <nav aria-label={cvUi.sectionsNav[lang]} data-l={lang}>
+            <ol>
+              {cvSections.map((section) => (
+                <li>
+                  <a
+                    href={`#${section.id[lang]}`}
+                    data-rail-link={section.key}
+                    class="group grid grid-cols-[2rem_1fr] items-baseline py-1.5 text-small text-ink-muted transition-colors duration-150 hover:text-ink aria-[current=location]:text-ink"
+                  >
+                    <span class="font-meta text-meta text-ink-faint tabular-nums group-aria-[current=location]:text-accent">
+                      {section.index}
+                    </span>
+                    {section.label[lang]}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        ))}
+      </div>
+    </div>
+
+    <div class="space-y-8">
+      <div>
+        <p class={railLabel}>
+          <Localized text={cvUi.language} />
+        </p>
+        <div class="mt-3">
+          <LangSwitch />
+        </div>
+      </div>
+      <div>
+        <p class={railLabel}>
+          <Localized text={cvUi.document} />
+        </p>
+        <div class="mt-4 flex flex-col items-start gap-5">
+          <button
+            type="button"
+            data-paper-toggle
+            aria-pressed="false"
+            class="-my-1 hidden items-center gap-2 py-1 text-small font-medium text-ink-muted transition-colors duration-150 hover:text-ink aria-pressed:text-ink xl:flex"
+          >
+            <Icon name="page" />
+            <Localized text={cvUi.paperView} />
+          </button>
+          <DownloadLink />
+          <button
+            type="button"
+            data-request-open
+            class="inline-flex h-10 items-center gap-2 rounded-lg border border-line-strong px-3.5 text-small font-medium text-ink transition-colors duration-150 hover:border-accent"
+          >
+            <Localized text={cvUi.request} />
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</aside>

@@ -1,0 +1,31 @@
+---
+import type { CvRole } from "@/i18n/cv";
+
+interface Props {
+  role: CvRole;
+}
+
+const { role } = Astro.props;
+---
+
+<li class="relative break-inside-avoid">
+  <h3 class="text-h3 font-semibold text-balance text-ink">
+    <span aria-hidden="true" class="spine-node"></span>
+    {role.title}
+  </h3>
+  <p class="mt-1 font-meta text-meta text-ink-faint paper:mt-0">
+    {role.context} · {role.tenure}
+  </p>
+  <p class="mt-(--sp-block) text-body text-pretty text-ink">{role.scope}</p>
+  <ul class="mt-(--sp-block) space-y-2 paper:space-y-[1pt]">
+    {role.highlights.map((highlight) => (
+      <li class="relative pl-4 text-body text-pretty text-ink-muted before:absolute before:left-0 before:text-ink-faint before:content-['–'] paper:pl-[9pt]">
+        {highlight}
+      </li>
+    ))}
+  </ul>
+  <p class="mt-(--sp-block) font-meta text-stack text-ink-faint">
+    <span class="hidden paper:inline">Stack: </span>
+    {role.stack.join(" · ")}
+  </p>
+</li>

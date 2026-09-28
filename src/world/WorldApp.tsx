@@ -1,18 +1,14 @@
-/**
- * Top-level world entry. Splits into mobile vs desktop trees so the heavy
- * Pixi/WebGL stack only loads on desktop. Mobile gets a vertical career
- * portfolio (no canvas, no @pixi/react).
- *
- * Mobile breakpoint: <=1023px → MobileEntry (also covers tablets, where the
- * iso world would be cramped). Desktop ≥1024px → DesktopEntry (lazy).
- */
 import { lazy, Suspense, useEffect, useState } from "react";
-import { LanguageProvider } from "../hooks/useLanguage";
+import { LanguageProvider } from "@/hooks/LanguageProvider";
 import { MobileEntry } from "./MobileEntry";
 import { WorldProvider } from "./state/WorldContext";
 
-const DesktopEntry = lazy(() => import("./DesktopEntry"));
+const DesktopEntry = lazy(() =>
+  import("./DesktopEntry").then((module) => ({ default: module.DesktopEntry })),
+);
 
+// Tablets use the mobile tree too: the iso world is cramped below 1024px and
+// this keeps the Pixi bundle out of their initial load.
 const MOBILE_QUERY = "(max-width: 1023px)";
 
 function readIsMobile(): boolean {
@@ -21,8 +17,8 @@ function readIsMobile(): boolean {
 }
 
 function useIsMobile() {
-  // Initialize from matchMedia synchronously so the first paint already reflects
-  // the viewport — no flash, no setState-in-effect lint violation.
+  // Read matchMedia synchronously so the first paint already matches the
+  // viewport instead of flashing the wrong tree.
   const [isMobile, setIsMobile] = useState(readIsMobile);
 
   useEffect(() => {
@@ -59,15 +55,15 @@ function WorldSwitch() {
 
 function DesktopBootFallback() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#070B14] text-[#A8B0C2]">
+    <div className="fixed inset-0 flex items-center justify-center bg-ag-bg text-ag-text-muted">
       <div
         role="status"
         aria-live="polite"
-        className="flex items-center gap-3 text-[11px] uppercase tracking-[0.28em]"
+        className="flex items-center gap-3 text-[11px] tracking-[0.28em] uppercase"
       >
         <span
           aria-hidden="true"
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#E8B96B]"
+          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-gold"
         />
         Cargando AG World
       </div>

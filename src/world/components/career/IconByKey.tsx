@@ -1,7 +1,8 @@
 import { Layers } from "lucide-react";
 import { ZONE_ICONS } from "./iconMap";
 
-/** Stable wrapper component — avoids dynamic-component-during-render lint rule. */
+// Resolving the icon inside this component keeps callers from creating a
+// component during render.
 export function IconByKey({
   iconKey,
   size,

@@ -1,26 +1,16 @@
-/**
- * WorldMap — thin dispatcher.
- *
- * Renders zone floors + ambient glows + per-zone scene modules + avatar +
- * hotspots. Each room's actual composition lives in its own file under
- * ./scenes/. New scene primitives shared across rooms live under ./shared/.
- *
- * This file should stay small. If a room needs new objects, add them to
- * shared/sceneObjects.tsx, not here.
- */
-import { useWorld } from "../state/useWorld";
-import { ZONE_META, ZONE_ORDER } from "../content/zones";
-import type { ZoneId } from "../types";
-import { ZoneFloor } from "./ZoneFloor";
+import { ZONE_META, ZONE_ORDER } from "@/world/content/zones";
+import { useWorld } from "@/world/state/useWorld";
+import type { ZoneId } from "@/world/types";
 import { AmbientGlow } from "./AmbientGlow";
-import { ZoneHotspot } from "./ZoneHotspot";
 import { Avatar } from "./Avatar";
+import { ZoneFloor } from "./ZoneFloor";
+import { ZoneHotspot } from "./ZoneHotspot";
 import {
   AILabScene,
   BankingScene,
   DisciplineScene,
-  PosScene,
   OriginScene,
+  PosScene,
   PublicSectorScene,
   TelecomScene,
 } from "./scenes";
@@ -48,12 +38,7 @@ export function WorldMap() {
         const z = ZONE_META[id];
         const intensity = activeZone === id ? 1 : hoveredZone === id ? 0.76 : 0.42;
         return (
-          <AmbientGlow
-            key={`glow-${id}`}
-            bounds={z.bounds}
-            color={z.glow}
-            intensity={intensity}
-          />
+          <AmbientGlow key={`glow-${id}`} bounds={z.bounds} color={z.glow} intensity={intensity} />
         );
       })}
 
@@ -62,7 +47,7 @@ export function WorldMap() {
           key={`scene-${id}`}
           alpha={activeZone !== null && activeZone !== id ? 0.5 : 1}
         >
-          <ZoneSceneFor id={id} animate />
+          <ZoneScene id={id} animate />
         </pixiContainer>
       ))}
 
@@ -87,22 +72,22 @@ export function WorldMap() {
   );
 }
 
-function ZoneSceneFor({ id, animate }: { id: ZoneId; animate: boolean }) {
+function ZoneScene({ id, animate }: { id: ZoneId; animate: boolean }) {
   const bounds = ZONE_META[id].bounds;
   switch (id) {
-    case "education-path":
+    case "origin":
       return <OriginScene bounds={bounds} animate={animate} />;
-    case "software-factory":
+    case "pos":
       return <PosScene bounds={bounds} animate={animate} />;
-    case "banking-finance":
+    case "banking":
       return <BankingScene bounds={bounds} animate={animate} />;
-    case "telecom-quality":
+    case "telecom":
       return <TelecomScene bounds={bounds} animate={animate} />;
-    case "public-security":
+    case "public-sector":
       return <PublicSectorScene bounds={bounds} animate={animate} />;
-    case "personal-lab":
+    case "ai-lab":
       return <AILabScene bounds={bounds} animate={animate} />;
-    case "discipline-life":
+    case "discipline":
       return <DisciplineScene bounds={bounds} animate={animate} />;
     default:
       return null;

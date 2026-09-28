@@ -1,0 +1,436 @@
+@reference "../index.css";
+
+/* Static cuts of Inter for print: Chromium embeds variable fonts as Type 3, which PDF parsers handle poorly. */
+@font-face {
+  font-family: "Inter Print";
+  font-weight: 400;
+  font-display: block;
+  src: url("./fonts/inter-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Print";
+  font-weight: 500;
+  font-display: block;
+  src: url("./fonts/inter-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter Print";
+  font-weight: 600;
+  font-display: block;
+  src: url("./fonts/inter-latin-600-normal.woff2") format("woff2");
+}
+
+:root {
+  --c-desk: #070b14;
+  --c-surface: #0d1322;
+  --c-field: #0a0f1c;
+  --c-sheet: transparent;
+  --c-ink: #f7f3ea;
+  --c-ink-muted: #a8b0c2;
+  --c-ink-faint: #8a92a5;
+  --c-line: rgb(247 243 234 / 0.08);
+  --c-line-strong: rgb(232 185 107 / 0.22);
+  --c-field-border: #5c667f;
+  --c-accent: #e8b96b;
+  --c-on-accent: #0b1020;
+  --c-signal: #5eead4;
+  --c-danger: #f59e8b;
+
+  --ff-meta: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+
+  --fs-name: clamp(2.75rem, 1.6rem + 4vw, 4.5rem);
+  --lh-name: 0.98;
+  --ls-name: -0.035em;
+  --fs-headline: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --lh-headline: 1.4;
+  --ls-headline: -0.005em;
+  --fs-lede: clamp(1.375rem, 1.1rem + 1.1vw, 1.875rem);
+  --lh-lede: 1.28;
+  --ls-lede: -0.02em;
+  --fs-label: 0.75rem;
+  --lh-label: 1.4;
+  --ls-label: 0.16em;
+  --fw-label: 500;
+  --fs-h3: 1.1875rem;
+  --lh-h3: 1.35;
+  --ls-h3: -0.012em;
+  --fs-body: 1rem;
+  --lh-body: 1.65;
+  --ls-body: -0.003em;
+  --fs-small: 0.875rem;
+  --lh-small: 1.55;
+  --fs-meta: 0.75rem;
+  --lh-meta: 1.4;
+  --fs-stack: 0.8125rem;
+
+  --sp-section: clamp(3.5rem, 2.5rem + 3vw, 5.5rem);
+  --sp-role: 2.5rem;
+  --sp-block: 0.75rem;
+  --spine-gap: 1.75rem;
+  --spine-node: 9px;
+
+  scrollbar-gutter: stable;
+}
+
+@utility paper-tokens {
+  --c-sheet: #fcfbf8;
+  --c-ink: #14171d;
+  --c-ink-muted: #3e4452;
+  --c-ink-faint: #5e6574;
+  --c-line: #d6dae1;
+  --c-accent: #8a5a14;
+
+  --ff-meta: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --fs-name: 24pt;
+  --lh-name: 1.05;
+  --ls-name: -0.025em;
+  --fs-headline: 10.5pt;
+  --lh-headline: 1.3;
+  --fs-lede: 11pt;
+  --lh-lede: 1.35;
+  --ls-lede: -0.01em;
+  --fs-label: 8.5pt;
+  --lh-label: 1.3;
+  --ls-label: 0.06em;
+  --fw-label: 650;
+  --fs-h3: 10.25pt;
+  --lh-h3: 1.3;
+  --fs-body: 9.25pt;
+  --lh-body: 1.42;
+  --fs-small: 8.5pt;
+  --lh-small: 1.4;
+  --fs-meta: 8pt;
+  --lh-meta: 1.3;
+  --fs-stack: 8pt;
+
+  --sp-section: 13pt;
+  --sp-role: 8pt;
+  --sp-block: 2.5pt;
+  --spine-gap: 10pt;
+  --spine-node: 5pt;
+
+  color: var(--c-ink);
+}
+
+:root:not([data-lang="en"]) [data-l="en"],
+:root[data-lang="en"] [data-l="es"] {
+  display: none;
+}
+
+::selection {
+  background: rgb(232 185 107 / 0.28);
+}
+
+/* The global height: 100% on body would end the sticky bar's range after one viewport. */
+body {
+  height: auto;
+  min-height: 100%;
+}
+
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
+.sheet {
+  @apply paper:paper-tokens;
+}
+
+.sheet :focus-visible {
+  outline-color: var(--c-accent);
+}
+
+.cv-link {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+  text-underline-offset: 3px;
+  transition:
+    color 120ms,
+    text-decoration-color 120ms;
+
+  &:hover {
+    color: var(--c-accent);
+    text-decoration-color: currentColor;
+  }
+
+  @variant paper {
+    text-decoration: none;
+  }
+}
+
+.contacts > li + li {
+  @variant paper {
+    &::before {
+      content: "·";
+      margin-inline: 0.5em;
+      color: var(--c-ink-faint);
+    }
+  }
+}
+
+.lang-option {
+  color: var(--c-ink-faint);
+}
+
+.lang-option:hover {
+  color: var(--c-ink);
+}
+
+:root:not([data-lang="en"]) .lang-option[data-lang-option="es"],
+:root[data-lang="en"] .lang-option[data-lang-option="en"] {
+  background: rgb(255 255 255 / 0.1);
+  color: var(--c-ink);
+
+  /* Forced colors drop both the background and the color, so the pressed option needs a border. */
+  @media (forced-colors: active) {
+    border: 1px solid;
+  }
+}
+
+.spine {
+  border-left: 1px solid var(--c-line);
+  padding-left: var(--spine-gap);
+
+  /* Print clips anything left of the page margin, so the nodes need room. */
+  @variant paper {
+    margin-left: calc(var(--spine-node) / 2);
+    border-left-width: 0.5pt;
+  }
+}
+
+.spine-node {
+  position: absolute;
+  top: calc((1lh - var(--spine-node)) / 2);
+  left: calc(-1 * var(--spine-gap) - var(--spine-node) / 2 - 0.5px);
+  width: var(--spine-node);
+  height: var(--spine-node);
+  border: 1px solid color-mix(in oklab, var(--c-accent) 60%, transparent);
+  border-radius: 50%;
+  background: var(--c-desk);
+  print-color-adjust: exact;
+
+  @variant paper {
+    left: calc(-1 * var(--spine-gap) - var(--spine-node) / 2 - 0.25pt);
+    border: 0.75pt solid var(--c-accent);
+    background: var(--c-sheet);
+  }
+}
+
+.progress-fill,
+.progress-fill-x {
+  display: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .progress-fill {
+      display: block;
+      animation: fill-y linear both;
+      animation-timeline: scroll(root);
+    }
+
+    .progress-fill-x {
+      display: block;
+      animation: fill-x linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+
+@keyframes fill-y {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes fill-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media screen and (min-width: 80rem) {
+  [data-surface="paper"] .cv-layout {
+    grid-template-columns: 14rem 51rem;
+  }
+
+  [data-surface="paper"] .sheet {
+    position: relative;
+    width: 8.5in;
+    min-height: 11in;
+    margin-inline: auto;
+    padding: 0.5in 0.6in 0.55in;
+    background: var(--c-sheet);
+    box-shadow: 0 30px 80px -40px rgb(0 0 0 / 0.8);
+    animation: sheet-in 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  [data-surface="paper"] .sheet + .sheet {
+    margin-top: 2rem;
+  }
+
+  [data-surface="paper"] .sheet::before,
+  [data-surface="paper"] .sheet::after {
+    position: absolute;
+    bottom: 0.3in;
+    font-size: 7.5pt;
+    color: var(--c-ink-faint);
+  }
+
+  [data-surface="paper"] .sheet::before {
+    content: "amaurygomez.dev/cv";
+    left: 0.6in;
+  }
+
+  [data-surface="paper"] .sheet::after {
+    content: attr(data-page) " / 2";
+    right: 0.6in;
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.request-dialog {
+  width: min(30rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  overflow-y: auto;
+  opacity: 0;
+  translate: 0 8px;
+  transition:
+    opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    translate 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    overlay 180ms allow-discrete,
+    display 180ms allow-discrete;
+}
+
+.request-dialog[open] {
+  opacity: 1;
+  translate: 0 0;
+}
+
+.request-dialog::backdrop {
+  background: rgb(3 6 12 / 0);
+  transition:
+    background-color 180ms,
+    overlay 180ms allow-discrete,
+    display 180ms allow-discrete;
+}
+
+.request-dialog[open]::backdrop {
+  background: rgb(3 6 12 / 0.72);
+  backdrop-filter: blur(4px);
+}
+
+@starting-style {
+  .request-dialog[open] {
+    opacity: 0;
+    translate: 0 8px;
+  }
+
+  .request-dialog[open]::backdrop {
+    background: rgb(3 6 12 / 0);
+  }
+}
+
+@media (width < 40rem) {
+  .request-dialog {
+    width: 100%;
+    max-width: none;
+    max-height: 90dvh;
+    margin: auto 0 0;
+    padding-bottom: calc(1.75rem + env(safe-area-inset-bottom));
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+    translate: 0 100%;
+    transition-duration: 220ms;
+  }
+
+  @starting-style {
+    .request-dialog[open] {
+      translate: 0 100%;
+    }
+  }
+}
+
+@page {
+  size: letter;
+  margin: 0.5in 0.6in 0.55in;
+
+  @bottom-left {
+    content: "amaurygomez.dev/cv";
+    font:
+      400 7.5pt "Inter Print",
+      sans-serif;
+    color: #5e6574;
+  }
+
+  @bottom-right {
+    content: counter(page) " / " counter(pages);
+    font:
+      400 7.5pt "Inter Print",
+      sans-serif;
+    color: #5e6574;
+  }
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+    font-family: "Inter Print", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .sheet {
+    --c-sheet: #fff;
+    --ff-meta: "Inter Print", ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .sheet + .sheet {
+    break-before: page;
+  }
+
+  .sheet li {
+    break-inside: avoid;
+  }
+
+  .sheet p,
+  .sheet li {
+    orphans: 3;
+    widows: 3;
+  }
+}

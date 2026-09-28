@@ -2,12 +2,12 @@ import "pixi.js/unsafe-eval";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Application, extend } from "@pixi/react";
 import { Container, Graphics, Sprite, Text } from "pixi.js";
-import { ZONE_META } from "../content/zones";
-import { floorBounds, iso } from "../lib/iso";
-import { getWorldBounds } from "../lib/worldBounds";
-import { WorldMap } from "../render/WorldMap";
-import { useWorld } from "../state/useWorld";
-import { ZOOM_MAX, ZOOM_MIN } from "../state/context";
+import { ZONE_META } from "@/world/content/zones";
+import { floorBounds, iso } from "@/world/lib/iso";
+import { getWorldBounds } from "@/world/lib/worldBounds";
+import { WorldMap } from "@/world/render/WorldMap";
+import { useWorld } from "@/world/state/useWorld";
+import { ZOOM_MAX, ZOOM_MIN } from "@/world/state/context";
 
 extend({ Container, Graphics, Text, Sprite });
 
@@ -55,7 +55,7 @@ function getOverviewCamera(
   viewportW: number,
   viewportH: number,
   compactViewport: boolean,
-  userZoom: number
+  userZoom: number,
 ) {
   const bounds = getWorldBounds();
   const marginX = compactViewport ? 18 : 80;
@@ -64,60 +64,42 @@ function getOverviewCamera(
     Math.min(
       (viewportW - marginX * 2) / bounds.width,
       (viewportH - marginY * 2) / bounds.height,
-      1
+      1,
     ) * userZoom;
   const x = viewportW / 2 - (bounds.minX + bounds.width / 2) * scale;
-  // Compact viewports nudge the map slightly below center to clear the top
-  // bar + chapter chip strip while keeping it visually centered.
-  const y =
-    viewportH / 2 -
-    (bounds.minY + bounds.height / 2) * scale +
-    (compactViewport ? 36 : 0);
+  // Compact viewports shift the map down to clear the top bar and chapter strip.
+  const y = viewportH / 2 - (bounds.minY + bounds.height / 2) * scale + (compactViewport ? 36 : 0);
   return clampCamera({ x, y, scale }, viewportW, viewportH, compactViewport ? 8 : 16);
 }
 
-// ZonePanel sits on the right with breakpoint-aware widths (sm 380 / md 400
-// / xl 440) and a ~20-44px right gutter. We reserve this strip when focusing
-// a zone so the active room is centered in the SAFE AREA (viewport minus
-// panel), not buried behind it.
+// Mirrors ZonePanel's breakpoint widths plus its gutter, so a focused room is
+// centered in the visible area instead of behind the panel.
 function getPanelReservedWidth(viewportW: number) {
-  if (viewportW < 640) return 0; // mobile uses bottom drawer, full width is safe
-  if (viewportW < 768) return 408; // 380 panel + 28 gutter
-  if (viewportW < 1280) return 444; // 400 panel + 44 gutter
-  return 488; // 440 panel + 48 gutter
+  if (viewportW < 640) return 0; // the panel is a bottom drawer here
+  if (viewportW < 768) return 408;
+  if (viewportW < 1280) return 444;
+  return 488;
 }
 
-// Per-zone hero frame: a sub-rectangle of the zone (in tile coords, relative
-// to the zone origin) that should be fully inside the safe area. Combined
-// with the focus point, this gives precise control over how each room is
-// framed. Sizing this tighter than the full zone bounds lets us "zoom in"
-// on the hero composition and intentionally let secondary props (right
-// strips, deep corners) sit partly behind the panel without losing hero.
+// Per-room framing in tiles, relative to the zone origin: the focus point and the
+// area that must stay visible. Anything outside it may sit behind the panel.
 type HeroFrame = {
-  fx: number; // focus x in tile coords (relative to zoneBounds.x)
-  fy: number; // focus y in tile coords (relative to zoneBounds.y)
+  fx: number;
+  fy: number;
   fz?: number;
-  fw: number; // hero rectangle width to fit in the safe area
-  fh: number; // hero rectangle height to fit in the viewport
+  fw: number;
+  fh: number;
 };
 
 const ZONE_HERO_FRAMES: Record<keyof typeof ZONE_META, HeroFrame> = {
-  // Origin — childhood + technical training + scholarship spread across the room
-  "education-path": { fx: 3.2, fy: 4.0, fz: -0.2, fw: 6.5, fh: 6.0 },
-  // POS room — sale area is the hero, with lottery + vehicle in the wings
-  "software-factory": { fx: 3.4, fy: 4.0, fz: -0.15, fw: 6.5, fh: 6.0 },
-  // Banking — TIGHT frame on the banker desk + Jasper printer hero. The
-  // .bat strip on the far right is intentionally outside this frame and
-  // expected to sit behind the right panel.
-  "banking-finance": { fx: 2.4, fy: 3.4, fz: -0.15, fw: 4.6, fh: 5.6 },
-  // Telecom — service counter + coverage hero center
-  "telecom-quality": { fx: 2.8, fy: 3.4, fz: -0.1, fw: 6.0, fh: 6.0 },
-  // Public Sector — meeting table is the centerpiece
-  "public-security": { fx: 3.4, fy: 3.6, fz: -0.1, fw: 6.0, fh: 6.0 },
-  // AI Lab — operator + architecture spread the whole room
-  "personal-lab": { fx: 3.0, fy: 3.6, fz: -0.05, fw: 6.5, fh: 6.0 },
-  // Discipline — mountain + BBQ split, center on the seam between them
-  "discipline-life": { fx: 2.5, fy: 3.6, fz: -0.15, fw: 6.0, fh: 6.0 },
+  origin: { fx: 3.2, fy: 4.0, fz: -0.2, fw: 6.5, fh: 6.0 },
+  pos: { fx: 3.4, fy: 4.0, fz: -0.15, fw: 6.5, fh: 6.0 },
+  // Tight on purpose: the .bat corner on the far right sits behind the panel.
+  banking: { fx: 2.4, fy: 3.4, fz: -0.15, fw: 4.6, fh: 5.6 },
+  telecom: { fx: 2.8, fy: 3.4, fz: -0.1, fw: 6.0, fh: 6.0 },
+  "public-sector": { fx: 3.4, fy: 3.6, fz: -0.1, fw: 6.0, fh: 6.0 },
+  "ai-lab": { fx: 3.0, fy: 3.6, fz: -0.05, fw: 6.5, fh: 6.0 },
+  discipline: { fx: 2.5, fy: 3.6, fz: -0.15, fw: 6.0, fh: 6.0 },
 };
 
 function getZoneCamera(
@@ -125,13 +107,12 @@ function getZoneCamera(
   viewportW: number,
   viewportH: number,
   compactViewport: boolean,
-  userZoom: number
+  userZoom: number,
 ) {
   const zoneBounds = ZONE_META[zoneId].bounds;
   const frame = ZONE_HERO_FRAMES[zoneId];
 
-  // Scale to fit the hero rectangle (not the whole zone) into the safe area.
-  // A small extra margin keeps the hero from kissing the edges.
+  // Fit the hero frame (plus a small margin) rather than the whole zone.
   const padded = floorBounds(frame.fw + 1.4, frame.fh + 1.4);
   const reservedRight = getPanelReservedWidth(viewportW);
   const safeAreaW = Math.max(360, viewportW - reservedRight);
@@ -139,11 +120,11 @@ function getZoneCamera(
   const baseScale = Math.min(
     (safeAreaW * (compactViewport ? 0.98 : 0.94)) / padded.width,
     (viewportH * (compactViewport ? 0.82 : 0.88)) / padded.height,
-    compactViewport ? 2.1 : 1.9
+    compactViewport ? 2.1 : 1.9,
   );
   const targetScale = Math.min(
     Math.max(baseScale * userZoom, baseScale * ZOOM_MIN),
-    baseScale * ZOOM_MAX
+    baseScale * ZOOM_MAX,
   );
 
   const focus = { x: zoneBounds.x + frame.fx, y: zoneBounds.y + frame.fy, z: frame.fz ?? 0 };
@@ -161,9 +142,8 @@ export default function WorldStageCanvas() {
   const [camera, setCamera] = useState<CameraState>({ x: 0, y: 0, scale: 1 });
   const { activeZone, userZoom, setUserZoom, cameraResetNonce } = useWorld();
 
-  // Touch gesture state (drag-pan + pinch-zoom). While the user is mid-gesture
-  // or has manually moved the camera ("free camera"), the auto-framing
-  // animation is suspended until the next zone/zoom/reset change.
+  // After a touch pan or pinch the camera stays where the user left it until
+  // the zone, zoom or reset changes.
   const gestureRef = useRef<{
     pointers: Map<number, { x: number; y: number }>;
     start: { x: number; y: number } | null;
@@ -195,9 +175,7 @@ export default function WorldStageCanvas() {
       : getOverviewCamera(size.w, size.h, compactViewport, userZoom);
   }, [activeZone, compactViewport, size.h, size.w, userZoom]);
 
-  // Wheel-to-zoom on the canvas. Active in both overview and zone modes.
-  // We use trackpad-friendly damping so a single wheel notch nudges zoom
-  // by ~6% rather than slamming the limits.
+  // Small steps so trackpads, which fire many wheel events, zoom smoothly.
   const handleWheel = useCallback(
     (event: React.WheelEvent<HTMLDivElement>) => {
       if (event.ctrlKey) return; // let the browser handle pinch-zoom
@@ -205,11 +183,10 @@ export default function WorldStageCanvas() {
       const delta = event.deltaY > 0 ? -1 : 1;
       setUserZoom(userZoom * (1 + delta * 0.06));
     },
-    [setUserZoom, userZoom]
+    [setUserZoom, userZoom],
   );
 
-  // Pixi's canvas needs pointer events for hotspot taps, but once a pan/pinch
-  // starts we mute it so lifting the finger doesn't fire a zone tap.
+  // Mute the canvas during a pan or pinch so lifting the finger is not a zone tap.
   const setCanvasInteractive = useCallback((on: boolean) => {
     const canvas = containerRef.current?.querySelector("canvas");
     if (canvas) canvas.style.pointerEvents = on ? "auto" : "none";
@@ -225,7 +202,7 @@ export default function WorldStageCanvas() {
       cameraRef.current = clamped;
       setCamera(clamped);
     },
-    [compactViewport, size.h, size.w]
+    [compactViewport, size.h, size.w],
   );
 
   const handlePointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
@@ -254,7 +231,7 @@ export default function WorldStageCanvas() {
       const pts = [...g.pointers.values()];
 
       if (pts.length === 1 && g.lastCentroid && g.start) {
-        // Drag-pan with a small threshold so taps still reach the hotspots.
+        // The threshold lets short taps through to the hotspots.
         if (!g.panning) {
           const moved = Math.hypot(pts[0].x - g.start.x, pts[0].y - g.start.y);
           if (moved < 8) return;
@@ -282,11 +259,10 @@ export default function WorldStageCanvas() {
           setCanvasInteractive(false);
         }
         const cam = cameraRef.current;
-        // Keep pinch scale within sane bounds relative to the overview fit.
         const fit = getOverviewCamera(size.w, size.h, compactViewport, 1).scale;
         const nextScale = Math.min(Math.max(cam.scale * (dist / g.lastDist), fit * 0.7), 4);
         const f = nextScale / cam.scale;
-        // Zoom around the pinch centroid, plus the centroid's own drift (pan).
+        // Zoom around the pinch centroid and follow its drift as a pan.
         applyCamera({
           x: centroid.x - (centroid.x - cam.x) * f + (centroid.x - g.lastCentroid.x),
           y: centroid.y - (centroid.y - cam.y) * f + (centroid.y - g.lastCentroid.y),
@@ -296,7 +272,7 @@ export default function WorldStageCanvas() {
         g.lastDist = dist;
       }
     },
-    [applyCamera, compactViewport, setCanvasInteractive, size.h, size.w]
+    [applyCamera, compactViewport, setCanvasInteractive, size.h, size.w],
   );
 
   const handlePointerEnd = useCallback(
@@ -318,14 +294,13 @@ export default function WorldStageCanvas() {
         setCanvasInteractive(true);
       }
     },
-    [setCanvasInteractive]
+    [setCanvasInteractive],
   );
 
   useEffect(() => {
     if (!size.w || !size.h) return;
 
-    // Re-frame on zone/zoom/reset changes; a size-only change (e.g. mobile
-    // URL bar collapse) keeps a user-positioned camera where it is.
+    // A size-only change (mobile URL bar collapsing) keeps a user-positioned camera.
     const targetKey = `${activeZone ?? "overview"}|${userZoom}|${cameraResetNonce}`;
     const keyChanged = lastTargetKeyRef.current !== targetKey;
     lastTargetKeyRef.current = targetKey;
@@ -352,7 +327,7 @@ export default function WorldStageCanvas() {
         },
         size.w,
         size.h,
-        compactViewport ? 6 : 14
+        compactViewport ? 6 : 14,
       );
 
       cameraRef.current = next;

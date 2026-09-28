@@ -1,0 +1,20 @@
+---
+interface Props {
+  id: string;
+  index: string;
+  label: string;
+}
+
+const { id, index, label } = Astro.props;
+---
+
+<h2
+  id={id}
+  class="flex items-center gap-3 font-meta text-label text-ink-muted uppercase paper:break-after-avoid paper:gap-[6pt] paper:text-ink paper:after:flex-1 paper:after:border-t-[0.5pt] paper:after:border-line paper:after:content-['']"
+>
+  <span aria-hidden="true" class="text-accent tabular-nums paper:hidden">
+    {index}
+  </span>
+  <span aria-hidden="true" class="h-px w-6 bg-line paper:hidden"></span>
+  {label}
+</h2>

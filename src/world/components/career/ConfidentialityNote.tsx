@@ -7,13 +7,10 @@ type ConfidentialityNoteProps = {
 
 const DEFAULT_ACCENT = "#34D399";
 
-export function ConfidentialityNote({
-  text,
-  accent = DEFAULT_ACCENT,
-}: ConfidentialityNoteProps) {
+export function ConfidentialityNote({ text, accent = DEFAULT_ACCENT }: ConfidentialityNoteProps) {
   return (
     <div
-      className="flex gap-2.5 rounded-lg border p-3 text-[11.5px] leading-relaxed text-[#F7F3EA]/82"
+      className="flex gap-2.5 rounded-lg border p-3 text-[11.5px] leading-relaxed text-ag-text/82"
       style={{
         borderColor: `${accent}45`,
         background: `linear-gradient(135deg, ${accent}14 0%, ${accent}06 70%)`,

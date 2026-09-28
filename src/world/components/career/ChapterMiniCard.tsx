@@ -48,8 +48,8 @@ export function ChapterMiniCard({
         <IconByKey iconKey={iconKey} size={iconSize} />
       </span>
       <div className="min-w-0 flex-1">
-        <div className={`font-display ${titleClass} leading-tight text-[#F7F3EA]`}>{title}</div>
-        <p className={`mt-1 ${descClass} leading-relaxed text-[#F7F3EA]/76`}>{desc}</p>
+        <div className={`font-display ${titleClass} leading-tight text-ag-text`}>{title}</div>
+        <p className={`mt-1 ${descClass} leading-relaxed text-ag-text/76`}>{desc}</p>
       </div>
     </motion.div>
   );

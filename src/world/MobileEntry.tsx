@@ -1,11 +1,3 @@
-/**
- * Mobile-only entrypoint. Renders the vertical career experience without
- * pulling any Pixi/WebGL code. Imported eagerly (small bundle) on mobile,
- * while DesktopEntry is dynamic-imported and stays out of this graph.
- *
- * The isometric world is still reachable on mobile: "Explorar AG World"
- * lazy-loads MobileWorld (and with it the Pixi stack) on demand.
- */
 import { lazy, Suspense, useCallback, useState } from "react";
 import { ContactPanel } from "./components/ContactPanel";
 import { IntroSequence } from "./components/IntroSequence";
@@ -18,7 +10,7 @@ const INTRO_STORAGE_KEY = "introSeen";
 
 export function MobileEntry() {
   const [introDone, setIntroDone] = useState(
-    typeof window !== "undefined" && window.localStorage.getItem(INTRO_STORAGE_KEY) === "1"
+    typeof window !== "undefined" && window.localStorage.getItem(INTRO_STORAGE_KEY) === "1",
   );
   const [worldOpen, setWorldOpen] = useState(false);
 
@@ -30,13 +22,11 @@ export function MobileEntry() {
   const enterWorld = useCallback(() => setWorldOpen(true), []);
   const exitWorld = useCallback(() => setWorldOpen(false), []);
 
-  // Intro still needs a viewport-sized canvas to overlay, so when it's
-  // showing we render a fixed shell. Once the user starts the journey we
-  // hand control back to the document so scroll/momentum/pull-to-refresh
-  // behave like a normal mobile page.
+  // The intro needs a fixed viewport shell; after it, the story is a normal
+  // document so native scroll and pull-to-refresh keep working.
   if (!introDone) {
     return (
-      <div className="fixed inset-0 overflow-hidden bg-[#070B14] text-[#F7F3EA]">
+      <div className="fixed inset-0 overflow-hidden bg-ag-bg text-ag-text">
         <IntroSequence onComplete={completeIntro} mobile />
       </div>
     );
@@ -51,7 +41,7 @@ export function MobileEntry() {
   }
 
   return (
-    <div className="relative min-h-screen w-full bg-[#070B14] text-[#F7F3EA]">
+    <div className="relative min-h-screen w-full bg-ag-bg text-ag-text">
       <MobileExperience onEnterWorld={enterWorld} />
       <ContactPanel />
       <StackPanel />
@@ -61,15 +51,15 @@ export function MobileEntry() {
 
 function WorldBootFallback() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#070B14] text-[#A8B0C2]">
+    <div className="fixed inset-0 flex items-center justify-center bg-ag-bg text-ag-text-muted">
       <div
         role="status"
         aria-live="polite"
-        className="flex items-center gap-3 text-[11px] uppercase tracking-[0.28em]"
+        className="flex items-center gap-3 text-[11px] tracking-[0.28em] uppercase"
       >
         <span
           aria-hidden="true"
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-[#E8B96B]"
+          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-gold"
         />
         Cargando AG World
       </div>

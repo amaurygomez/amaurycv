@@ -1,0 +1,148 @@
+---
+import { profile } from "@/i18n/content";
+import { cvUi } from "@/i18n/cv";
+import Field from "./Field.astro";
+import Icon from "./Icon.astro";
+import Localized from "./Localized.astro";
+
+const copy = cvUi.dialog;
+const mail = `mailto:${profile.email}`;
+---
+
+<dialog
+  id="cv-request"
+  aria-labelledby="cv-request-title"
+  aria-describedby="cv-request-description"
+  data-email={profile.email}
+  class="request-dialog rounded-[14px] border border-line-strong bg-surface p-7 text-ink shadow-[0_24px_64px_-24px_rgb(0_0_0/0.8)] print:hidden"
+>
+  <div class="flex items-start justify-end gap-4">
+    <button
+      type="button"
+      data-request-close
+      class="-mt-3 -mr-3 grid size-11 shrink-0 place-items-center rounded-lg text-ink-muted transition-colors duration-150 hover:text-ink"
+    >
+      <Icon name="x" size={20} />
+      <span class="sr-only">
+        <Localized text={copy.close} />
+      </span>
+    </button>
+  </div>
+  <h2 id="cv-request-title" class="text-[1.25rem] font-semibold tracking-[-0.01em] text-ink">
+    <Localized text={copy.title} />
+  </h2>
+
+  <div data-view="form">
+    <p id="cv-request-description" class="mt-2 text-small text-ink-muted">
+      <Localized text={copy.description} />
+    </p>
+    <form class="mt-6 space-y-4" novalidate>
+      <Field name="name" label={copy.name} autocomplete="name" minlength={2} maxlength={80} />
+      <Field
+        name="company"
+        label={copy.company}
+        autocomplete="organization"
+        minlength={2}
+        maxlength={100}
+      />
+      <Field
+        name="email"
+        label={copy.email}
+        type="email"
+        inputmode="email"
+        autocomplete="email"
+        maxlength={120}
+        spellcheck="false"
+      />
+      <Field
+        name="role"
+        label={copy.role}
+        autocomplete="organization-title"
+        minlength={2}
+        maxlength={120}
+      />
+      <div aria-hidden="true" class="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label>
+          Website <input type="text" name="website" tabindex="-1" autocomplete="off" />
+        </label>
+      </div>
+      <input type="hidden" name="lang" value="es" />
+      <div data-turnstile></div>
+      <p class="text-meta text-ink-faint">
+        <Localized text={copy.privacy} />
+      </p>
+      <div class="pt-2">
+        <p role="alert" data-request-alert class="mb-4 text-small text-danger empty:mb-0"></p>
+        <div class="flex flex-wrap items-center gap-x-5 gap-y-3">
+          <button
+            type="submit"
+            disabled
+            class="inline-flex h-11 items-center gap-2.5 rounded-lg bg-accent px-5 text-small font-semibold text-on-accent transition-opacity duration-150 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <span data-spinner hidden class="spinner"></span>
+            <span data-submit-label></span>
+          </button>
+          <button
+            type="button"
+            data-request-close
+            class="h-11 px-1 text-small font-medium text-ink-muted transition-colors duration-150 hover:text-ink"
+          >
+            <Localized text={copy.cancel} />
+          </button>
+        </div>
+      </div>
+      <p role="status" data-request-status class="sr-only"></p>
+    </form>
+  </div>
+
+  <div data-view="sent" hidden>
+    <div class="mt-6 flex items-start gap-4">
+      <span class="grid size-9 shrink-0 place-items-center rounded-full border border-signal/40 text-signal">
+        <Icon name="check" size={18} />
+      </span>
+      <div>
+        <h3 data-sent-heading tabindex="-1" class="text-body font-semibold text-ink outline-none">
+          <Localized text={copy.sentTitle} /> <span data-sent-email class="break-all"></span>.
+        </h3>
+        <p class="mt-2 text-small text-ink-muted">
+          <Localized text={copy.sentText} />{" "}
+          <a class="cv-link text-ink" href={mail}>
+            {profile.email}
+          </a>
+          .
+        </p>
+      </div>
+    </div>
+    <div class="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+      <button
+        type="button"
+        data-request-close
+        class="inline-flex h-11 items-center rounded-lg border border-line-strong px-5 text-small font-medium text-ink transition-colors duration-150 hover:border-accent"
+      >
+        <Localized text={copy.close} />
+      </button>
+      <button type="button" data-request-again class="cv-link h-11 text-small text-ink-muted">
+        <Localized text={copy.another} />
+      </button>
+    </div>
+  </div>
+
+  <div data-view="unavailable" hidden>
+    <p class="mt-4 text-body text-ink-muted">
+      <Localized text={copy.unavailable} />{" "}
+      <a class="cv-link text-ink" href={mail}>
+        {profile.email}
+      </a>
+      .
+    </p>
+    <div class="mt-8">
+      <button
+        type="button"
+        data-request-close
+        class="inline-flex h-11 items-center rounded-lg border border-line-strong px-5 text-small font-medium text-ink transition-colors duration-150 hover:border-accent"
+      >
+        <Localized text={copy.close} />
+      </button>
+    </div>
+  </div>
+</dialog>

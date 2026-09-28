@@ -1,40 +1,38 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const baseURL = "http://127.0.0.1:4321";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
-  // Each desktop test boots the full Pixi/WebGL world through the dev server.
-  // More than 2 concurrent workers saturates the machine and the journey
-  // tests time out before the app finishes mounting.
+  // The world tests boot Pixi/WebGL; more than two workers starve them and they time out.
   workers: 2,
-  webServer: {
-    command: "npm run dev -- --host 127.0.0.1",
-    url: "http://127.0.0.1:4321",
-    reuseExistingServer: true,
-    timeout: 30_000,
-  },
+  // The dev server is a daemon, so it is started by global setup rather than `webServer`.
+  globalSetup: "./tests/e2e/global-setup.ts",
   use: {
-    baseURL: "http://127.0.0.1:4321",
+    baseURL,
     trace: "retain-on-failure",
   },
   projects: [
     {
       name: "desktop",
       testMatch: /desktop\.spec\.ts/,
-      use: {
-        ...devices["Desktop Chrome"],
-        channel: "chrome",
-        viewport: { width: 1440, height: 960 },
-      },
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 960 } },
     },
     {
       name: "mobile",
       testMatch: /mobile\.spec\.ts/,
-      use: {
-        ...devices["iPhone 13"],
-        browserName: "chromium",
-        channel: "chrome",
-      },
+      use: { ...devices["iPhone 13"], browserName: "chromium" },
+    },
+    {
+      name: "cv-desktop",
+      testMatch: /cv\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 960 } },
+    },
+    {
+      name: "cv-mobile",
+      testMatch: /cv\.spec\.ts/,
+      use: { ...devices["iPhone 13"], browserName: "chromium" },
     },
   ],
 });

@@ -5,7 +5,6 @@ type MetaphorProps = {
   className?: string;
 };
 
-// PublicSectorAuditMetaphor — secure API gateway, audit trail, RD map, permissions
 export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className }) => {
   const navy = "#0B1020";
   const mid = "#1A2238";
@@ -32,9 +31,7 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
         </linearGradient>
       </defs>
 
-      {/* Center-left: shield + API connectors */}
       <g transform="translate(80 50)">
-        {/* shield */}
         <g>
           <path
             d="M 0 -22 L 18 -14 L 18 6 C 18 18 10 26 0 30 C -10 26 -18 18 -18 6 L -18 -14 Z"
@@ -51,12 +48,10 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
             filter="url(#audit-glow)"
             opacity="0.7"
           />
-          {/* keyhole */}
           <circle cx="0" cy="0" r="3" fill={accent} />
           <rect x="-1" y="2" width="2" height="6" rx="0.5" fill={accent} />
         </g>
 
-        {/* 4 server nodes around shield */}
         {[
           { x: -50, y: -30, label: "MIN" },
           { x: 50, y: -30, label: "GOB" },
@@ -74,7 +69,16 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
               strokeDasharray="2 2"
               opacity="0.5"
             />
-            <rect x="-10" y="-7" width="20" height="14" rx="2" fill={navy} stroke={slate} strokeWidth="0.8" />
+            <rect
+              x="-10"
+              y="-7"
+              width="20"
+              height="14"
+              rx="2"
+              fill={navy}
+              stroke={slate}
+              strokeWidth="0.8"
+            />
             <line x1="-7" y1="-3" x2="7" y2="-3" stroke={muted} strokeWidth="0.5" />
             <line x1="-7" y1="0" x2="7" y2="0" stroke={muted} strokeWidth="0.5" />
             <line x1="-7" y1="3" x2="7" y2="3" stroke={muted} strokeWidth="0.5" />
@@ -93,7 +97,6 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
         ))}
       </g>
 
-      {/* Right: stylized RD map silhouette */}
       <g transform="translate(178 22)">
         <path
           d="M 4 26
@@ -110,7 +113,6 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
           strokeWidth="1"
           opacity="0.85"
         />
-        {/* coastline accent */}
         <path
           d="M 4 26 C 8 18 18 14 28 14 C 40 10 56 12 70 16"
           fill="none"
@@ -118,7 +120,6 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
           strokeWidth="0.6"
           opacity="0.8"
         />
-        {/* static location pins — identity-grade markers, not radar pulses */}
         {[
           { x: 36, y: 28 },
           { x: 64, y: 34 },
@@ -127,36 +128,87 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
         ].map((p, i) => (
           <g key={i} transform={`translate(${p.x} ${p.y})`}>
             <circle cx="0" cy="0" r="2.2" fill={accent} opacity="0.95" />
-            <circle cx="0" cy="0" r="3.4" fill="none" stroke={accent} strokeWidth="0.5" opacity="0.55" />
+            <circle
+              cx="0"
+              cy="0"
+              r="3.4"
+              fill="none"
+              stroke={accent}
+              strokeWidth="0.5"
+              opacity="0.55"
+            />
           </g>
         ))}
-        {/* one slow gentle pulse only — keeps the map alive without radar feel */}
         <g transform="translate(64 34)">
           <circle cx="0" cy="0" r="3" fill="none" stroke={accent} strokeWidth="0.7">
             <animate attributeName="r" values="3;8;3" dur="3.6s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.55;0;0.55" dur="3.6s" repeatCount="indefinite" />
+            <animate
+              attributeName="opacity"
+              values="0.55;0;0.55"
+              dur="3.6s"
+              repeatCount="indefinite"
+            />
           </circle>
         </g>
       </g>
 
-      {/* Mid-right: ROLE MATRIX panel — identity/permissions made first-class */}
       <g transform="translate(178 84)">
-        <rect x="0" y="0" width="130" height="42" rx="3" fill="url(#audit-panel)" stroke={slate} strokeWidth="0.7" />
+        <rect
+          x="0"
+          y="0"
+          width="130"
+          height="42"
+          rx="3"
+          fill="url(#audit-panel)"
+          stroke={slate}
+          strokeWidth="0.7"
+        />
         <text x="6" y="8" fontFamily="ui-monospace, monospace" fontSize="3.6" fill={muted}>
           ROLE MATRIX · IDENTITY
         </text>
-        {/* column headers */}
-        <text x="56" y="15" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="2.8" fill={muted}>READ</text>
-        <text x="80" y="15" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="2.8" fill={muted}>WRITE</text>
-        <text x="104" y="15" textAnchor="middle" fontFamily="ui-monospace, monospace" fontSize="2.8" fill={muted}>AUDIT</text>
-        {/* rows */}
+        <text
+          x="56"
+          y="15"
+          textAnchor="middle"
+          fontFamily="ui-monospace, monospace"
+          fontSize="2.8"
+          fill={muted}
+        >
+          READ
+        </text>
+        <text
+          x="80"
+          y="15"
+          textAnchor="middle"
+          fontFamily="ui-monospace, monospace"
+          fontSize="2.8"
+          fill={muted}
+        >
+          WRITE
+        </text>
+        <text
+          x="104"
+          y="15"
+          textAnchor="middle"
+          fontFamily="ui-monospace, monospace"
+          fontSize="2.8"
+          fill={muted}
+        >
+          AUDIT
+        </text>
         {[
           { y: 21, label: "admin", grants: [true, true, true] },
           { y: 28, label: "operator", grants: [true, true, false] },
           { y: 35, label: "auditor", grants: [true, false, true] },
         ].map((row, i) => (
           <g key={i}>
-            <text x="6" y={row.y + 2} fontFamily="ui-monospace, monospace" fontSize="3" fill={offWhite}>
+            <text
+              x="6"
+              y={row.y + 2}
+              fontFamily="ui-monospace, monospace"
+              fontSize="3"
+              fill={offWhite}
+            >
               {row.label}
             </text>
             {row.grants.map((g, ci) => (
@@ -164,7 +216,14 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
                 {g ? (
                   <>
                     <circle cx="0" cy="0" r="2" fill={accent} opacity="0.85" />
-                    <path d="M -1 0 L 0 1 L 1.5 -1" stroke={navy} strokeWidth="0.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M -1 0 L 0 1 L 1.5 -1"
+                      stroke={navy}
+                      strokeWidth="0.6"
+                      fill="none"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </>
                 ) : (
                   <line x1="-1.6" y1="0" x2="1.6" y2="0" stroke={slate} strokeWidth="0.8" />
@@ -175,12 +234,19 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
         ))}
       </g>
 
-      {/* Top-left: stacked permission badges */}
       <g transform="translate(8 8)">
         {[0, 1, 2].map((i) => (
           <g key={i} transform={`translate(${i * 3} ${i * 5})`}>
-            <rect x="0" y="0" width="56" height="14" rx="3" fill={navy} stroke={slate} strokeWidth="0.8" />
-            {/* lock */}
+            <rect
+              x="0"
+              y="0"
+              width="56"
+              height="14"
+              rx="3"
+              fill={navy}
+              stroke={slate}
+              strokeWidth="0.8"
+            />
             <g transform="translate(6 7)">
               <rect x="-2.4" y="-1" width="4.8" height="4" rx="0.8" fill={accent} />
               <path
@@ -196,9 +262,17 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
         ))}
       </g>
 
-      {/* Bottom: audit log */}
       <g transform="translate(14 132)">
-        <rect x="-4" y="-6" width="298" height="42" rx="3" fill="url(#audit-panel)" stroke={slate} strokeWidth="0.8" />
+        <rect
+          x="-4"
+          y="-6"
+          width="298"
+          height="42"
+          rx="3"
+          fill="url(#audit-panel)"
+          stroke={slate}
+          strokeWidth="0.8"
+        />
         <text x="0" y="0" fontFamily="ui-monospace, monospace" fontSize="4" fill={muted}>
           AUDIT · IMMUTABLE
         </text>
@@ -232,10 +306,27 @@ export const PublicSectorAuditMetaphor: FC<MetaphorProps> = ({ accent, className
         ))}
       </g>
 
-      {/* Confidential stamp */}
       <g transform="translate(266 14) rotate(-12)" opacity="0.45">
-        <rect x="0" y="0" width="48" height="14" rx="1" fill="none" stroke={accent} strokeWidth="1" />
-        <rect x="2" y="2" width="44" height="10" rx="0.5" fill="none" stroke={accent} strokeWidth="0.4" />
+        <rect
+          x="0"
+          y="0"
+          width="48"
+          height="14"
+          rx="1"
+          fill="none"
+          stroke={accent}
+          strokeWidth="1"
+        />
+        <rect
+          x="2"
+          y="2"
+          width="44"
+          height="10"
+          rx="0.5"
+          fill="none"
+          stroke={accent}
+          strokeWidth="0.4"
+        />
         <text
           x="24"
           y="9.5"

@@ -27,7 +27,7 @@ export function VisualMetaphorPanel({
           background: `radial-gradient(120% 90% at 50% 100%, ${accent}1a 0%, transparent 65%)`,
         }}
       />
-      <div className="relative h-full w-full p-4 text-[#F7F3EA]">{children}</div>
+      <div className="relative h-full w-full p-4 text-ag-text">{children}</div>
     </div>
   );
 }

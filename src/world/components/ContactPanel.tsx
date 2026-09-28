@@ -1,9 +1,9 @@
-import { Turnstile } from "@marsidev/react-turnstile";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, Loader2, Mail, Send, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useLanguage } from "../../hooks/useLanguage";
-import { useWorld } from "../state/useWorld";
+import { useLanguage } from "@/hooks/useLanguage";
+import { useWorld } from "@/world/state/useWorld";
 
 const SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 
@@ -23,7 +23,7 @@ const COPY = {
     success: "¡Listo! Te respondo pronto.",
     errorGeneric: "No se pudo enviar. Intenta de nuevo.",
     errorRate: "Demasiados envíos. Intenta más tarde.",
-    errorCaptcha: "Verificación fallida. Recarga e intenta de nuevo.",
+    errorCaptcha: "Verificación fallida. Intenta de nuevo.",
     errorLinks: "Demasiados enlaces en el mensaje.",
     errorNameShort: "El nombre debe tener al menos 2 caracteres.",
     errorEmailInvalid: "Email inválido.",
@@ -47,7 +47,7 @@ const COPY = {
     success: "Done! I'll reply soon.",
     errorGeneric: "Could not send. Try again.",
     errorRate: "Too many submissions. Try later.",
-    errorCaptcha: "Verification failed. Reload and retry.",
+    errorCaptcha: "Verification failed. Try again.",
     errorLinks: "Too many links in the message.",
     errorNameShort: "Name must be at least 2 characters.",
     errorEmailInvalid: "Invalid email.",
@@ -66,12 +66,12 @@ export function ContactPanel() {
   const { contactOpen, setContactOpen } = useWorld();
   const { lang } = useLanguage();
   const t = COPY[lang];
-  const dialogRef = useRef<HTMLElement | null>(null);
+  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [website, setWebsite] = useState(""); // honeypot
+  const [website, setWebsite] = useState("");
   const [token, setToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [errorKey, setErrorKey] = useState<keyof typeof COPY.es>("errorGeneric");
@@ -107,7 +107,7 @@ export function ContactPanel() {
     status !== "submitting";
 
   const handleSubmit = useCallback(
-    async (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.SubmitEvent<HTMLFormElement>) => {
       event.preventDefault();
       if (status === "submitting") return;
 
@@ -182,13 +182,15 @@ export function ContactPanel() {
             setErrorKey(data.code === "too_big" ? "errorMessageLong" : "errorMessageShort");
           else setErrorKey("errorGeneric");
         } else setErrorKey("errorGeneric");
-        setStatus("error");
       } catch {
         setErrorKey("errorGeneric");
-        setStatus("error");
       }
+      // Turnstile tokens are single-use, so a retry needs a fresh challenge.
+      turnstileRef.current?.reset();
+      setToken("");
+      setStatus("error");
     },
-    [emailValid, messageCount, status, token, trimmedEmail, trimmedMessage, trimmedName, website]
+    [emailValid, messageCount, status, token, trimmedEmail, trimmedMessage, trimmedName, website],
   );
 
   return (
@@ -205,7 +207,6 @@ export function ContactPanel() {
             className="fixed inset-0 z-[80] cursor-default bg-[#070B14]/65 backdrop-blur-sm"
           />
           <motion.aside
-            ref={dialogRef}
             initial={{ opacity: 0, y: 28, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 28, scale: 0.98 }}
@@ -213,7 +214,7 @@ export function ContactPanel() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="contact-title"
-            className="fixed inset-x-2 bottom-2 z-[81] max-h-[92vh] overflow-y-auto rounded-2xl border bg-[#0B1020]/96 backdrop-blur-xl sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:max-h-[88vh] sm:w-[460px] sm:-translate-x-1/2 sm:-translate-y-1/2 md:w-[520px]"
+            className="fixed inset-x-2 bottom-2 z-[81] max-h-[92vh] overflow-y-auto rounded-2xl border bg-[#0B1020]/96 backdrop-blur-xl sm:inset-x-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-h-[88vh] sm:w-[460px] sm:-translate-x-1/2 sm:-translate-y-1/2 md:w-[520px]"
             style={{
               borderColor: `${ACCENT}33`,
               boxShadow: `0 28px 90px -42px ${ACCENT}`,
@@ -232,7 +233,7 @@ export function ContactPanel() {
                     className="inline-block h-2.5 w-2.5 rounded-full"
                     style={{ background: ACCENT, boxShadow: `0 0 14px ${ACCENT}` }}
                   />
-                  <span className="text-[10px] uppercase tracking-[0.28em] text-[#A8B0C2]">
+                  <span className="text-[10px] tracking-[0.28em] text-[#A8B0C2] uppercase">
                     {t.eyebrow}
                   </span>
                 </div>
@@ -258,11 +259,14 @@ export function ContactPanel() {
 
             <div className="px-6 py-6 md:px-7">
               {status === "success" ? (
-                <SuccessState message={t.success} onClose={close} lang={lang} />
+                <SuccessState message={t.success} closeLabel={t.close} onClose={close} />
               ) : (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-                  {/* Honeypot — visually hidden, tabIndex -1 */}
-                  <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                  {/* Honeypot: only bots fill a field that people cannot see. */}
+                  <div
+                    aria-hidden="true"
+                    className="absolute -left-[9999px] h-0 w-0 overflow-hidden"
+                  >
                     <label>
                       Website
                       <input
@@ -300,7 +304,7 @@ export function ContactPanel() {
                   <div>
                     <label
                       htmlFor="contact-message"
-                      className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A8B0C2]"
+                      className="mb-1.5 block text-[11px] font-semibold tracking-[0.18em] text-[#A8B0C2] uppercase"
                     >
                       {t.message}
                     </label>
@@ -313,11 +317,11 @@ export function ContactPanel() {
                       maxLength={2000}
                       rows={5}
                       aria-describedby="contact-message-hint"
-                      className="w-full resize-y rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[14px] text-[#F7F3EA] outline-none transition focus:border-[#E8B96B]/55 focus:bg-white/[0.06]"
+                      className="w-full resize-y rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[14px] text-[#F7F3EA] transition outline-none focus:border-[#E8B96B]/55 focus:bg-white/[0.06]"
                     />
                     <div
                       id="contact-message-hint"
-                      className="mt-1 flex items-center justify-between text-[10.5px] uppercase tracking-[0.16em]"
+                      className="mt-1 flex items-center justify-between text-[10.5px] tracking-[0.16em] uppercase"
                     >
                       <span className="text-[#A8B0C2]/70">{t.messageHint}</span>
                       <span
@@ -338,6 +342,7 @@ export function ContactPanel() {
 
                   {SITE_KEY ? (
                     <Turnstile
+                      ref={turnstileRef}
                       siteKey={SITE_KEY}
                       onSuccess={setToken}
                       onError={() => setToken("")}
@@ -357,7 +362,7 @@ export function ContactPanel() {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#E8B96B] px-5 py-3 text-[12px] font-semibold uppercase tracking-[0.16em] text-[#0B1020] transition hover:bg-[#f0c887] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#E8B96B] px-5 py-3 text-[12px] font-semibold tracking-[0.16em] text-[#0B1020] uppercase transition hover:bg-[#f0c887] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {status === "submitting" ? (
                       <>
@@ -372,7 +377,7 @@ export function ContactPanel() {
                     )}
                   </button>
 
-                  <p className="flex items-center gap-1.5 text-[10.5px] uppercase tracking-[0.14em] text-[#A8B0C2]/70">
+                  <p className="flex items-center gap-1.5 text-[10.5px] tracking-[0.14em] text-[#A8B0C2]/70 uppercase">
                     <Mail size={11} />
                     hello@amaurygomez.dev
                   </p>
@@ -411,7 +416,7 @@ function Field({
     <div>
       <label
         htmlFor={id}
-        className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A8B0C2]"
+        className="mb-1.5 block text-[11px] font-semibold tracking-[0.18em] text-[#A8B0C2] uppercase"
       >
         {label}
       </label>
@@ -424,7 +429,7 @@ function Field({
         minLength={minLength}
         maxLength={maxLength}
         autoComplete={autoComplete}
-        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-[#F7F3EA] outline-none transition focus:border-[#E8B96B]/55 focus:bg-white/[0.06]"
+        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-[#F7F3EA] transition outline-none focus:border-[#E8B96B]/55 focus:bg-white/[0.06]"
       />
     </div>
   );
@@ -432,12 +437,12 @@ function Field({
 
 function SuccessState({
   message,
+  closeLabel,
   onClose,
-  lang,
 }: {
   message: string;
+  closeLabel: string;
   onClose: () => void;
-  lang: "es" | "en";
 }) {
   return (
     <div className="flex flex-col items-center gap-4 py-6 text-center">
@@ -446,9 +451,9 @@ function SuccessState({
       <button
         type="button"
         onClick={onClose}
-        className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#E8B96B]/40 px-5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#F7F3EA] transition hover:border-[#E8B96B] hover:text-[#E8B96B]"
+        className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#E8B96B]/40 px-5 py-2 text-[11px] font-semibold tracking-[0.16em] text-[#F7F3EA] uppercase transition hover:border-[#E8B96B] hover:text-[#E8B96B]"
       >
-        {lang === "es" ? "Cerrar" : "Close"}
+        {closeLabel}
       </button>
     </div>
   );

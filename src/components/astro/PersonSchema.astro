@@ -1,43 +1,28 @@
 ---
-import { content, profile } from "../../i18n/content";
+import { profile } from "@/i18n/content";
+import { cv } from "@/i18n/cv";
 
-const es = content.es;
-const skills = es.skillGroups.flatMap((g) => g.skills.map((s) => s.name));
-const stack = Object.values(es.techStack).flat();
+const en = cv.en;
 
-const personLd = {
+const person = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: profile.name,
   alternateName: profile.shortName,
   email: profile.email,
-  url: "https://amaurygomez.dev",
-  image: "https://amaurygomez.dev/og.png",
-  jobTitle: "Senior Software Engineer · Enterprise Systems Architect · AI Operations Lab (personal)",
-  description: es.profile.summary,
-  nationality: "Dominican",
+  url: Astro.site?.toString(),
+  image: new URL("/og.png", Astro.site).toString(),
+  jobTitle: "Senior Full Stack Engineer (.NET / React)",
+  description: en.profile,
   sameAs: [profile.github],
   knowsLanguage: ["Spanish", "English"],
-  knowsAbout: Array.from(new Set([...skills, ...stack])),
-  hasOccupation: {
-    "@type": "Occupation",
-    name: "Senior Software Engineer",
-    occupationLocation: {
-      "@type": "City",
-      name: "Santo Domingo",
-    },
-    skills:
-      "Telecommunications platforms, banking systems, confidential public-sector platforms, transactional/POS systems, .NET, React, Java, Oracle, SQL Server, geospatial maps, APIs, legacy modernization, personal AI operations stack (local LLM routing, n8n workflow automation, Qdrant vector memory, Langfuse observability)",
-  },
+  knowsAbout: [...new Set(en.skills.flatMap((group) => group.items))],
   address: {
     "@type": "PostalAddress",
     addressLocality: "Santo Domingo",
-    addressRegion: "Distrito Nacional",
     addressCountry: "DO",
   },
-  // alumniOf / workExample intentionally omitted: employers and institutions
-  // are withheld from every public surface for confidentiality.
 };
 ---
 
-<script type="application/ld+json" is:inline set:html={JSON.stringify(personLd)} />
+<script type="application/ld+json" is:inline set:html={JSON.stringify(person)}></script>

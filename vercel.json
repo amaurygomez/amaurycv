@@ -2,8 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "astro",
   "buildCommand": "astro build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
@@ -19,16 +18,12 @@
           "value": "DENY"
         },
         {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
         },
         {
           "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+          "value": "camera=(), microphone=(), geolocation=()"
         },
         {
           "key": "Strict-Transport-Security",
@@ -42,15 +37,6 @@
     },
     {
       "source": "/_astro/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

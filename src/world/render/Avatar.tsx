@@ -1,16 +1,6 @@
-import { Character } from "./Character";
+import { Character } from "./primitives/Character";
 
-interface AvatarProps {
-  x: number;
-  y: number;
-  accent?: string;
-}
-
-/**
- * Idle Lobby figure — wraps Character with sensible defaults so the
- * Lobby entrance always has the same friendly silhouette.
- */
-export function Avatar({ x, y, accent = "#E8B96B" }: AvatarProps) {
+export function Avatar({ x, y, accent = "#E8B96B" }: { x: number; y: number; accent?: string }) {
   return (
     <Character
       x={x}

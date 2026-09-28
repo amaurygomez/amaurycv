@@ -1,16 +1,8 @@
 import { Minus, Plus, RotateCcw } from "lucide-react";
-import { useLanguage } from "../../hooks/useLanguage";
-import { ZOOM_MAX, ZOOM_MIN } from "../state/context";
-import { useWorld } from "../state/useWorld";
+import { useLanguage } from "@/hooks/useLanguage";
+import { ZOOM_MAX, ZOOM_MIN } from "@/world/state/context";
+import { useWorld } from "@/world/state/useWorld";
 
-/**
- * Floating zoom controls — bottom-right HTML overlay.
- *
- * Sits on the canvas (z-30, same plane as dock/tour) and lets visitors
- * zoom the Pixi camera in/out. Also responds to the mouse wheel (handled
- * inside WorldStageCanvas). Reset returns to the per-room hand-tuned
- * camera framing.
- */
 export function ZoomControls() {
   const { userZoom, zoomIn, zoomOut, resetZoom } = useWorld();
   const { lang } = useLanguage();
@@ -21,15 +13,7 @@ export function ZoomControls() {
 
   return (
     <div
-      className="
-        pointer-events-auto absolute z-30
-        right-4 bottom-4
-        md:right-6 md:bottom-6
-        flex flex-col items-stretch gap-1
-        rounded-2xl border border-[#E8B96B]/22 bg-[#0B1020]/82
-        p-1.5 backdrop-blur-md
-        shadow-[0_20px_60px_-28px_rgba(232,185,107,0.5)]
-      "
+      className="pointer-events-auto absolute right-4 bottom-4 z-30 flex flex-col items-stretch gap-1 rounded-2xl border border-ag-gold/22 bg-ag-panel/82 p-1.5 shadow-[0_20px_60px_-28px_rgba(232,185,107,0.5)] backdrop-blur-md md:right-6 md:bottom-6"
       role="group"
       aria-label={lang === "es" ? "Controles de zoom" : "Zoom controls"}
     >
@@ -44,14 +28,7 @@ export function ZoomControls() {
         onClick={resetZoom}
         aria-label={labelReset}
         title={labelReset}
-        className="
-          inline-flex h-7 items-center justify-center
-          rounded-md px-2
-          text-[9px] font-semibold uppercase tracking-[0.16em]
-          text-[#A8B0C2] transition
-          hover:text-[#E8B96B]
-          tabular-nums
-        "
+        className="inline-flex h-7 items-center justify-center rounded-md px-2 text-[9px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase tabular-nums transition hover:text-ag-gold"
       >
         {pct}%
       </button>
@@ -67,12 +44,7 @@ export function ZoomControls() {
           onClick={resetZoom}
           aria-label={labelReset}
           title={labelReset}
-          className="
-            mt-0.5 inline-flex h-7 w-9 items-center justify-center
-            rounded-md border border-white/8
-            text-[#A8B0C2] transition
-            hover:border-[#E8B96B]/55 hover:text-[#E8B96B]
-          "
+          className="mt-0.5 inline-flex h-7 w-9 items-center justify-center rounded-md border border-white/8 text-ag-text-muted transition hover:border-ag-gold/55 hover:text-ag-gold"
         >
           <RotateCcw size={12} strokeWidth={2.4} />
         </button>
@@ -99,13 +71,7 @@ function ZoomBtn({
       disabled={disabled}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className="
-        inline-flex h-9 w-9 items-center justify-center
-        rounded-md border border-white/8
-        text-[#F7F3EA] transition
-        hover:border-[#E8B96B]/55 hover:text-[#E8B96B]
-        disabled:cursor-not-allowed disabled:opacity-30
-      "
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/8 text-ag-text transition hover:border-ag-gold/55 hover:text-ag-gold disabled:cursor-not-allowed disabled:opacity-30"
     >
       {icon}
     </button>

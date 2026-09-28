@@ -1,0 +1,32 @@
+---
+import type { HTMLAttributes } from "astro/types";
+import type { Lang } from "@/i18n/content";
+import Localized from "./Localized.astro";
+
+interface Props extends Omit<HTMLAttributes<"input">, "name"> {
+  name: string;
+  label: Record<Lang, string>;
+}
+
+const { name, label, ...attributes } = Astro.props;
+const id = `cv-request-${name}`;
+---
+
+<div>
+  <label for={id} class="block text-[0.8125rem] font-medium text-ink-muted">
+    <Localized text={label} />
+  </label>
+  <input
+    id={id}
+    name={name}
+    required
+    aria-describedby={`${id}-error`}
+    class="mt-1.5 h-11 w-full rounded-lg border border-field-border bg-field px-3 text-body text-ink transition-colors duration-150 read-only:opacity-70 focus:border-accent aria-invalid:border-danger"
+    {...attributes}
+  />
+  <p
+    id={`${id}-error`}
+    data-error-for={name}
+    class="mt-1.5 text-[0.8125rem] text-danger empty:hidden"
+  ></p>
+</div>
