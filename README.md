@@ -60,3 +60,8 @@ tests/           Vitest units and Playwright end-to-end specs
 
 Employer, client and institution names are generalized on the public site by design.
 The full CV is sent on request.
+
+## License
+
+MIT for the code (see `LICENSE`). Amaury Gómez's name, CV content and the "AG World" branding
+are not covered and are not licensed for reuse.

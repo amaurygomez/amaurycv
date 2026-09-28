@@ -26,7 +26,7 @@ const YEAR_ALLOWED = [
   /www\.w3\.org\/2000\/svg/g,
   /(?<![\p{L}\p{N}])(?:2000|2048)(?![\p{L}\p{N}])/gu,
 ];
-const YEAR_ALLOWED_FILES = ["src/styles/fonts/OFL.txt"];
+const YEAR_ALLOWED_FILES = ["src/styles/fonts/OFL.txt", "LICENSE"];
 
 // An age pins a birth year; an approximate tenure ("8+ años") does not.
 const AGE_PATTERNS = [
