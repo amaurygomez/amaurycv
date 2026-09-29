@@ -3,6 +3,8 @@
 import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { initHero } from "./hero.js";
+import { initProjects } from "./projects.js";
 
 
   /* ---------- utils ---------- */
@@ -65,6 +67,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
   /* ---------- i18n ---------- */
   var I18N = {
     es: {
+      'skip': 'Saltar al contenido',
       'brand.desc': 'Ingeniería de software', 'brand.aria': 'Amaury Gómez · Ingeniería de software',
       'nav.main': 'Principal', 'nav.lang': 'Idioma', 'nav.theme': 'Cambiar tema', 'nav.menu': 'Abrir menú', 'nav.menuClose': 'Cerrar menú',
       'nav.services': 'Servicios', 'nav.projects': 'Proyectos', 'nav.approach': 'Enfoque', 'nav.process': 'Proceso', 'nav.founder': 'Fundador', 'nav.contact': 'Contacto', 'nav.talk': 'Contactar',
@@ -144,6 +147,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
       'footer.copy': '© Santo Domingo, República Dominicana', 'footer.line': 'Amaury Gómez · Ingeniería de software', 'footer.ag': 'Explorar AG World'
     },
     en: {
+      'skip': 'Skip to content',
       'brand.desc': 'Software engineering', 'brand.aria': 'Amaury Gómez · Software engineering',
       'nav.main': 'Main', 'nav.lang': 'Language', 'nav.theme': 'Toggle theme', 'nav.menu': 'Open menu', 'nav.menuClose': 'Close menu',
       'nav.services': 'Services', 'nav.projects': 'Projects', 'nav.approach': 'Approach', 'nav.process': 'Process', 'nav.founder': 'Founder', 'nav.contact': 'Contact', 'nav.talk': 'Contact',
@@ -297,6 +301,28 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
   $$('a', mobile).forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape' && mobile.classList.contains('is-open')) setMenu(false); });
   window.addEventListener('resize', function () { if (window.innerWidth > 1000 && mobile.classList.contains('is-open')) setMenu(false); });
+
+  /* ---------- scroll progress on the nav edge ---------- */
+  (function () {
+    var bar = $('#progress'); if (!bar || REDUCED) return;
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.setProperty('--p', max > 0 ? clamp(window.scrollY / max, 0, 1).toFixed(4) : '0');
+    }
+    window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    update();
+  })();
+
+  /* ---------- cursor spotlight on cards ---------- */
+  if (!REDUCED) document.addEventListener('pointermove', function (e) {
+    var card = e.target && e.target.closest ? e.target.closest('.svc, .ag, .cv, .start') : null;
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    card.style.setProperty('--sx', (e.clientX - r.left) + 'px');
+    card.style.setProperty('--sy', (e.clientY - r.top) + 'px');
+  }, { passive: true });
 
   /* ---------- primary button cursor glow ---------- */
   if (!REDUCED) document.addEventListener('pointermove', function (e) {
@@ -541,414 +567,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
     return item;
   }
 
-  /* ---------- hero: 3D city-network ---------- */
-  (function () {
-    var host = $('#hero-scene'), canvas = $('#hero-canvas');
-    var state = { scroll: 0, p: 0, mx: 0, my: 0, smx: 0, smy: 0, visible: true, running: false };
-    var narrow = window.innerWidth < 720;
-    var fine = false;
-    try { fine = window.matchMedia('(pointer: fine)').matches; } catch { /* unavailable: keep the default */ }
-
-    function fallback() {
-      host.classList.add('is-fallback');
-      isoCity(canvas, { size: narrow ? 21 : 29, seed: 11, pulses: narrow ? 6 : 12, fit: narrow ? 1.6 : 1.15, shiftX: narrow ? 0 : 0.12 });
-    }
-
-    var renderer = null;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
-      if (!renderer.getContext()) throw new Error('no context');
-    } catch { renderer = null; }
-    if (!renderer) { fallback(); return; }
-
-    var DPR = Math.min(window.devicePixelRatio || 1, narrow ? 1.5 : 2);
-    renderer.setPixelRatio(DPR);
-    var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(34, 1, 1, 500);
-
-    var CELL = 6, SW = 1.7, N = 26, half = N * CELL / 2;
-    var rnd = mulberry32(7919);
-
-    var U = {
-      uBg: { value: new THREE.Color('#FAFAF9') }, uSurface: { value: new THREE.Color('#FFFFFF') }, uSunken: { value: new THREE.Color('#F2F3F6') },
-      uLine: { value: new THREE.Color('#E3E5EA') }, uLineStrong: { value: new THREE.Color('#C9CDD6') }, uPrimary: { value: new THREE.Color('#1F4FE0') },
-      uAccent: { value: new THREE.Color('#6A3BD6') }, uWin: { value: new THREE.Color('#C9CDD6') }, uCurb: { value: new THREE.Color('#C9CDD6') }, uInk: { value: new THREE.Color('#0B0F19') },
-      uTime: { value: 0 }, uFogNear: { value: 40 }, uFogFar: { value: 90 }, uCell: { value: CELL }, uHalf: { value: half }, uSW: { value: SW },
-      uPx: { value: DPR }, uLight: { value: 1 }
-    };
-
-    /* ground */
-    var groundMat = new THREE.ShaderMaterial({
-      uniforms: U,
-      vertexShader: [
-        'varying vec3 vW;',
-        'void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
-      ].join('\n'),
-      fragmentShader: [
-        'uniform vec3 uBg,uSunken,uLine,uCurb; uniform float uCell,uHalf,uSW,uFogNear,uFogFar,uLight;',
-        'varying vec3 vW;',
-        'void main(){',
-        '  vec2 g = mod(vW.xz + uHalf, uCell); vec2 de = min(g, uCell - g); float ds = min(de.x, de.y);',
-        '  float street = 1.0 - smoothstep(uSW*0.5 - 0.05, uSW*0.5 + 0.05, ds);',
-        '  vec3 col = mix(uSunken, uBg, street);',
-        '  float curb = 1.0 - smoothstep(0.0, 0.07, abs(ds - uSW*0.5));',
-        '  col = mix(col, uCurb, curb * mix(0.8, 0.9, uLight));',
-        '  float cen = 1.0 - smoothstep(0.0, 0.05, ds);',
-        '  float along = de.x < de.y ? vW.z : vW.x;',
-        '  float dash = step(0.5, fract(along*0.45));',
-        '  col = mix(col, uCurb, cen*dash*0.55);',
-        '  float d = distance(vW, cameraPosition);',
-        '  col = mix(col, uBg, smoothstep(uFogNear, uFogFar, d));',
-        '  gl_FragColor = vec4(col, 1.0);',
-        '}'
-      ].join('\n')
-    });
-    var ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    scene.add(ground);
-
-    /* buildings */
-    var lots = [];
-    var inner = CELL - SW, lotSz = inner / 2, gap = 0.26;
-    for (var bi = 0; bi < N; bi++) for (var bj = 0; bj < N; bj++) {
-      var bx = -half + bi * CELL + CELL / 2, bz = -half + bj * CELL + CELL / 2;
-      var dist = Math.hypot(bx, bz) / (half * 0.95);
-      var fall = Math.pow(Math.max(0, 1 - dist), 1.5);
-      var merged = rnd() < 0.16 + fall * 0.2;
-      if (merged) {
-        var mh = 1.2 + Math.pow(rnd(), 1.5) * (3 + 19 * fall);
-        var ms = inner - gap * 2;
-        lots.push({ x: bx, z: bz, w: ms * (0.82 + rnd() * 0.18), d: ms * (0.82 + rnd() * 0.18), h: mh, seed: rnd() });
-      } else {
-        for (var li = 0; li < 2; li++) for (var lj = 0; lj < 2; lj++) {
-          if (rnd() < 0.13) continue;
-          var lx = bx - inner / 2 + lotSz / 2 + li * lotSz, lz = bz - inner / 2 + lotSz / 2 + lj * lotSz;
-          var h = 0.7 + Math.pow(rnd(), 1.9) * (1.6 + 13 * fall);
-          var s = lotSz - gap;
-          lots.push({ x: lx, z: lz, w: s * (0.7 + rnd() * 0.3), d: s * (0.7 + rnd() * 0.3), h: h, seed: rnd() });
-        }
-      }
-    }
-    var boxGeo = new THREE.BoxGeometry(1, 1, 1);
-    boxGeo.translate(0, 0.5, 0);
-    var seeds = new Float32Array(lots.length);
-    lots.forEach(function (l, i) { seeds[i] = l.seed; });
-    boxGeo.setAttribute('aSeed', new THREE.InstancedBufferAttribute(seeds, 1));
-    var bMat = new THREE.ShaderMaterial({
-      uniforms: U,
-      vertexShader: [
-        'attribute float aSeed;',
-        'varying vec3 vW; varying vec3 vN; varying float vTop; varying float vSeed;',
-        'void main(){',
-        '  vec4 lp = instanceMatrix * vec4(position, 1.0);',
-        '  vec4 wp = modelMatrix * lp; vW = wp.xyz;',
-        '  vN = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * normal);',
-        '  vTop = position.y; vSeed = aSeed;',
-        '  gl_Position = projectionMatrix * viewMatrix * wp;',
-        '}'
-      ].join('\n'),
-      fragmentShader: [
-        'uniform vec3 uBg,uSurface,uLine,uLineStrong,uWin,uInk; uniform float uTime,uFogNear,uFogFar,uLight;',
-        'varying vec3 vW; varying vec3 vN; varying float vTop; varying float vSeed;',
-        'float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }',
-        'void main(){',
-        '  vec3 n = abs(vN);',
-        '  float top = step(0.5, n.y);',
-        '  float fx = step(0.5, n.x);',
-        /* dark: x-facing walls lighter; light: z-facing walls in deeper gray, x-facing lighter gray */
-        '  vec3 sideD = mix(uSurface, uLine, mix(0.30, 0.62, fx) + vSeed * 0.12);',
-        '  vec3 topD  = mix(uLine, uLineStrong, 0.35 + vSeed * 0.3);',
-        '  vec3 sideL = mix(uSurface, uLineStrong, mix(0.62, 0.30, fx) + vSeed * 0.08);',
-        '  vec3 topL  = mix(uSurface, uLine, 0.08 + vSeed * 0.12);',
-        '  vec3 col = mix(mix(sideD, sideL, uLight), mix(topD, topL, uLight), top);',
-        '  if (top < 0.5) {',
-        '    vec2 uv = n.x > 0.5 ? vec2(vW.z, vW.y) : vec2(vW.x, vW.y);',
-        '    vec2 sc = vec2(2.6, 2.2);',
-        '    vec2 cell = floor(uv * sc); vec2 f = fract(uv * sc);',
-        '    float inWin = step(0.28, f.x) * step(f.x, 0.72) * step(0.3, f.y) * step(f.y, 0.7);',
-        '    float lit = step(0.8, hash(cell + vSeed * 19.0));',
-        '    float blink = step(0.25, hash(cell * 0.37 + floor(uTime * 0.12 + hash(cell) * 9.0)));',
-        '    col = mix(col, uWin, inWin * lit * blink * mix(0.75, 0.55, uLight));',
-        '    float ao = 1.0 - smoothstep(0.0, 1.8, vW.y);',
-        '    col = mix(col, mix(uBg, uLineStrong, uLight), ao * mix(0.35, 0.30, uLight));',
-        '    col = mix(col, mix(uLineStrong, uInk, uLight * 0.25), smoothstep(0.96, 1.0, vTop) * mix(0.6, 0.35, uLight));',
-        '  }',
-        '  float d = distance(vW, cameraPosition);',
-        '  col = mix(col, uBg, smoothstep(uFogNear, uFogFar, d));',
-        '  gl_FragColor = vec4(col, 1.0);',
-        '}'
-      ].join('\n')
-    });
-    var buildings = new THREE.InstancedMesh(boxGeo, bMat, lots.length);
-    var m4 = new THREE.Matrix4(), q0 = new THREE.Quaternion(), v3 = new THREE.Vector3(), s3 = new THREE.Vector3();
-    lots.forEach(function (l, i) {
-      v3.set(l.x, 0, l.z); s3.set(l.w, l.h, l.d);
-      m4.compose(v3, q0, s3);
-      buildings.setMatrixAt(i, m4);
-    });
-    buildings.instanceMatrix.needsUpdate = true;
-    scene.add(buildings);
-
-    /* points shader (pulses, nodes, arc dots): soft core + wide halo */
-    var ptsVert = [
-      'attribute float aAlpha; attribute float aSize;',
-      'uniform float uPx, uFogNear, uFogFar;',
-      'varying float vA;',
-      'void main(){',
-      '  vec4 wp = modelMatrix * vec4(position, 1.0);',
-      '  float d = distance(wp.xyz, cameraPosition);',
-      '  vA = aAlpha * (1.0 - smoothstep(uFogNear, uFogFar, d));',
-      '  vec4 mv = viewMatrix * wp;',
-      '  gl_PointSize = aSize * uPx * (72.0 / -mv.z);',
-      '  gl_Position = projectionMatrix * mv;',
-      '}'
-    ].join('\n');
-    var ptsFrag = [
-      'uniform vec3 uColor; uniform float uLight; varying float vA;',
-      'void main(){',
-      '  vec2 c = gl_PointCoord - 0.5; float d = length(c) * 2.0;',
-      '  float core = pow(clamp(1.0 - d * 1.9, 0.0, 1.0), 1.6);',
-      '  float halo = pow(clamp(1.0 - d, 0.0, 1.0), 2.2) * mix(0.5, 0.35, uLight);',
-      '  float a = clamp(core + halo, 0.0, 1.0) * vA;',
-      '  if (a < 0.01) discard;',
-      '  gl_FragColor = vec4(uColor, a);',
-      '}'
-    ].join('\n');
-    function ptsMat(color) {
-      var u = { uPx: U.uPx, uFogNear: U.uFogNear, uFogFar: U.uFogFar, uLight: U.uLight, uColor: { value: color } };
-      return new THREE.ShaderMaterial({ uniforms: u, vertexShader: ptsVert, fragmentShader: ptsFrag, transparent: true, depthWrite: false, depthTest: true, blending: THREE.NormalBlending });
-    }
-    function ptsGeo(count, sizeFn) {
-      var g = new THREE.BufferGeometry();
-      var pos = new Float32Array(count * 3), al = new Float32Array(count), sz = new Float32Array(count);
-      for (var i = 0; i < count; i++) sz[i] = sizeFn(i);
-      g.setAttribute('position', new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
-      g.setAttribute('aAlpha', new THREE.BufferAttribute(al, 1).setUsage(THREE.DynamicDrawUsage));
-      g.setAttribute('aSize', new THREE.BufferAttribute(sz, 1));
-      return g;
-    }
-
-    /* street pulses */
-    var NN = N + 1, P = narrow ? 16 : 36, T = 18, lo = 4, hi = N - 4;
-    var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
-    var pulses = [];
-    for (var pi = 0; pi < P; pi++) {
-      var dd = DIRS[Math.floor(rnd() * 4)];
-      pulses.push({ i: lo + Math.floor(rnd() * (hi - lo)), j: lo + Math.floor(rnd() * (hi - lo)), di: dd[0], dj: dd[1], t: rnd(), speed: 7 + rnd() * 8, hist: new Float32Array(T * 2), hLen: 0, hHead: 0, lx: 0, lz: 0 });
-    }
-    var pulseGeo = ptsGeo(P * T, function (i) { var k = i % T; return k === 0 ? 3.6 : 2.7 * (1 - k / T) + 0.5; });
-    var pulseMat = ptsMat(U.uPrimary.value);
-    var pulsePts = new THREE.Points(pulseGeo, pulseMat);
-    pulsePts.frustumCulled = false;
-    scene.add(pulsePts);
-
-    /* nodes */
-    var nodeGeo = ptsGeo(NN * NN, function () { return 2.4; });
-    var nodePos = nodeGeo.getAttribute('position').array;
-    var nodeAl = nodeGeo.getAttribute('aAlpha').array;
-    var nodeI = new Float32Array(NN * NN);
-    for (var ni = 0; ni < NN; ni++) for (var nj = 0; nj < NN; nj++) {
-      var idx = ni * NN + nj;
-      nodePos[idx * 3] = -half + ni * CELL; nodePos[idx * 3 + 1] = 0.08; nodePos[idx * 3 + 2] = -half + nj * CELL;
-      nodeAl[idx] = (ni >= lo && ni <= hi && nj >= lo && nj <= hi) ? 0.16 : 0;
-    }
-    nodeGeo.getAttribute('position').needsUpdate = true;
-    var nodeMat = ptsMat(U.uPrimary.value);
-    var nodePts = new THREE.Points(nodeGeo, nodeMat);
-    nodePts.frustumCulled = false;
-    scene.add(nodePts);
-
-    /* rooftop arcs */
-    var tall = lots.filter(function (l) { return l.h > 7 && Math.hypot(l.x, l.z) < 48; });
-    var arcs = [], tries = 0;
-    while (arcs.length < (narrow ? 12 : 26) && tries < 800 && tall.length > 3) {
-      tries++;
-      var a = tall[Math.floor(rnd() * tall.length)], b = tall[Math.floor(rnd() * tall.length)];
-      var dab = Math.hypot(a.x - b.x, a.z - b.z);
-      if (a === b || dab < 9 || dab > 34) continue;
-      var dup = arcs.some(function (c) { return (c.a === a && c.b === b) || (c.a === b && c.b === a); });
-      if (dup) continue;
-      var v0 = new THREE.Vector3(a.x, a.h, a.z), v2 = new THREE.Vector3(b.x, b.h, b.z);
-      var v1 = v0.clone().add(v2).multiplyScalar(0.5); v1.y = Math.max(a.h, b.h) + 4 + dab * 0.22;
-      var curve = new THREE.QuadraticBezierCurve3(v0, v1, v2);
-      arcs.push({ a: a, b: b, pts: curve.getPoints(28), accent: arcs.length % 10 === 4, t: rnd(), speed: 0.12 + rnd() * 0.12 });
-    }
-    var segCount = arcs.reduce(function (n, c) { return n + (c.pts.length - 1); }, 0);
-    var arcPos = new Float32Array(segCount * 6), arcCol = new Float32Array(segCount * 6);
-    var arcGeo = new THREE.BufferGeometry();
-    arcGeo.setAttribute('position', new THREE.BufferAttribute(arcPos, 3));
-    arcGeo.setAttribute('color', new THREE.BufferAttribute(arcCol, 3));
-    var arcMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.75, depthWrite: false });
-    var arcLines = new THREE.LineSegments(arcGeo, arcMat);
-    arcLines.frustumCulled = false;
-    scene.add(arcLines);
-    function paintArcs() {
-      var o = 0, prim = U.uPrimary.value, acc = U.uAccent.value, bg = U.uBg.value, tmp = new THREE.Color();
-      var isLight = U.uLight.value > 0.5;
-      arcs.forEach(function (c) {
-        var base = c.accent ? acc : prim;
-        for (var k = 0; k < c.pts.length - 1; k++) {
-          var p0 = c.pts[k], p1 = c.pts[k + 1];
-          var fade = (isLight ? 0.55 : 0.35) + (isLight ? 0.45 : 0.65) * Math.sin((k / (c.pts.length - 1)) * Math.PI);
-          tmp.copy(bg).lerp(base, fade);
-          arcPos[o * 6] = p0.x; arcPos[o * 6 + 1] = p0.y; arcPos[o * 6 + 2] = p0.z;
-          arcPos[o * 6 + 3] = p1.x; arcPos[o * 6 + 4] = p1.y; arcPos[o * 6 + 5] = p1.z;
-          arcCol[o * 6] = tmp.r; arcCol[o * 6 + 1] = tmp.g; arcCol[o * 6 + 2] = tmp.b;
-          arcCol[o * 6 + 3] = tmp.r; arcCol[o * 6 + 4] = tmp.g; arcCol[o * 6 + 5] = tmp.b;
-          o++;
-        }
-      });
-      arcGeo.getAttribute('position').needsUpdate = true;
-      arcGeo.getAttribute('color').needsUpdate = true;
-    }
-    var arcDotGeo = ptsGeo(arcs.length, function () { return 2.8; });
-    var arcDotMat = ptsMat(U.uPrimary.value);
-    var arcDots = new THREE.Points(arcDotGeo, arcDotMat);
-    arcDots.frustumCulled = false;
-    scene.add(arcDots);
-    var arcAccGeo = ptsGeo(arcs.length, function () { return 2.8; });
-    var arcAccDots = new THREE.Points(arcAccGeo, ptsMat(U.uAccent.value));
-    arcAccDots.frustumCulled = false;
-    scene.add(arcAccDots);
-
-    /* theme */
-    function applyTheme() {
-      var T = tokens();
-      U.uBg.value.set(T.bg); U.uSurface.value.set(T.surface); U.uSunken.value.set(T.sunken);
-      U.uLine.value.set(T.line); U.uLineStrong.value.set(T.lineStrong); U.uPrimary.value.set(T.primary); U.uAccent.value.set(T.accent);
-      U.uInk.value.set(T.ink);
-      U.uLight.value = T.isLight ? 1 : 0;
-      if (T.isLight) { U.uWin.value.set(T.lineStrong).lerp(new THREE.Color(T.ink), 0.3); U.uCurb.value.set(T.lineStrong); }
-      else { U.uWin.value.set(T.ink).lerp(new THREE.Color(T.primary), 0.45); U.uCurb.value.set(T.line); }
-      var blend = T.isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
-      [pulseMat, nodeMat, arcDotMat, arcAccDots.material].forEach(function (m) { m.blending = blend; m.needsUpdate = true; });
-      arcMat.opacity = T.isLight ? 0.6 : 0.55;
-      renderer.setClearColor(new THREE.Color(T.bg), 1);
-      paintArcs();
-      if (REDUCED) render();
-    }
-
-    /* simulation */
-    var pulsePosArr = pulseGeo.getAttribute('position').array, pulseAlArr = pulseGeo.getAttribute('aAlpha').array;
-    function stepPulses(dt) {
-      for (var p = 0; p < P; p++) {
-        var u = pulses[p];
-        u.t += u.speed * dt / CELL;
-        while (u.t >= 1) {
-          u.t -= 1; u.i += u.di; u.j += u.dj;
-          if (u.i >= 0 && u.i < NN && u.j >= 0 && u.j < NN) nodeI[u.i * NN + u.j] = 1;
-          var keep = rnd() < 0.55, ni2 = u.i + u.di, nj2 = u.j + u.dj;
-          if (!keep || ni2 < lo || ni2 > hi || nj2 < lo || nj2 > hi) {
-            var opts = [];
-            for (var d = 0; d < 4; d++) {
-              var dr = DIRS[d];
-              if (dr[0] === -u.di && dr[1] === -u.dj) continue;
-              var x = u.i + dr[0], y = u.j + dr[1];
-              if (x >= lo && x <= hi && y >= lo && y <= hi) opts.push(dr);
-            }
-            var pick = opts.length ? opts[Math.floor(rnd() * opts.length)] : [-u.di, -u.dj];
-            u.di = pick[0]; u.dj = pick[1];
-          }
-        }
-        var px = -half + (u.i + u.di * u.t) * CELL - u.dj * 0.34, pz = -half + (u.j + u.dj * u.t) * CELL + u.di * 0.34;
-        if (u.hLen === 0 || Math.hypot(u.lx - px, u.lz - pz) > 0.32) {
-          u.hHead = (u.hHead + 1) % T; u.hist[u.hHead * 2] = px; u.hist[u.hHead * 2 + 1] = pz; u.hLen = Math.min(T, u.hLen + 1);
-          u.lx = px; u.lz = pz;
-        }
-        var base = p * T;
-        pulsePosArr[base * 3] = px; pulsePosArr[base * 3 + 1] = 0.22; pulsePosArr[base * 3 + 2] = pz; pulseAlArr[base] = 1;
-        for (var k = 1; k < T; k++) {
-          var ix = base + k;
-          if (k < u.hLen) {
-            var hIdx = ((u.hHead - k) % T + T) % T;
-            pulsePosArr[ix * 3] = u.hist[hIdx * 2]; pulsePosArr[ix * 3 + 1] = 0.22; pulsePosArr[ix * 3 + 2] = u.hist[hIdx * 2 + 1];
-            pulseAlArr[ix] = 0.85 * Math.pow(1 - k / T, 1.6);
-          } else pulseAlArr[ix] = 0;
-        }
-      }
-      pulseGeo.getAttribute('position').needsUpdate = true;
-      pulseGeo.getAttribute('aAlpha').needsUpdate = true;
-      var decay = Math.exp(-dt * 1.7);
-      for (var n = 0; n < nodeI.length; n++) {
-        if (nodeI[n] > 0.001) { nodeI[n] *= decay; var ni3 = n / NN | 0, nj3 = n % NN; nodeAl[n] = ((ni3 >= lo && ni3 <= hi && nj3 >= lo && nj3 <= hi) ? 0.16 : 0) + nodeI[n] * 0.9; }
-      }
-      nodeGeo.getAttribute('aAlpha').needsUpdate = true;
-      var ap = arcDotGeo.getAttribute('position').array, aa = arcDotGeo.getAttribute('aAlpha').array;
-      var bp = arcAccGeo.getAttribute('position').array, ba = arcAccGeo.getAttribute('aAlpha').array;
-      arcs.forEach(function (c, i) {
-        c.t = (c.t + c.speed * dt) % 1;
-        var f = c.t * (c.pts.length - 1), k0 = Math.floor(f), k1 = Math.min(c.pts.length - 1, k0 + 1), ft = f - k0;
-        var x = lerp(c.pts[k0].x, c.pts[k1].x, ft), y = lerp(c.pts[k0].y, c.pts[k1].y, ft), z = lerp(c.pts[k0].z, c.pts[k1].z, ft);
-        var arrP = c.accent ? bp : ap, arrA = c.accent ? ba : aa, other = c.accent ? aa : ba;
-        arrP[i * 3] = x; arrP[i * 3 + 1] = y; arrP[i * 3 + 2] = z; arrA[i] = 0.95; other[i] = 0;
-      });
-      arcDotGeo.getAttribute('position').needsUpdate = true; arcDotGeo.getAttribute('aAlpha').needsUpdate = true;
-      arcAccGeo.getAttribute('position').needsUpdate = true; arcAccGeo.getAttribute('aAlpha').needsUpdate = true;
-    }
-
-    var time = 0;
-    function updateCamera() {
-      var p = state.p;
-      var theta = 0.72 + Math.sin(time * 0.045) * 0.09 + state.smx * 0.07;
-      var el = 0.80 + p * 0.55 + state.smy * 0.05;
-      var R = (narrow ? 84 : 70) + p * 52;
-      var shift = narrow ? 0 : 12;
-      var rx = Math.cos(theta), rz = -Math.sin(theta);
-      var tx = -rx * shift, tz = -rz * shift;
-      camera.position.set(tx + R * Math.cos(el) * Math.sin(theta), R * Math.sin(el), tz + R * Math.cos(el) * Math.cos(theta));
-      camera.lookAt(tx, 1.5, tz);
-      U.uFogNear.value = R * 0.85; U.uFogFar.value = R * 1.75;
-    }
-    function render() { updateCamera(); U.uTime.value = time; renderer.render(scene, camera); }
-    var rafId = 0, last = 0;
-    function frame(now) {
-      rafId = 0;
-      if (!state.running) return;
-      var dt = Math.max(0, Math.min(0.05, (now - last) / 1000)) || 0;
-      last = now; time += dt;
-      state.p = lerp(state.p, state.scroll, 0.1);
-      state.smx = lerp(state.smx, state.mx, 0.04); state.smy = lerp(state.smy, state.my, 0.04);
-      stepPulses(dt);
-      render();
-      rafId = requestAnimationFrame(frame);
-    }
-    function start() { if (REDUCED || state.running || !state.visible || document.hidden) return; state.running = true; last = performance.now(); rafId = requestAnimationFrame(frame); }
-    function stop() { state.running = false; if (rafId) cancelAnimationFrame(rafId); rafId = 0; }
-
-    function resize() {
-      var w = host.clientWidth || 1, h = host.clientHeight || 1;
-      renderer.setSize(w, h, false);
-      camera.aspect = w / h; camera.updateProjectionMatrix();
-      if (REDUCED) render();
-    }
-    if ('ResizeObserver' in window) new ResizeObserver(resize).observe(host); else window.addEventListener('resize', resize);
-    resize();
-    applyTheme();
-    onTheme(applyTheme);
-
-    if (hasIO) new IntersectionObserver(function (es) { es.forEach(function (e) { state.visible = e.isIntersecting; if (state.visible) start(); else stop(); }); }).observe(host);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) stop(); else start(); });
-    if (fine && !REDUCED) window.addEventListener('pointermove', function (e) {
-      state.mx = (e.clientX / window.innerWidth - 0.5) * 2; state.my = (e.clientY / window.innerHeight - 0.5) * 2;
-    }, { passive: true });
-
-    if (REDUCED) {
-      for (var w = 0; w < 40; w++) stepPulses(0.05);
-      render();
-    } else {
-      if (hasST) {
-        gsap.to(state, { scroll: 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.5 } });
-        gsap.to(host, { opacity: 0, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: '90% top', scrub: 0.5 } });
-        gsap.to('.hero-copy', { y: 70, opacity: 0.1, ease: 'none', scrollTrigger: { trigger: hero, start: '12% top', end: 'bottom top', scrub: 0.5 } });
-      } else {
-        window.addEventListener('scroll', function () {
-          var p = clamp(window.scrollY / Math.max(1, hero.offsetHeight), 0, 1);
-          state.scroll = p; host.style.opacity = String(1 - p);
-        }, { passive: true });
-      }
-      start();
-    }
-  })();
+  function ctx() {
+    return { THREE: THREE, gsap: gsap, $: $, $$: $$, clamp: clamp, lerp: lerp, mulberry32: mulberry32, rgba: rgba, mixHex: mixHex,
+      tokens: tokens, onTheme: onTheme, t: t, langListeners: langListeners, REDUCED: REDUCED, hasGsap: hasGsap, hasST: hasST, hasIO: hasIO,
+      Ticker: Ticker, isoCity: isoCity, onceInView: onceInView, hero: hero };
+  }
+  initHero(ctx());
 
   /* ---------- AG World mini scene ---------- */
   (function () {
@@ -956,192 +580,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
     if (c) isoCity(c, { size: 17, seed: 7, pulses: 5, avatar: true, fit: 1.3 });
   })();
 
-  /* ---------- diagram helpers ---------- */
-  var SVG_NS = 'http://www.w3.org/2000/svg';
-  function svgEl(tag, attrs, parent) {
-    var el = document.createElementNS(SVG_NS, tag);
-    for (var k in attrs) if (Object.prototype.hasOwnProperty.call(attrs, k)) el.setAttribute(k, attrs[k]);
-    if (parent) parent.appendChild(el);
-    return el;
-  }
-  function drawIn(svg, sel, dur) {
-    if (REDUCED || !hasGsap) return;
-    $$(sel, svg).forEach(function (el, i) {
-      var L;
-      try { L = el.getTotalLength(); } catch { return; }
-      if (!L || !isFinite(L)) return;
-      el.style.strokeDasharray = L + ' ' + L;
-      el.style.strokeDashoffset = L;
-      gsap.to(el, { strokeDashoffset: 0, duration: dur || 1.1, delay: Math.min(0.9, i * 0.035), ease: 'power2.inOut', onComplete: function () { el.style.strokeDasharray = ''; el.style.strokeDashoffset = ''; } });
-    });
-  }
-
-  /* ---------- diagram 1: coverage map ---------- */
-  (function () {
-    var svg = $('#d1'); if (!svg) return;
-    var R = 27, W = Math.sqrt(3) * R, VS = 1.5 * R;
-    var gStreets = svgEl('g', {}, svg);
-    [
-      'M-10 96 L120 90 L250 120 L390 96 L540 110', 'M-10 210 L140 232 L300 214 L420 242 L540 228', 'M118 -10 L106 120 L146 250 L122 350', 'M330 -10 L344 130 L306 240 L336 350'
-    ].forEach(function (d) { svgEl('path', { 'class': 'street', d: d }, gStreets); });
-    var gHex = svgEl('g', {}, svg);
-    var hexes = [];
-    for (var row = 0; row < 7; row++) for (var col = 0; col < 11; col++) {
-      var cx = 40 + col * W + (row % 2 ? W / 2 : 0), cy = 26 + row * VS;
-      if (Math.hypot((cx - 270) / 1.35, cy - 165) > 168) continue;
-      if (cx < 30 || cx > 500 || cy < 20 || cy > 300) continue;
-      var pts = [];
-      for (var k = 0; k < 6; k++) { var ang = Math.PI / 6 + k * Math.PI / 3; pts.push((cx + (R - 2) * Math.cos(ang)).toFixed(1) + ',' + (cy + (R - 2) * Math.sin(ang)).toFixed(1)); }
-      var el = svgEl('polygon', { 'class': 'hex', points: pts.join(' ') }, gHex);
-      hexes.push({ el: el, cx: cx, cy: cy, id: (row + 1) + String.fromCharCode(65 + col), lit: 0, kind: 0 });
-    }
-    var gPin = svgEl('g', {}, svg);
-    var ring = svgEl('circle', { 'class': 'ring', cx: 0, cy: 0, r: 6 }, gPin);
-    var ring2 = svgEl('circle', { 'class': 'ring', cx: 0, cy: 0, r: 6 }, gPin);
-    svgEl('circle', { 'class': 'pin-c', cx: 0, cy: 0, r: 7 }, gPin);
-    svgEl('circle', { 'class': 'pin', cx: 0, cy: 0, r: 3 }, gPin);
-    var legend = svgEl('g', {}, svg);
-    svgEl('rect', { x: 16, y: 300, width: 488, height: 28, rx: 6, 'class': 'box' }, legend);
-    svgEl('rect', { x: 28, y: 309, width: 10, height: 10, rx: 2, style: 'fill:var(--primary-soft);stroke:var(--primary)' }, legend);
-    var tF = svgEl('text', { x: 46, y: 318.5, 'data-i': 'd1.fixed' }, legend); tF.textContent = t('d1.fixed');
-    svgEl('rect', { x: 104, y: 309, width: 10, height: 10, rx: 2, style: 'fill:none;stroke:var(--primary);stroke-dasharray:2 2' }, legend);
-    var tM = svgEl('text', { x: 122, y: 318.5, 'data-i': 'd1.mobile' }, legend); tM.textContent = t('d1.mobile');
-    var status = svgEl('text', { x: 492, y: 318.5, 'text-anchor': 'end', 'class': 't-ink' }, legend);
-    var title = svgEl('text', { x: 504, y: 22, 'text-anchor': 'end', 'data-i': 'd1.title' }, svg); title.textContent = t('d1.title');
-    var cur = hexes[Math.floor(hexes.length / 2)], px = cur.cx, py = cur.cy, tx = px, ty = py, timer = 0, ringT = 2, curKind = 1;
-    function statusText() { status.textContent = (t('d1.zone') + ' ' + cur.id + ' · ' + (curKind === 2 ? t('d1.both') : t('d1.only'))).toUpperCase(); }
-    langListeners.push(statusText);
-    var rnd = mulberry32(5);
-    function pickNext(now) {
-      var next = hexes[Math.floor(rnd() * hexes.length)];
-      if (next === cur) return;
-      cur = next; tx = cur.cx; ty = cur.cy; ringT = 0;
-      curKind = rnd() < 0.68 ? 2 : 1;
-      cur.lit = now; cur.kind = curKind;
-      hexes.forEach(function (h) {
-        if (h === cur) return;
-        if (Math.hypot(h.cx - cur.cx, h.cy - cur.cy) < W * 1.05 && rnd() < 0.7) { h.lit = now; h.kind = Math.max(h.kind === 0 ? 1 : h.kind, 1); if (curKind === 2 && rnd() < 0.5) h.kind = 2; }
-      });
-      statusText();
-    }
-    pickNext(0.001);
-    hexes.forEach(function (h) { if (h.lit) h.lit = -1; });
-    function tick(dt, now) {
-      timer += dt;
-      if (timer > 1.7) { timer = 0; pickNext(now); }
-      px = lerp(px, tx, 1 - Math.pow(0.001, dt)); py = lerp(py, ty, 1 - Math.pow(0.001, dt));
-      gPin.setAttribute('transform', 'translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ')');
-      ringT += dt;
-      var r1 = clamp(ringT / 1.1, 0, 1), r2 = clamp((ringT - 0.25) / 1.1, 0, 1);
-      ring.setAttribute('r', (6 + r1 * 40).toFixed(1)); ring.style.opacity = (1 - r1) * 0.8;
-      ring2.setAttribute('r', (6 + r2 * 40).toFixed(1)); ring2.style.opacity = (1 - r2) * 0.5;
-      hexes.forEach(function (h) {
-        if (h.lit === -1) h.lit = now || 0.001;
-        var on = h.lit && now - h.lit < 5.2;
-        if (!on) { h.kind = 0; h.lit = 0; }
-        h.el.classList.toggle('fixed', on && h.kind === 2);
-        h.el.classList.toggle('mob', on && h.kind >= 1);
-      });
-    }
-    Ticker.add(svg, tick);
-    onceInView(svg, function () { drawIn(svg, '.hex, .street', 1.2); }, 0.3);
-  })();
-
-  /* ---------- diagram 2: identity middleware ---------- */
-  (function () {
-    var svg = $('#d2'); if (!svg) return;
-    var paths = ['#d2-p1', '#d2-p2', '#d2-p3', '#d2-p4', '#d2-p5'].map(function (s) { var el = $(s, svg); return { el: el, len: el.getTotalLength() }; });
-    var ext2 = $('#d2-ext2', svg), cache = $('#d2-cache', svg), served = $('#d2-served', svg), pool = $('#d2-pk', svg);
-    var packets = [], free = [];
-    function circle(cls) {
-      var c = free.pop() || svgEl('circle', { r: 3.2 }, pool);
-      c.setAttribute('class', cls); c.style.display = '';
-      return c;
-    }
-    function spawn(lane, cls, delay) { packets.push({ lane: lane, t: -(delay || 0), speed: 0.55 + Math.random() * 0.15, cls: cls, el: null }); }
-    var CYC = 10, spawnT = [0, 0.33, 0.66], cacheT = 0, cycle = 0, down = false;
-    function tick(dt) {
-      cycle = (cycle + dt) % CYC;
-      var isDown = cycle > 3.6 && cycle < 7.4;
-      if (isDown !== down) {
-        down = isDown;
-        ext2.classList.toggle('down', down); cache.classList.toggle('active', down); served.classList.toggle('on', down);
-      }
-      for (var l = 0; l < 3; l++) {
-        spawnT[l] += dt;
-        if (spawnT[l] > 1.05) { spawnT[l] = 0; if (!(down && l === 1)) spawn(l, 'pkt'); }
-      }
-      if (down) { cacheT += dt; if (cacheT > 0.7) { cacheT = 0; spawn(4, 'pkt-acc'); } }
-      for (var i = packets.length - 1; i >= 0; i--) {
-        var pk = packets[i];
-        pk.t += dt * pk.speed;
-        if (pk.t < 0) continue;
-        if (!pk.el) pk.el = circle(pk.cls);
-        var ph = paths[pk.lane];
-        if (pk.t >= 1) {
-          pk.el.style.display = 'none'; free.push(pk.el); packets.splice(i, 1);
-          if (pk.lane < 3) spawn(3, 'pkt', 0.12);
-          continue;
-        }
-        var pt = ph.el.getPointAtLength(pk.t * ph.len);
-        pk.el.setAttribute('cx', pt.x.toFixed(1)); pk.el.setAttribute('cy', pt.y.toFixed(1));
-        pk.el.style.opacity = pk.t < 0.1 ? pk.t * 10 : pk.t > 0.9 ? (1 - pk.t) * 10 : 1;
-      }
-    }
-    if (REDUCED) { cycle = 1.6; for (var w = 0; w < 80; w++) tick(0.05); }
-    Ticker.add(svg, tick);
-    onceInView(svg, function () { drawIn(svg, '.wire, .box, .box-soft', 1.0); }, 0.3);
-  })();
-
-  /* ---------- diagram 3: quality monitoring ---------- */
-  (function () {
-    var svg = $('#d3'); if (!svg) return;
-    var wave = $('#d3-wave', svg), rec = $('#d3-rec', svg), timer = $('#d3-timer', svg);
-    var rows = $$('.row', svg).map(function (g) {
-      var lv = $('.lv', g), segs = [];
-      for (var k = 0; k < 14; k++) segs.push(svgEl('rect', { x: k * 11, y: 0, width: 7, height: 10, rx: 1.5, 'class': 'lvl' }, lv));
-      return { g: g, dot: $('.st', g), label: $('.st-l', g), segs: segs, level: 0.3 + Math.random() * 0.5, target: 0.5, status: +$('.st', g).getAttribute('class').replace(/.*s(\d).*/, '$1') };
-    });
-    var NPTS = 88, x0 = 24, x1 = 496, mid = 86;
-    var seconds = 12 * 60 + 37, secAcc = 0, env = 1, envT = 0.8, speaking = true, lvlT = 0, stT = 0;
-    function fmtT(s) { var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60; return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r; }
-    function tick(dt, now) {
-      secAcc += dt; if (secAcc >= 1) { secAcc -= 1; seconds++; timer.textContent = fmtT(seconds); }
-      rec.style.opacity = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(now * Math.PI * 2));
-      envT -= dt; if (envT <= 0) { speaking = !speaking; envT = speaking ? 0.8 + Math.random() * 1.6 : 0.3 + Math.random() * 0.7; }
-      env = lerp(env, speaking ? 1 : 0.06, 1 - Math.pow(0.02, dt));
-      var pts = [];
-      for (var i = 0; i < NPTS; i++) {
-        var u = i / (NPTS - 1), x = x0 + u * (x1 - x0);
-        var e = env * (0.55 + 0.45 * Math.sin(u * 6.3 + now * 1.7)) * Math.sin(u * Math.PI);
-        var y = Math.sin(x * 0.11 + now * 9.0) * 11 + Math.sin(x * 0.27 - now * 14.0) * 6 + Math.sin(x * 0.045 + now * 3.1) * 9;
-        pts.push(x.toFixed(1) + ',' + (mid - y * e).toFixed(1));
-      }
-      wave.setAttribute('points', pts.join(' '));
-      lvlT += dt;
-      if (lvlT > 0.9) { lvlT = 0; rows.forEach(function (r) { r.target = r.status === 1 || r.status === 3 ? 0.35 + Math.random() * 0.6 : 0.05 + Math.random() * 0.2; }); }
-      rows.forEach(function (r) {
-        r.level = lerp(r.level, r.target, 1 - Math.pow(0.05, dt));
-        var n = Math.round(r.level * r.segs.length);
-        r.segs.forEach(function (s, k) { s.classList.toggle('on', k < n); });
-      });
-      stT += dt;
-      if (stT > 3.2) {
-        stT = 0;
-        var cand = rows.filter(function (r) { return !r.g.classList.contains('live'); });
-        var r = cand[Math.floor(Math.random() * cand.length)];
-        var next = 1 + Math.floor(Math.random() * 4);
-        if (next === r.status) next = next % 4 + 1;
-        r.status = next;
-        r.dot.setAttribute('class', 'st s' + next);
-        r.label.setAttribute('data-i', 'd3.s' + next);
-        r.label.textContent = t('d3.s' + next);
-      }
-    }
-    if (REDUCED) tick(0.5, 1.2);
-    Ticker.add(svg, tick);
-    onceInView(svg, function () { drawIn(svg, '.wave-bg, .grid-line', 0.9); }, 0.3);
-  })();
+  initProjects(ctx());
 
   /* ---------- process timeline: pulse travels the rail (scroll scrub + idle loop) ---------- */
   (function () {

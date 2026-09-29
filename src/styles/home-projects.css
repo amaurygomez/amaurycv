@@ -1,0 +1,78 @@
+/* Home projects: scroll-driven story. Pinned stage on desktop (one project at a time), compact cards on mobile.
+   Without JS or with reduced motion the list layout is used and everything stays visible. */
+
+.story{position:relative;--p:0}
+.story-stage{display:grid;gap:16px}
+.story-rail{display:none}
+.story-item{display:grid;grid-template-columns:1fr;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);overflow:hidden;scroll-margin-top:calc(var(--nav-h) + 16px)}
+.story-fig{position:relative;background:var(--sunken);aspect-ratio:4/3;border-bottom:1px solid var(--line)}
+.story-fig .dg{position:absolute;inset:0;width:100%;height:100%}
+.story-body{padding:20px 20px 22px}
+.story-num{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--primary);margin-bottom:12px}
+.story-body .label{display:block;margin-bottom:10px}
+.story-body h3{font-size:clamp(21px,2.3vw,31px);margin-bottom:12px;text-wrap:balance}
+.story-body p{color:var(--ink-2);font-size:15px;max-width:52ch;text-wrap:pretty}
+.story-body .stack{margin-top:18px}
+
+/* desktop list layout (reduced motion / no JS): two columns per project */
+@media (min-width:901px){
+  .story-stage{gap:20px}
+  .story-item{grid-template-columns:1.05fr 1fr;align-items:center}
+  .story-fig{border-bottom:0;border-right:1px solid var(--line);align-self:stretch;aspect-ratio:auto;min-height:380px}
+  .story-body{padding:clamp(28px,3.5vw,48px)}
+  .story-body p{font-size:16px}
+}
+
+/* desktop story mode: stage pinned by ScrollTrigger (body.home has overflow-x:hidden, which makes it a scroll
+   container and neutralises position:sticky), stacked figures and bodies, crossfade between steps */
+@media (min-width:901px){
+  .story.is-ready .story-stage{display:grid;grid-template-columns:1.12fr .88fr;grid-template-rows:auto auto;column-gap:clamp(36px,5vw,80px);row-gap:0}
+  .story.is-ready .story-item{display:contents}
+  .story.is-ready .story-fig{grid-column:1;grid-row:1 / span 2;align-self:center;width:100%;aspect-ratio:4/3;min-height:0;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;opacity:0;z-index:0;transition:opacity .5s var(--ease)}
+  .story.is-ready .story-fig.is-leaving{opacity:1;z-index:1}
+  .story.is-ready .story-fig.is-active{opacity:1;z-index:2}
+  .story.is-ready .story-fig .dg{transform:scale(.96);transition:transform .8s var(--ease-out)}
+  .story.is-ready .story-fig.is-active .dg{transform:none}
+  .story.is-ready .story-body{grid-column:2;grid-row:2;align-self:start;padding:28px 0 0;opacity:0;transform:translateY(24px);visibility:hidden;transition:opacity .45s var(--ease),transform .6s var(--ease-out),visibility 0s .45s}
+  .story.is-ready .story-body.is-active{opacity:1;transform:none;visibility:visible;transition-delay:.14s,.14s,0s}
+  .story.is-ready .story-body.is-leaving{opacity:0;transform:translateY(-24px);visibility:hidden}
+  .story.is-ready .story-num{display:none}
+  .story.is-ready .story-body h3{font-size:clamp(26px,2.5vw,34px)}
+  .story.is-ready .story-rail{display:block;grid-column:2;grid-row:1;align-self:start;padding:2px 0 18px;border-bottom:1px solid var(--line)}
+}
+.story-count{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--ink-muted);margin-bottom:12px}
+.story-count .story-cur{font-size:30px;font-weight:600;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.story-bar{position:relative;display:block;height:2px;background:var(--line);border-radius:2px;margin-bottom:16px;overflow:hidden}
+.story-bar::after{content:"";position:absolute;inset:0;background:var(--primary);transform-origin:left;transform:scaleX(var(--p,0))}
+.story-index{display:grid;gap:2px;margin:0 -10px;padding:0;list-style:none}
+.story-jump{display:grid;grid-template-columns:30px 1fr;align-items:baseline;gap:8px;width:100%;text-align:left;padding:7px 10px;border-radius:var(--r-sm);color:var(--ink-muted);font-size:14px;font-weight:500;line-height:1.3;transition:color .25s var(--ease),background-color .25s var(--ease)}
+.story-jump .n{font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+.story-jump:hover{color:var(--ink);background:var(--sunken)}
+.story-jump[aria-current="true"]{color:var(--ink)}
+.story-jump[aria-current="true"] .n{color:var(--primary)}
+
+/* diagrams: bigger, essential */
+.dg text{font-size:11px}
+.dg .t-lg{font-size:13px;letter-spacing:.06em}
+.dg .card{fill:var(--surface);stroke:var(--line-strong);stroke-width:1}
+.dg .pill{fill:var(--sunken);stroke:var(--line);stroke-width:1}
+.dg .hex{stroke-width:1.2}
+.dg .ring{stroke-width:1.4}
+.dg .pin-c{stroke-width:1.4}
+.dg .wire{stroke-width:1.4}
+.dg .ext{transition:opacity .4s var(--ease)}
+.dg .ext.down{opacity:.85}
+.dg .ext.down .box{stroke:var(--danger);stroke-dasharray:4 3}
+.dg .cache .box-soft{transition:fill .4s var(--ease),stroke .4s var(--ease)}
+.dg .cache text{transition:fill .4s var(--ease)}
+.dg .wave{stroke-width:1.6}
+.dg .row-bg{stroke:transparent;stroke-width:1;transition:fill .4s,stroke .4s}
+.dg .row.live .row-bg{stroke:var(--line)}
+.dg .st-l{fill:var(--ink-2)}
+
+@media (max-width:900px){
+  .story-fig{aspect-ratio:4/3}
+}
+@media (prefers-reduced-motion:reduce){
+  .story-fig .dg,.story-body,.story-fig{transition:none}
+}

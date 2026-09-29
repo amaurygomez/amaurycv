@@ -64,5 +64,8 @@ const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site
   <!-- The desktop world is a fullscreen canvas; below lg the page must scroll. -->
   <body class:list={[bodyClass, "antialiased", { "lg:overflow-hidden": lockScroll }]}>
     <slot />
+    <script>
+      import "@/scripts/console-banner";
+    </script>
   </body>
 </html>

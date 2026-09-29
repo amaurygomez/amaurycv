@@ -1,0 +1,17 @@
+/* Home hero: 3D maquette tuning (loaded after home.css). */
+.home .hero-veil{
+  background:
+    linear-gradient(90deg,var(--bg) 0%,var(--bg) 22%,var(--bg-a70) 42%,var(--bg-a0) 62%),
+    linear-gradient(180deg,var(--bg) 0%,var(--bg-a0) 18%,var(--bg-a0) 70%,var(--bg) 100%);
+}
+.home .hero-scene::after{
+  content:"";position:absolute;inset:auto 0 0 0;height:42%;pointer-events:none;
+  background:linear-gradient(180deg,var(--bg-a0) 0%,var(--bg-a70) 70%,var(--bg) 100%);
+}
+@media (max-width:720px){
+  .home .hero-veil{
+    background:linear-gradient(180deg,var(--bg) 0%,var(--bg-a70) 26%,var(--bg-a70) 72%,var(--bg) 100%);
+  }
+  .home .hero-scene{opacity:.95}
+  .home .hero-scene::after{height:30%}
+}

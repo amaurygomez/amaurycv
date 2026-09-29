@@ -34,6 +34,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     build: {
+      // No source maps in production: the source is public on GitHub, the bundle stays lean.
+      sourcemap: false,
       rollupOptions: {
         output: {
           manualChunks(id) {

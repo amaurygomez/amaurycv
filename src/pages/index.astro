@@ -5,6 +5,8 @@ import "@fontsource-variable/geist-mono";
 import PersonSchema from "@/components/astro/PersonSchema.astro";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import "@/styles/home.css";
+import "@/styles/home-hero.css";
+import "@/styles/home-projects.css";
 
 const title = "Amaury Gómez · Ingeniería de software";
 const description =
@@ -30,6 +32,7 @@ const description =
     </script>
     <PersonSchema />
   </Fragment>
+  <a class="skip" href="#servicios" data-i="skip">Saltar al contenido</a>
   <header class="nav" id="nav">
     <div class="wrap nav-inner">
       <a class="brand" href="#top" aria-label="Amaury Gómez · Ingeniería de software" data-i-aria="brand.aria">
@@ -71,6 +74,7 @@ const description =
       <a href="#contacto" data-i="nav.contact">Contacto</a>
       <a class="btn btn-primary" href="#contacto" data-i="nav.talk">Contactar</a>
     </div>
+    <span class="progress" id="progress" aria-hidden="true"></span>
   </header>
 
   <main id="top">
@@ -141,87 +145,109 @@ const description =
           <div><span class="label" data-i="proj.eyebrow">Proyectos</span><h2 class="reveal reveal-clip" data-i="proj.title">Proyectos destacados</h2></div>
           <span class="sec-note" data-i="proj.note">Los nombres de los clientes se comparten bajo solicitud.</span>
         </div>
-        <div class="proj-list">
-          <article class="proj">
-            <div class="proj-fig">
-              <svg class="dg" id="d1" viewBox="0 0 520 340" role="img" aria-label="Diagrama: mapa de cobertura por zonas" data-i-aria="d1.aria"></svg>
-            </div>
-            <div class="proj-body reveal">
-              <span class="idx">01 / 03</span>
-              <span class="label" data-i="p1.tag">Telecomunicaciones · CRM · Geoespacial</span>
-              <h3 data-i="p1.h">Mapa de cobertura integrado en el CRM</h3>
-              <p data-i="p1.p">Ventas y soporte consultan, desde el mismo CRM, qué servicios fijos y móviles están disponibles en cada zona. Integra la API del proveedor de red y datos geoespaciales en Oracle; además, redujo el costo de Google Maps mediante la optimización de búsquedas e interacciones.</p>
-              <ul class="stack"><li>.NET</li><li>Oracle</li><li>Angular</li><li>Google Maps</li></ul>
-            </div>
-          </article>
-          <article class="proj">
-            <div class="proj-fig">
-              <svg class="dg" id="d2" viewBox="0 0 520 340" role="img" aria-label="Diagrama: capa intermedia de identidad con caché de contingencia" data-i-aria="d2.aria">
-                <g class="ext" id="d2-ext1">
-                  <rect class="box" x="20" y="46" width="136" height="48" rx="6"/>
-                  <text x="88" y="74" text-anchor="middle" style="font-size:10px" data-i="d2.api1">API · Identidad</text>
-                </g>
-                <g class="ext" id="d2-ext2">
-                  <rect class="box" x="20" y="146" width="136" height="48" rx="6"/>
-                  <text x="88" y="174" text-anchor="middle" style="font-size:10px" data-i="d2.api2">API · Huellas</text>
-                  <text class="dn-label t-dn" x="88" y="212" text-anchor="middle" data-i="d2.down">Sin respuesta</text>
-                </g>
-                <g class="ext" id="d2-ext3">
-                  <rect class="box" x="20" y="246" width="136" height="48" rx="6"/>
-                  <text x="88" y="274" text-anchor="middle" style="font-size:10px" data-i="d2.api3">API · Registros</text>
-                </g>
-                <path class="wire" id="d2-p1" d="M156 70 C 181 70, 181 110, 206 110"/>
-                <path class="wire" id="d2-p2" d="M156 170 L 206 170"/>
-                <path class="wire" id="d2-p3" d="M156 270 C 181 270, 181 230, 206 230"/>
-                <rect class="box" x="206" y="60" width="150" height="220" rx="8"/>
-                <text class="t-ink" x="281" y="88" text-anchor="middle" style="font-size:10px" data-i="d2.mw">Capa intermedia</text>
-                <text x="281" y="108" text-anchor="middle" style="font-size:9px" data-i="d2.auth1">Identity · JWT</text>
-                <text x="281" y="124" text-anchor="middle" style="font-size:9px" data-i="d2.auth2">Auditoría</text>
-                <line class="grid-line" x1="222" y1="144" x2="340" y2="144"/>
-                <g class="cache" id="d2-cache">
-                  <rect class="box-soft" x="222" y="196" width="118" height="60" rx="6"/>
-                  <text x="281" y="230" text-anchor="middle" data-i="d2.cache">Caché local</text>
-                </g>
-                <path class="wire" id="d2-p4" d="M356 170 L 406 170"/>
-                <path class="wire" id="d2-p5" d="M340 226 C 380 226, 380 186, 406 182"/>
-                <rect class="box" x="406" y="142" width="94" height="56" rx="6"/>
-                <text class="t-ink" x="453" y="174" text-anchor="middle" data-i="d2.app">Aplicación</text>
-                <text class="served t-acc" id="d2-served" x="453" y="226" text-anchor="middle" style="font-size:9px" data-i="d2.served">Servido desde caché</text>
-                <g id="d2-pk"></g>
-              </svg>
-            </div>
-            <div class="proj-body reveal">
-              <span class="idx">02 / 03</span>
-              <span class="label" data-i="p2.tag">Gobierno · Identidad · Seguridad</span>
-              <h3 data-i="p2.h">Servicio de identidad con continuidad ante fallos externos</h3>
-              <p data-i="p2.p">Capa intermedia frente a las APIs de identidad y huellas dactilares de otras instituciones, con caché local de contingencia. Permisos por perfil con ASP.NET Core Identity y JWT, y auditoría de cada consulta a datos sensibles.</p>
-              <ul class="stack"><li>ASP.NET Core</li><li>SQL Server</li><li>Redis</li><li>React</li></ul>
-            </div>
-          </article>
-          <article class="proj">
-            <div class="proj-fig">
-              <svg class="dg" id="d3" viewBox="0 0 520 340" role="img" aria-label="Diagrama: panel de calidad en tiempo real" data-i-aria="d3.aria">
-                <circle class="rec" id="d3-rec" cx="28" cy="30" r="4"/>
-                <text x="42" y="34"><tspan data-i="d3.rec">Grabando</tspan> · <tspan data-i="d3.agent">Agente</tspan> 03</text>
-                <text class="t-ink" id="d3-timer" x="496" y="34" text-anchor="end">00:12:37</text>
-                <line class="wave-bg" x1="24" y1="86" x2="496" y2="86"/>
-                <polyline class="wave" id="d3-wave" points="24,86 496,86"/>
-                <line class="grid-line" x1="16" y1="128" x2="504" y2="128"/>
-                <g class="row" data-row="0"><rect class="row-bg" x="16" y="136" width="488" height="34" rx="6"/><circle class="st s1" cx="32" cy="153" r="4"/><text class="t-ink" x="46" y="157"><tspan data-i="d3.agent">Agente</tspan> 01</text><text class="st-l" x="190" y="157" data-i="d3.s1">En llamada</text><g class="lv" transform="translate(330 148)"></g></g>
-                <g class="row" data-row="1"><rect class="row-bg" x="16" y="180" width="488" height="34" rx="6"/><circle class="st s2" cx="32" cy="197" r="4"/><text class="t-ink" x="46" y="201"><tspan data-i="d3.agent">Agente</tspan> 02</text><text class="st-l" x="190" y="201" data-i="d3.s2">Disponible</text><g class="lv" transform="translate(330 192)"></g></g>
-                <g class="row live" data-row="2"><rect class="row-bg" x="16" y="224" width="488" height="34" rx="6"/><circle class="st s3" cx="32" cy="241" r="4"/><text class="t-ink" x="46" y="245"><tspan data-i="d3.agent">Agente</tspan> 03</text><text class="st-l" x="190" y="245" data-i="d3.s3">En revisión</text><g class="lv" transform="translate(330 236)"></g></g>
-                <g class="row" data-row="3"><rect class="row-bg" x="16" y="268" width="488" height="34" rx="6"/><circle class="st s1" cx="32" cy="285" r="4"/><text class="t-ink" x="46" y="289"><tspan data-i="d3.agent">Agente</tspan> 04</text><text class="st-l" x="190" y="289" data-i="d3.s1">En llamada</text><g class="lv" transform="translate(330 280)"></g></g>
-                <text x="16" y="326" data-i="d3.title">Panel de calidad · en vivo</text>
-              </svg>
-            </div>
-            <div class="proj-body reveal">
-              <span class="idx">03 / 03</span>
-              <span class="label" data-i="p3.tag">Telecomunicaciones · Calidad · Tiempo real</span>
-              <h3 data-i="p3.h">Monitoreo de calidad con trazabilidad por agente en tiempo real</h3>
-              <p data-i="p3.p">Captura de pantalla y voz con FFmpeg, API REST y panel en tiempo real con SignalR para el área de calidad.</p>
-              <ul class="stack"><li>.NET</li><li>SignalR</li><li>FFmpeg</li><li>REST</li></ul>
-            </div>
-          </article>
+        <div class="story" id="story">
+          <div class="story-stage">
+            <nav class="story-rail" aria-label="Proyectos" data-i-aria="proj.eyebrow">
+              <span class="story-count" aria-hidden="true"><span class="story-cur" id="story-cur">01</span><span class="story-sep">/ 03</span></span>
+              <span class="story-bar" aria-hidden="true"></span>
+              <ol class="story-index">
+                <li><button type="button" class="story-jump" data-step="0" aria-current="true"><span class="n">01</span><span class="t" data-i="p1.h">Mapa de cobertura integrado en el CRM</span></button></li>
+                <li><button type="button" class="story-jump" data-step="1"><span class="n">02</span><span class="t" data-i="p2.h">Servicio de identidad con continuidad ante fallos externos</span></button></li>
+                <li><button type="button" class="story-jump" data-step="2"><span class="n">03</span><span class="t" data-i="p3.h">Monitoreo de calidad con trazabilidad por agente en tiempo real</span></button></li>
+              </ol>
+            </nav>
+
+            <article class="story-item" id="proj-1">
+              <div class="story-fig">
+                <svg class="dg" id="d1" viewBox="0 0 520 390" role="img" aria-label="Diagrama: mapa de cobertura por zonas" data-i-aria="d1.aria"></svg>
+              </div>
+              <div class="story-body">
+                <span class="story-num">01 / 03</span>
+                <span class="label" data-i="p1.tag">Telecomunicaciones · CRM · Geoespacial</span>
+                <h3 data-i="p1.h">Mapa de cobertura integrado en el CRM</h3>
+                <p data-i="p1.p">Ventas y soporte consultan, desde el mismo CRM, qué servicios fijos y móviles están disponibles en cada zona. Integra la API del proveedor de red y datos geoespaciales en Oracle; además, redujo el costo de Google Maps mediante la optimización de búsquedas e interacciones.</p>
+                <ul class="stack"><li>.NET</li><li>Oracle</li><li>Angular</li><li>Google Maps</li></ul>
+              </div>
+            </article>
+
+            <article class="story-item" id="proj-2">
+              <div class="story-fig">
+                <svg class="dg" id="d2" viewBox="0 0 520 390" role="img" aria-label="Diagrama: capa intermedia de identidad con caché de contingencia" data-i-aria="d2.aria">
+                  <path class="wire" id="d2-p1" d="M160 82 C 184 82, 184 118, 208 118"/>
+                  <path class="wire" id="d2-p2" d="M160 195 L 208 195"/>
+                  <path class="wire" id="d2-p3" d="M160 308 C 184 308, 184 272, 208 272"/>
+                  <path class="wire" id="d2-p4" d="M368 195 L 408 195"/>
+                  <path class="wire" id="d2-p5" d="M352 250 C 382 250, 382 206, 408 206"/>
+                  <g class="ext" id="d2-ext1">
+                    <rect class="box" x="24" y="56" width="136" height="52" rx="8"/>
+                    <text class="t-ink" x="92" y="86" text-anchor="middle" data-i="d2.api1">API · Identidad</text>
+                  </g>
+                  <g class="ext" id="d2-ext2">
+                    <rect class="box" x="24" y="169" width="136" height="52" rx="8"/>
+                    <text class="t-ink" x="92" y="199" text-anchor="middle" data-i="d2.api2">API · Huellas</text>
+                    <text class="dn-label t-dn" x="92" y="243" text-anchor="middle" data-i="d2.down">Sin respuesta</text>
+                  </g>
+                  <g class="ext" id="d2-ext3">
+                    <rect class="box" x="24" y="282" width="136" height="52" rx="8"/>
+                    <text class="t-ink" x="92" y="312" text-anchor="middle" data-i="d2.api3">API · Registros</text>
+                  </g>
+                  <g id="d2-mw">
+                    <rect class="box" x="208" y="44" width="160" height="302" rx="10"/>
+                    <text class="t-ink t-lg" x="288" y="76" text-anchor="middle" data-i="d2.mw">Capa intermedia</text>
+                    <rect class="pill" x="224" y="94" width="128" height="30" rx="6"/>
+                    <text x="288" y="113" text-anchor="middle" data-i="d2.auth1">Identity · JWT</text>
+                    <rect class="pill" x="224" y="132" width="128" height="30" rx="6"/>
+                    <text x="288" y="151" text-anchor="middle" data-i="d2.auth2">Auditoría</text>
+                    <line class="grid-line" x1="224" y1="182" x2="352" y2="182"/>
+                  </g>
+                  <g class="cache" id="d2-cache">
+                    <rect class="box-soft" x="224" y="218" width="128" height="64" rx="8"/>
+                    <text x="288" y="254" text-anchor="middle" data-i="d2.cache">Caché local</text>
+                  </g>
+                  <g id="d2-app">
+                    <rect class="box" x="408" y="169" width="88" height="52" rx="8"/>
+                    <text class="t-ink" x="452" y="199" text-anchor="middle" data-i="d2.app">Aplicación</text>
+                  </g>
+                  <text class="served t-acc" id="d2-served" x="496" y="156" text-anchor="end" style="font-size:9px" data-i="d2.served">Servido desde caché</text>
+                  <g id="d2-pk"></g>
+                </svg>
+              </div>
+              <div class="story-body">
+                <span class="story-num">02 / 03</span>
+                <span class="label" data-i="p2.tag">Gobierno · Identidad · Seguridad</span>
+                <h3 data-i="p2.h">Servicio de identidad con continuidad ante fallos externos</h3>
+                <p data-i="p2.p">Capa intermedia frente a las APIs de identidad y huellas dactilares de otras instituciones, con caché local de contingencia. Permisos por perfil con ASP.NET Core Identity y JWT, y auditoría de cada consulta a datos sensibles.</p>
+                <ul class="stack"><li>ASP.NET Core</li><li>SQL Server</li><li>Redis</li><li>React</li></ul>
+              </div>
+            </article>
+
+            <article class="story-item" id="proj-3">
+              <div class="story-fig">
+                <svg class="dg" id="d3" viewBox="0 0 520 390" role="img" aria-label="Diagrama: panel de calidad en tiempo real" data-i-aria="d3.aria">
+                  <g class="hdr" id="d3-hdr">
+                    <circle class="rec" id="d3-rec" cx="30" cy="31" r="4.5"/>
+                    <text class="t-ink" x="44" y="35"><tspan data-i="d3.rec">Grabando</tspan> · <tspan data-i="d3.agent">Agente</tspan> 03</text>
+                    <text class="t-ink t-lg" id="d3-timer" x="496" y="35" text-anchor="end">00:12:37</text>
+                  </g>
+                  <line class="wave-bg" x1="24" y1="100" x2="496" y2="100"/>
+                  <polyline class="wave" id="d3-wave" points="24,100 496,100"/>
+                  <line class="grid-line" id="d3-div" x1="24" y1="148" x2="496" y2="148"/>
+                  <g class="row" data-row="0"><rect class="row-bg" x="24" y="160" width="472" height="40" rx="8"/><circle class="st s1" cx="44" cy="180" r="4.5"/><text class="t-ink" x="58" y="184"><tspan data-i="d3.agent">Agente</tspan> 01</text><text class="st-l" x="200" y="184" data-i="d3.s1">En llamada</text><g class="lv" transform="translate(330 175)"></g></g>
+                  <g class="row" data-row="1"><rect class="row-bg" x="24" y="208" width="472" height="40" rx="8"/><circle class="st s2" cx="44" cy="228" r="4.5"/><text class="t-ink" x="58" y="232"><tspan data-i="d3.agent">Agente</tspan> 02</text><text class="st-l" x="200" y="232" data-i="d3.s2">Disponible</text><g class="lv" transform="translate(330 223)"></g></g>
+                  <g class="row live" data-row="2"><rect class="row-bg" x="24" y="256" width="472" height="40" rx="8"/><circle class="st s3" cx="44" cy="276" r="4.5"/><text class="t-ink" x="58" y="280"><tspan data-i="d3.agent">Agente</tspan> 03</text><text class="st-l" x="200" y="280" data-i="d3.s3">En revisión</text><g class="lv" transform="translate(330 271)"></g></g>
+                  <g class="row" data-row="3"><rect class="row-bg" x="24" y="304" width="472" height="40" rx="8"/><circle class="st s1" cx="44" cy="324" r="4.5"/><text class="t-ink" x="58" y="328"><tspan data-i="d3.agent">Agente</tspan> 04</text><text class="st-l" x="200" y="328" data-i="d3.s1">En llamada</text><g class="lv" transform="translate(330 319)"></g></g>
+                  <text id="d3-title" x="24" y="372" data-i="d3.title">Panel de calidad · en vivo</text>
+                </svg>
+              </div>
+              <div class="story-body">
+                <span class="story-num">03 / 03</span>
+                <span class="label" data-i="p3.tag">Telecomunicaciones · Calidad · Tiempo real</span>
+                <h3 data-i="p3.h">Monitoreo de calidad con trazabilidad por agente en tiempo real</h3>
+                <p data-i="p3.p">Captura de pantalla y voz con FFmpeg, API REST y panel en tiempo real con SignalR para el área de calidad.</p>
+                <ul class="stack"><li>.NET</li><li>SignalR</li><li>FFmpeg</li><li>REST</li></ul>
+              </div>
+            </article>
+          </div>
         </div>
       </div>
     </section>
