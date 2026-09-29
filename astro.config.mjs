@@ -28,6 +28,7 @@ export default defineConfig({
       UPSTASH_REDIS_REST_URL: secret({ optional: true }),
       UPSTASH_REDIS_REST_TOKEN: secret({ optional: true }),
       CV_FULL_KEY: secret({ optional: true }),
+      CRON_SECRET: secret({ optional: true }),
     },
   },
   vite: {

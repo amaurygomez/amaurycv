@@ -13,6 +13,17 @@ const redis =
 
 export const rateLimiting = redis !== null;
 
+/** Touches Redis so Upstash never reclaims the free database as inactive. */
+export async function keepAlive(): Promise<boolean> {
+  if (!redis) return false;
+  try {
+    return (await redis.ping()) === "PONG";
+  } catch (error) {
+    console.error("[keepalive] redis unreachable", error);
+    return false;
+  }
+}
+
 export function limiter(prefix: string, tokens: number, window: Duration): Ratelimit | null {
   return redis
     ? new Ratelimit({ redis, prefix, limiter: Ratelimit.slidingWindow(tokens, window) })
