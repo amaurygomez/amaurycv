@@ -89,7 +89,7 @@ test.describe("full CV request dialog", () => {
     const dialog = await submitRequest(page);
 
     await expect(
-      dialog.getByRole("heading", { name: "Done. Check ana@example.com." }),
+      dialog.getByRole("heading", { name: "Request received. I’ll reply to ana@example.com." }),
     ).toBeFocused();
     expect(sent).toEqual({
       name: "Ana Pérez",

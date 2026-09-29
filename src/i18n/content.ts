@@ -17,7 +17,7 @@ type Content = {
 export const profile = {
   name: "Amaury Emmanuel Gómez Rodríguez",
   shortName: "Amaury Gómez",
-  email: "aegrdz@outlook.com",
+  email: "hello@amaurygomez.dev",
   github: "https://github.com/amaurygomez",
   credly: "https://www.credly.com/users/aegrdz",
   cvPath: "/cv",

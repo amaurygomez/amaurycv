@@ -540,12 +540,12 @@ export const cvUi = {
   requestSection: {
     eyebrow: { es: "CV completo", en: "Full CV" },
     title: {
-      es: "Nombres de empleadores y fechas, por email.",
-      en: "Employer names and dates, by email.",
+      es: "Nombres de empleadores y fechas, bajo solicitud.",
+      en: "Employer names and dates, on request.",
     },
     text: {
-      es: "Te llega como PDF en unos minutos, en el idioma que estás leyendo.",
-      en: "It arrives as a PDF within minutes, in the language you are reading.",
+      es: "Por confidencialidad con clientes de gobierno, banca y telecomunicaciones, reviso cada solicitud personalmente antes de compartirlo. Respondo en 24–48 h.",
+      en: "Out of confidentiality to government, banking and telecom clients, I review every request personally before sharing it. I reply within 24–48 h.",
     },
   },
   colophon: {
@@ -556,25 +556,25 @@ export const cvUi = {
   dialog: {
     title: { es: "Solicitar CV completo", en: "Request the full CV" },
     description: {
-      es: "La versión completa incluye nombres de empleadores y fechas. Te llega por email en unos minutos.",
-      en: "The full version includes employer names and dates. It reaches your inbox within minutes.",
+      es: "La versión completa incluye nombres de empleadores y fechas. Por confidencialidad con mis clientes, reviso cada solicitud y te la envío por email en 24–48 h.",
+      en: "The full version includes employer names and dates. Out of confidentiality to my clients, I review each request and email it to you within 24–48 h.",
     },
     name: { es: "Nombre", en: "Name" },
     company: { es: "Empresa", en: "Company" },
     email: { es: "Email de trabajo", en: "Work email" },
     role: { es: "Posición que evalúas", en: "Role you are hiring for" },
     privacy: {
-      es: "Uso estos datos solo para enviarte el CV y saber quién lo pidió.",
-      en: "I use these details only to send you the CV and to know who asked for it.",
+      es: "Uso estos datos solo para revisar tu solicitud y responderte.",
+      en: "I use these details only to review your request and reply to you.",
     },
     cancel: { es: "Cancelar", en: "Cancel" },
     close: { es: "Cerrar", en: "Close" },
-    sentTitle: { es: "Listo. Revisa", en: "Done. Check" },
+    sentTitle: { es: "Solicitud recibida. Te respondo en", en: "Request received. I’ll reply to" },
     sentText: {
-      es: "Si no llega en 10 minutos, revisa spam o escríbeme a",
-      en: "If it doesn’t arrive in 10 minutes, check spam or email",
+      es: "Reviso cada solicitud en 24–48 h. Si es urgente, escríbeme a",
+      en: "I review every request within 24–48 h. If it’s urgent, email",
     },
-    another: { es: "Enviar a otro email", en: "Send to another email" },
+    another: { es: "Hacer otra solicitud", en: "Make another request" },
     unavailable: {
       es: "El formulario no está disponible ahora. Escríbeme a",
       en: "The form is unavailable right now. Email",
