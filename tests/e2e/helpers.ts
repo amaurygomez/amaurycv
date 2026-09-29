@@ -21,7 +21,7 @@ async function waitVisible(locator: Locator, timeout = 8000) {
 
 export async function startExperience(page: Page) {
   await setIntroSeen(page);
-  await page.goto("/");
+  await page.goto("/world");
 
   // Exact match: HeroPanel's tour button is "Start journey" and must not be
   // clicked here, only the intro's "Start Journey".

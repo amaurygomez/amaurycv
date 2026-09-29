@@ -25,6 +25,11 @@ export default defineConfig({
       use: { ...devices["iPhone 13"], browserName: "chromium" },
     },
     {
+      name: "home",
+      testMatch: /home\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 960 } },
+    },
+    {
       name: "cv-desktop",
       testMatch: /cv\.spec\.ts/,
       use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 960 } },

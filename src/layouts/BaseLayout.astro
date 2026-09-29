@@ -9,9 +9,24 @@ interface Props {
   ogImage?: string;
   lang?: "es" | "en";
   lockScroll?: boolean;
+  /** Replaces the dark AG World body classes; the home paints its own background. */
+  bodyClass?: string;
+  colorScheme?: string;
+  themeColor?: string;
+  siteName?: string;
 }
 
-const { title, description, ogImage = "/og.png", lang = "es", lockScroll = true } = Astro.props;
+const {
+  title,
+  description,
+  ogImage = "/og.png",
+  lang = "es",
+  lockScroll = true,
+  bodyClass = "bg-ag-bg text-ag-text",
+  colorScheme = "dark",
+  themeColor = "#070B14",
+  siteName = "AG World",
+} = Astro.props;
 
 // Vercel serves pages without a trailing slash, so the canonical URL drops it too.
 const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site).toString();
@@ -23,8 +38,8 @@ const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="theme-color" content="#070B14" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content={themeColor} />
+    <meta name="color-scheme" content={colorScheme} />
 
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -37,7 +52,7 @@ const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(ogImage, Astro.site).toString()} />
     <meta property="og:locale" content={lang === "es" ? "es_DO" : "en_US"} />
-    <meta property="og:site_name" content="AG World" />
+    <meta property="og:site_name" content={siteName} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
@@ -47,7 +62,7 @@ const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site
     <slot name="head" />
   </head>
   <!-- The desktop world is a fullscreen canvas; below lg the page must scroll. -->
-  <body class:list={["bg-ag-bg text-ag-text antialiased", { "lg:overflow-hidden": lockScroll }]}>
+  <body class:list={[bodyClass, "antialiased", { "lg:overflow-hidden": lockScroll }]}>
     <slot />
   </body>
 </html>

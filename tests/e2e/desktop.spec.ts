@@ -40,7 +40,7 @@ test("keyboard navigation selects, opens, and closes zones", async ({ page }) =>
 });
 
 test("intro can be skipped", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/world");
   await expect(page.getByRole("button", { name: /Saltar|Skip/ })).toBeVisible();
   await page.getByRole("button", { name: /Saltar|Skip/ }).click();
   await expect(page.getByText("AG World")).toBeVisible();
