@@ -48,11 +48,22 @@ export function initProjects(c) {
   (function () {
     var svg = $('#d1'); if (!svg) return;
     var R = 40, W = Math.sqrt(3) * R, VS = 1.5 * R;
+    var defs = svgEl('defs', {}, svg);
+    var gScan = svgEl('linearGradient', { id: 'g1-scan', x1: 0, y1: 0, x2: 1, y2: 0 }, defs);
+    svgEl('stop', { offset: 0, 'stop-color': 'var(--primary)', 'stop-opacity': 0 }, gScan);
+    svgEl('stop', { offset: 1, 'stop-color': 'var(--primary)', 'stop-opacity': 0.22 }, gScan);
+    var gPinG = svgEl('radialGradient', { id: 'g1-pin' }, defs);
+    svgEl('stop', { offset: 0, 'stop-color': 'var(--primary)', 'stop-opacity': 0.35 }, gPinG);
+    svgEl('stop', { offset: 1, 'stop-color': 'var(--primary)', 'stop-opacity': 0 }, gPinG);
+    var clip = svgEl('clipPath', { id: 'g1-clip' }, defs);
+    svgEl('rect', { x: 24, y: 48, width: 472, height: 270, rx: 12 }, clip);
+    svgEl('rect', { x: 24, y: 48, width: 472, height: 270, rx: 12, 'class': 'map-panel' }, svg);
     var title = svgEl('text', { x: 24, y: 34, 'class': 't-ink', 'data-i': 'd1.title' }, svg); title.textContent = t('d1.title');
-    var gStreets = svgEl('g', {}, svg);
+    var gMap = svgEl('g', { 'clip-path': 'url(#g1-clip)' }, svg);
+    var gStreets = svgEl('g', {}, gMap);
     var streets = ['M-10 120 C 130 96, 300 176, 530 132', 'M176 -10 C 196 110, 132 250, 206 400', 'M-10 268 C 160 236, 330 306, 530 258']
       .map(function (d) { return svgEl('path', { 'class': 'street', d: d }, gStreets); });
-    var gHex = svgEl('g', {}, svg);
+    var gHex = svgEl('g', {}, gMap);
     var hexes = [];
     for (var row = 0; row < 4; row++) for (var col = 0; col < 7; col++) {
       var cx = 62 + col * W + (row % 2 ? W / 2 : 0), cy = 96 + row * VS;
@@ -62,7 +73,9 @@ export function initProjects(c) {
       var el = svgEl('polygon', { 'class': 'hex', points: pts.join(' ') }, gHex);
       hexes.push({ el: el, cx: cx, cy: cy, id: (row + 1) + String.fromCharCode(65 + col), lit: 0, kind: 0 });
     }
-    var gPin = svgEl('g', {}, svg), gIn = svgEl('g', {}, gPin);
+    var scan = svgEl('rect', { x: -140, y: 48, width: 140, height: 270, fill: 'url(#g1-scan)', 'class': 'scan' }, gMap);
+    var gPin = svgEl('g', {}, gMap), gIn = svgEl('g', {}, gPin);
+    svgEl('circle', { cx: 0, cy: 0, r: 44, fill: 'url(#g1-pin)', 'class': 'pin-glow' }, gIn);
     var ring = svgEl('circle', { 'class': 'ring', cx: 0, cy: 0, r: 8 }, gIn);
     var ring2 = svgEl('circle', { 'class': 'ring', cx: 0, cy: 0, r: 8 }, gIn);
     svgEl('circle', { 'class': 'pin-c', cx: 0, cy: 0, r: 10 }, gIn);
@@ -77,6 +90,8 @@ export function initProjects(c) {
     svgEl('circle', { cx: 44, cy: 352, r: 4.5, 'class': 'pin' }, card);
     var zone = svgEl('text', { x: 60, y: 356.5, 'class': 't-ink t-lg' }, card);
     var kind = svgEl('text', { x: 480, y: 356.5, 'text-anchor': 'end', 'class': 't-pri t-lg' }, card);
+    var gSig = svgEl('g', { transform: 'translate(252 342)' }, card), sig = [];
+    for (var sb = 0; sb < 5; sb++) sig.push(svgEl('rect', { x: sb * 7, y: 16 - (6 + sb * 2.5), width: 4, height: 6 + sb * 2.5, rx: 1, 'class': 'sig' }, gSig));
 
     var rnd, cur, px, py, tx, ty, timer, ringT, curKind;
     function cardText() {
@@ -107,11 +122,16 @@ export function initProjects(c) {
       gPin.setAttribute('transform', 'translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ')');
     }
     reset();
+    var sigT = 0;
     function tick(dt, now) {
       timer += dt;
       if (timer > 2.6) { timer = 0; pickNext(now); }
       px = lerp(px, tx, 1 - Math.pow(0.001, dt)); py = lerp(py, ty, 1 - Math.pow(0.001, dt));
       gPin.setAttribute('transform', 'translate(' + px.toFixed(1) + ' ' + py.toFixed(1) + ')');
+      scan.setAttribute('x', (-140 + ((now * 70) % 760)).toFixed(1));
+      sigT += dt;
+      var sigN = curKind === 2 ? 5 : 3, flick = Math.sin(sigT * 2.1) > 0.85 ? -1 : 0;
+      sig.forEach(function (s, k) { s.classList.toggle('on', k < sigN + flick); });
       ringT += dt;
       var r1 = clamp(ringT / 1.3, 0, 1), r2 = clamp((ringT - 0.3) / 1.3, 0, 1);
       ring.setAttribute('r', (8 + r1 * 54).toFixed(1)); ring.style.opacity = (1 - r1) * 0.8;
@@ -193,6 +213,7 @@ export function initProjects(c) {
       fade(tl, [cache], 0.45, 8);
       pop(tl, [$('#d2-app', svg)], 0.65);
       draw(tl, [paths[3].el, paths[4].el], 0.5, 0.75, 0.1);
+      fade(tl, [$('#d2-flows', svg)], 1.05);
     }
     register(svg, { tl: tl, reset: reset, tick: tick });
   })();
@@ -200,7 +221,7 @@ export function initProjects(c) {
   /* ---------- diagram 3: quality monitoring ---------- */
   (function () {
     var svg = $('#d3'); if (!svg) return;
-    var wave = $('#d3-wave', svg), rec = $('#d3-rec', svg), timer = $('#d3-timer', svg);
+    var wave = $('#d3-wave', svg), fill = $('#d3-fill', svg), rec = $('#d3-rec', svg), timer = $('#d3-timer', svg);
     var rows = $$('.row', svg).map(function (g) {
       var lv = $('.lv', g), segs = [];
       for (var k = 0; k < 14; k++) segs.push(svgEl('rect', { x: k * 11, y: 0, width: 7, height: 10, rx: 1.5, 'class': 'lvl' }, lv));
@@ -222,6 +243,7 @@ export function initProjects(c) {
         pts.push(x.toFixed(1) + ',' + (mid - y * e).toFixed(1));
       }
       wave.setAttribute('points', pts.join(' '));
+      if (fill) fill.setAttribute('points', pts.join(' ') + ' ' + x1 + ',144 ' + x0 + ',144');
       lvlT += dt;
       if (lvlT > 0.9) { lvlT = 0; rows.forEach(function (r) { r.target = r.status === 1 || r.status === 3 ? 0.35 + Math.random() * 0.6 : 0.05 + Math.random() * 0.2; }); }
       rows.forEach(function (r) {
@@ -248,7 +270,8 @@ export function initProjects(c) {
       tl = gsap.timeline({ paused: true });
       fade(tl, [$('#d3-hdr', svg)], 0, -6);
       draw(tl, [$('.wave-bg', svg), $('#d3-div', svg)], 0.8, 0.1, 0.1);
-      fade(tl, [wave], 0.45);
+      fade(tl, [$('.wave-panel', svg)], 0);
+      fade(tl, [wave, fill, $('.playhead', svg)].filter(Boolean), 0.45);
       tl.fromTo(rows.map(function (r) { return r.g; }), { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out', immediateRender: false, stagger: 0.09 }, 0.4);
       fade(tl, [$('#d3-title', svg)], 0.9);
     }
