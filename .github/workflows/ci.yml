@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -37,17 +37,34 @@ jobs:
     timeout-minutes: 25
     needs: check
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Start the dev server in the background
+        # On CI `astro dev` stays attached instead of daemonizing, so the test global setup
+        # must not start it; it only waits for this one (E2E_EXTERNAL_SERVER).
+        run: |
+          (npx astro dev --host 127.0.0.1 > astro-dev.log 2>&1 &)
+          for i in $(seq 1 120); do
+            curl -sf http://127.0.0.1:4321 > /dev/null && exit 0
+            sleep 1
+          done
+          echo "dev server did not start"; cat astro-dev.log; exit 1
+        env:
+          # Cloudflare's always-pass test key; the specs stub the widget script itself.
+          PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
       - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+        env:
+          E2E_EXTERNAL_SERVER: "1"
+      - uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: playwright-traces
-          path: test-results/
+          path: |
+            test-results/
+            astro-dev.log
           retention-days: 7
