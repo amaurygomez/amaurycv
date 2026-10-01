@@ -1,6 +1,8 @@
 // Home hero: 3D city-network (three.js). Receives shared helpers from main.js.
-// Look: a white architectural maquette (soft hemisphere + key light, contact shadows, thin edge lines)
-// with a cobalt data network travelling the streets of the dense core, kept to the right of the frame.
+// Look: a white architectural maquette by day (soft hemisphere + key light, contact shadows, thin edge lines)
+// and a graphite night model with lit windows after dark. On both, a cobalt data network travels the streets
+// of the dense core: street pulses, rooftop links with flowing packets, light beams on the landmarks,
+// a radar sweep on the ground and a drifting particle field. Kept to the right of the headline.
 /* eslint-disable @typescript-eslint/no-unused-vars -- shared helper bag; each module uses a subset */
 export function initHero(c) {
   var THREE = c.THREE, gsap = c.gsap, $ = c.$, $$ = c.$$, clamp = c.clamp, lerp = c.lerp, mulberry32 = c.mulberry32, rgba = c.rgba, mixHex = c.mixHex,
@@ -45,7 +47,7 @@ export function initHero(c) {
     };
     var FOG = 'float fogF(vec3 w){ return smoothstep(uFogNear, uFogFar, distance(w, cameraPosition)); }';
 
-    /* ground: off-white plates, streets barely indicated */
+    /* ground: off-white plates, streets barely indicated; a radar sweep and a soft core glow travel the grid */
     var groundMat = new THREE.ShaderMaterial({
       uniforms: U,
       vertexShader: [
@@ -53,7 +55,7 @@ export function initHero(c) {
         'void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
       ].join('\n'),
       fragmentShader: [
-        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong; uniform float uCell,uHalf,uSW,uFogNear,uFogFar,uLight;',
+        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uPrimary,uAccent; uniform float uCell,uHalf,uSW,uFogNear,uFogFar,uLight,uTime;',
         'varying vec3 vW;', FOG,
         'void main(){',
         '  vec2 g = mod(vW.xz + uHalf, uCell); vec2 de = min(g, uCell - g); float ds = min(de.x, de.y);',
@@ -63,7 +65,19 @@ export function initHero(c) {
         '  vec3 col = mix(plate, road, street);',
         '  float curb = 1.0 - smoothstep(0.0, 0.09, abs(ds - uSW*0.5));',
         '  col = mix(col, uLine, curb * mix(0.35, 0.5, uLight));',
+        '  float rr = length(vW.xz);',
         '  float inCity = 1.0 - smoothstep(uHalf - 2.0, uHalf + 8.0, max(abs(vW.x), abs(vW.z)));',
+        /* night: streets carry a faint cobalt light and the core glows from below */
+        '  float night = 1.0 - uLight;',
+        '  col += uPrimary * street * 0.10 * night;',
+        '  col += uPrimary * (1.0 - smoothstep(0.0, uHalf * 0.95, rr)) * 0.09 * night;',
+        /* radar sweep: a ring expanding from the core every few seconds */
+        '  float ringR = mod(uTime * 13.0, 120.0);',
+        '  float ring = exp(-pow((rr - ringR) * 0.38, 2.0)) * (1.0 - smoothstep(50.0, 115.0, ringR));',
+        '  col = mix(col, uPrimary, ring * mix(0.14, 0.5, night));',
+        /* holographic grid: street centre lines glow at night */
+        '  float centre = 1.0 - smoothstep(0.0, 0.14, ds);',
+        '  col += uPrimary * centre * 0.35 * night * (0.6 + 0.4 * sin(uTime * 0.8 + rr * 0.12));',
         '  col = mix(uBg, col, inCity);',
         '  col = mix(col, uBg, fogF(vW));',
         '  gl_FragColor = vec4(col, 1.0);',
@@ -114,12 +128,14 @@ export function initHero(c) {
       }
     }
     /* landmarks: three slender towers close to the core */
+    var landmarks = [];
     [[1, 0], [-1, 1], [0, -2]].forEach(function (o, k) {
       var cx = o[0] * CELL, cz = o[1] * CELL, ms2 = inner - gap * 2;
       for (var q = lots.length - 1; q >= 0; q--) if (Math.abs(lots[q].x - cx) < CELL / 2 && Math.abs(lots[q].z - cz) < CELL / 2) lots.splice(q, 1);
       var lh = 21 - k * 2.5, lw = ms2 * 0.58, ld = ms2 * 0.66;
       addLot(cx, cz, lw, ld, lh, rnd());
       addLot(cx, cz, lw * 0.7, ld * 0.7, lh * 1.12, rnd());
+      landmarks.push({ x: cx, z: cz, h: lh * 1.12 });
     });
 
     var boxGeo = new THREE.BoxGeometry(1, 1, 1);
@@ -143,25 +159,43 @@ export function initHero(c) {
         '}'
       ].join('\n'),
       fragmentShader: [
-        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uInk,uSun; uniform float uFogNear,uFogFar,uLight;',
+        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uInk,uSun,uPrimary,uAccent; uniform float uFogNear,uFogFar,uLight,uTime;',
         'varying vec3 vW; varying vec3 vN; varying float vTop; varying float vSeed; varying float vH;', FOG,
         'void main(){',
         '  vec3 n = normalize(vN);',
         '  float ndl = max(dot(n, uSun), 0.0);',
+        '  float wall = 1.0 - step(0.5, n.y);',
+        /* procedural windows on every wall: a grid of panes, each one lit or dark by a stable hash */
+        '  float sideX = step(0.5, abs(n.x));',
+        '  float hc = mix(vW.x, vW.z, sideX);',
+        '  vec2 cell = vec2(hc / 0.78, vW.y / 0.92);',
+        '  vec2 cf = fract(cell); vec2 ci = floor(cell);',
+        '  float wx = step(0.24, cf.x) - step(0.76, cf.x);',
+        '  float wy = step(0.30, cf.y) - step(0.72, cf.y);',
+        '  float band = step(0.5, vW.y) * (1.0 - step(vH - 0.45, vW.y));',
+        '  float win = wx * wy * wall * band;',
+        '  float hsh = fract(sin(dot(ci + vec2(vSeed * 91.7, n.x * 3.1 + n.z * 7.3), vec2(12.9898, 78.233))) * 43758.5453);',
+        '  float lit = smoothstep(0.52, 0.60, hsh + 0.05 * sin(uTime * 0.6 + hsh * 60.0));',
         /* light: white foam-board maquette. tops white, sun-facing walls warm-white, shade walls cool gray */
-        '  float lit = mix(0.30 + 0.5 * ndl, 0.97, step(0.5, n.y));',
-        '  lit += (vSeed - 0.5) * 0.04;',
+        '  float lighting = mix(0.30 + 0.5 * ndl, 0.97, step(0.5, n.y));',
+        '  lighting += (vSeed - 0.5) * 0.04;',
         '  vec3 albedoL = uSurface;',
         '  vec3 shadeL = mix(uLineStrong, uLine, 0.2);',
-        '  vec3 colL = mix(shadeL, albedoL, clamp(lit, 0.0, 1.0));',
+        '  vec3 colL = mix(shadeL, albedoL, clamp(lighting, 0.0, 1.0));',
         '  float aoL = (1.0 - smoothstep(0.0, 2.6, vW.y)) * (1.0 - step(0.5, n.y));',
         '  colL = mix(colL, mix(uLineStrong, uInk, 0.08), aoL * 0.28);',
-        /* dark: graphite model, tops catch a faint sky */
+        '  colL = mix(colL, mix(colL, uLineStrong, 0.55), win * 0.55);',
+        '  colL = mix(colL, mix(colL, uPrimary, 0.22), win * lit * 0.5);',
+        /* dark: graphite model, tops catch a faint sky, windows glow cobalt-white */
         '  vec3 litD = mix(uSurface, uLineStrong, 0.8);',
         '  vec3 shadeD = mix(uSunken, uSurface, 0.35);',
-        '  vec3 colD = mix(shadeD, litD, clamp(lit, 0.0, 1.0));',
+        '  vec3 colD = mix(shadeD, litD, clamp(lighting, 0.0, 1.0));',
         '  float aoD = (1.0 - smoothstep(0.0, 3.0, vW.y)) * (1.0 - step(0.5, n.y));',
         '  colD = mix(colD, uBg, aoD * 0.5);',
+        '  colD = mix(colD, uBg, win * (1.0 - lit) * 0.6);',
+        '  vec3 glow = mix(uPrimary, vec3(1.0), 0.45 + 0.25 * hsh);',
+        '  colD += glow * win * lit * (0.75 + 0.25 * sin(uTime * 1.3 + hsh * 20.0));',
+        '  colD += uPrimary * step(0.5, n.y) * 0.06;',
         '  vec3 col = mix(colD, colL, uLight);',
         '  col = mix(col, uBg, fogF(vW));',
         '  gl_FragColor = vec4(col, 1.0);',
@@ -247,7 +281,7 @@ export function initHero(c) {
     edges.renderOrder = 3;
     scene.add(edges);
 
-    /* points shader (pulses, nodes, arc dots): solid core + soft halo */
+    /* points shader (pulses, nodes, arc dots, particles): solid core + soft halo */
     var ptsVert = [
       'attribute float aAlpha; attribute float aSize;',
       'uniform float uPx, uFogNear, uFogFar;',
@@ -266,10 +300,10 @@ export function initHero(c) {
       'void main(){',
       '  vec2 c = gl_PointCoord - 0.5; float d = length(c) * 2.0;',
       '  float core = 1.0 - smoothstep(0.50, 0.68, d);',
-      '  float halo = pow(clamp(1.0 - d, 0.0, 1.0), 2.0) * mix(0.5, 0.28, uLight);',
+      '  float halo = pow(clamp(1.0 - d, 0.0, 1.0), 2.0) * mix(0.55, 0.28, uLight);',
       '  float a = clamp(core + halo, 0.0, 1.0) * vA;',
       '  if (a < 0.01) discard;',
-      '  gl_FragColor = vec4(uColor, a);',
+      '  gl_FragColor = vec4(mix(uColor, vec3(1.0), core * 0.25 * (1.0 - uLight)), a);',
       '}'
     ].join('\n');
     function ptsMat(color) {
@@ -290,7 +324,7 @@ export function initHero(c) {
     var time = 0;
     function updateCamera() {
       var p = state.p;
-      var theta = 0.74 + Math.sin(time * 0.04) * 0.06 + state.smx * 0.05;
+      var theta = 0.74 + Math.sin(time * 0.04) * 0.07 + state.smx * 0.05;
       var el = (narrow ? 0.68 : 0.58) + p * 0.45 + state.smy * 0.03;
       var R = (narrow ? 170 : 150) + p * 40;
       var shift = narrow ? 0 : 27;
@@ -323,7 +357,7 @@ export function initHero(c) {
     }
     var DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
     function ok(i, j) { return i >= 0 && i < NN && j >= 0 && j < NN && allowed[i * NN + j] === 1; }
-    var P = narrow ? 8 : 18, pulses = [];
+    var P = narrow ? 10 : 24, pulses = [];
     var startNodes = [];
     for (var s0 = 0; s0 < NN * NN; s0++) if (allowed[s0]) startNodes.push(s0);
     for (var pi = 0; pi < P && startNodes.length; pi++) {
@@ -331,7 +365,7 @@ export function initHero(c) {
       var dd = DIRS.filter(function (d) { return ok(si0 + d[0], sj0 + d[1]); });
       if (!dd.length) continue;
       var d0 = dd[Math.floor(rnd() * dd.length)];
-      pulses.push({ i: si0, j: sj0, di: d0[0], dj: d0[1], t: rnd(), speed: 8 + rnd() * 6, hist: new Float32Array(T * 2), hLen: 0, hHead: 0, lx: 0, lz: 0 });
+      pulses.push({ i: si0, j: sj0, di: d0[0], dj: d0[1], t: rnd(), speed: 8 + rnd() * 7, accent: pi % 5 === 4, hist: new Float32Array(T * 2), hLen: 0, hHead: 0, lx: 0, lz: 0 });
     }
     P = pulses.length;
     var pulseGeo = ptsGeo(P * T, function (i) { var k = i % T; return k === 0 ? 8.5 : 4.6 * Math.pow(1 - k / T, 0.8) + 2.2; });
@@ -340,6 +374,12 @@ export function initHero(c) {
     pulsePts.frustumCulled = false;
     pulsePts.renderOrder = 5;
     scene.add(pulsePts);
+    var pulseAccGeo = ptsGeo(P * T, function (i) { var k = i % T; return k === 0 ? 8.5 : 4.6 * Math.pow(1 - k / T, 0.8) + 2.2; });
+    var pulseAccMat = ptsMat(U.uAccent.value);
+    var pulseAccPts = new THREE.Points(pulseAccGeo, pulseAccMat);
+    pulseAccPts.frustumCulled = false;
+    pulseAccPts.renderOrder = 5;
+    scene.add(pulseAccPts);
 
     var nodeGeo = ptsGeo(NN * NN, function () { return 2.8; });
     var nodePos = nodeGeo.getAttribute('position').array;
@@ -358,10 +398,10 @@ export function initHero(c) {
     nodePts.renderOrder = 4;
     scene.add(nodePts);
 
-    /* rooftop arcs: a few elegant links between tall towers of the core */
+    /* rooftop links: glowing tubes between tall towers of the core, each carrying a flowing packet */
     var tall = lots.filter(function (l) { return l.h > 8 && Math.hypot(l.x, l.z) < half * 0.6 && ndcX(l.x, l.h, l.z) > minX + 0.08; });
     tall.sort(function (a, b) { return b.h - a.h; });
-    var arcs = [], tries = 0, ARCS = narrow ? 5 : 9;
+    var arcs = [], tries = 0, ARCS = narrow ? 5 : 10;
     while (arcs.length < ARCS && tries < 600 && tall.length > 3) {
       tries++;
       var a = tall[Math.floor(rnd() * Math.min(tall.length, 14))], b = tall[Math.floor(rnd() * tall.length)];
@@ -374,50 +414,51 @@ export function initHero(c) {
       var v1 = v0.clone().add(v2).multiplyScalar(0.5); v1.y = Math.max(a.h, b.h) + 2.5 + dab * 0.14;
       if (ndcX(v1.x, v1.y, v1.z) < minX + 0.04 || prj.y > 0.7) continue;
       var curve = new THREE.QuadraticBezierCurve3(v0, v1, v2);
-      arcs.push({ a: a, b: b, pts: curve.getPoints(32), accent: arcs.length === 2 || (ARCS > 6 && arcs.length === 6), t: rnd(), speed: 0.10 + rnd() * 0.08 });
+      arcs.push({ a: a, b: b, curve: curve, pts: curve.getPoints(32), accent: arcs.length === 2 || (ARCS > 6 && arcs.length === 6), t: rnd(), speed: 0.10 + rnd() * 0.08 });
     }
-    var segCount = arcs.reduce(function (n, c) { return n + (c.pts.length - 1); }, 0);
-    var arcPos = new Float32Array(segCount * 6), arcCol = new Float32Array(segCount * 6);
-    var arcGeo = new THREE.BufferGeometry();
-    arcGeo.setAttribute('position', new THREE.BufferAttribute(arcPos, 3));
-    arcGeo.setAttribute('color', new THREE.BufferAttribute(arcCol, 3));
-    var arcMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.7, depthWrite: false });
-    var arcLines = new THREE.LineSegments(arcGeo, arcMat);
-    arcLines.frustumCulled = false;
-    arcLines.renderOrder = 6;
-    scene.add(arcLines);
-    function paintArcs() {
-      var o = 0, prim = U.uPrimary.value, acc = U.uAccent.value, bg = U.uBg.value, tmp = new THREE.Color();
-      var isLight = U.uLight.value > 0.5;
-      arcs.forEach(function (c) {
-        var base = c.accent ? acc : prim;
-        for (var k = 0; k < c.pts.length - 1; k++) {
-          var p0 = c.pts[k], p1 = c.pts[k + 1];
-          var fade = (isLight ? 0.45 : 0.3) + (isLight ? 0.55 : 0.7) * Math.sin((k / (c.pts.length - 1)) * Math.PI);
-          tmp.copy(bg).lerp(base, fade);
-          arcPos[o * 6] = p0.x; arcPos[o * 6 + 1] = p0.y; arcPos[o * 6 + 2] = p0.z;
-          arcPos[o * 6 + 3] = p1.x; arcPos[o * 6 + 4] = p1.y; arcPos[o * 6 + 5] = p1.z;
-          arcCol[o * 6] = tmp.r; arcCol[o * 6 + 1] = tmp.g; arcCol[o * 6 + 2] = tmp.b;
-          arcCol[o * 6 + 3] = tmp.r; arcCol[o * 6 + 4] = tmp.g; arcCol[o * 6 + 5] = tmp.b;
-          o++;
-        }
+    var arcVert = [
+      'varying vec2 vUv; varying vec3 vW;',
+      'void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
+    ].join('\n');
+    var arcFrag = [
+      'uniform vec3 uColor, uBg; uniform float uHead, uLight, uFogNear, uFogFar;',
+      'varying vec2 vUv; varying vec3 vW;', FOG,
+      'void main(){',
+      '  float u = vUv.x;',
+      '  float d = fract(uHead - u);',               /* distance behind the packet head along the link */
+      '  float tail = exp(-d * 7.0);',
+      '  float base = mix(0.16, 0.30, 1.0 - uLight) * (0.35 + 0.65 * sin(u * 3.14159));',
+      '  float a = (base + tail * 0.9) * (1.0 - fogF(vW));',
+      '  vec3 col = mix(uColor, vec3(1.0), tail * mix(0.25, 0.55, 1.0 - uLight));',
+      '  gl_FragColor = vec4(col, a);',
+      '}'
+    ].join('\n');
+    var arcMats = [];
+    arcs.forEach(function (c) {
+      var geo = new THREE.TubeGeometry(c.curve, 40, narrow ? 0.16 : 0.13, 6, false);
+      var mat = new THREE.ShaderMaterial({
+        uniforms: { uColor: { value: (c.accent ? U.uAccent : U.uPrimary).value }, uBg: U.uBg, uHead: { value: c.t }, uLight: U.uLight, uFogNear: U.uFogNear, uFogFar: U.uFogFar },
+        vertexShader: arcVert, fragmentShader: arcFrag, transparent: true, depthWrite: false
       });
-      arcGeo.getAttribute('position').needsUpdate = true;
-      arcGeo.getAttribute('color').needsUpdate = true;
-    }
-    var arcDotGeo = ptsGeo(arcs.length, function () { return 4.4; });
+      c.mat = mat;
+      arcMats.push(mat);
+      var mesh = new THREE.Mesh(geo, mat);
+      mesh.renderOrder = 6;
+      scene.add(mesh);
+    });
+    var arcDotGeo = ptsGeo(arcs.length, function () { return 5.2; });
     var arcDotMat = ptsMat(U.uPrimary.value);
     var arcDots = new THREE.Points(arcDotGeo, arcDotMat);
     arcDots.frustumCulled = false;
     arcDots.renderOrder = 7;
     scene.add(arcDots);
-    var arcAccGeo = ptsGeo(arcs.length, function () { return 4.4; });
+    var arcAccGeo = ptsGeo(arcs.length, function () { return 5.2; });
     var arcAccDots = new THREE.Points(arcAccGeo, ptsMat(U.uAccent.value));
     arcAccDots.frustumCulled = false;
     arcAccDots.renderOrder = 7;
     scene.add(arcAccDots);
-    /* anchor dots on the towers each arc leaves from */
-    var anchorGeo = ptsGeo(arcs.length * 2, function () { return 3.0; });
+    /* anchor dots on the towers each link leaves from */
+    var anchorGeo = ptsGeo(arcs.length * 2, function () { return 3.2; });
     var anchorPos = anchorGeo.getAttribute('position').array, anchorAl = anchorGeo.getAttribute('aAlpha').array;
     arcs.forEach(function (c, i) {
       anchorPos[i * 6] = c.a.x; anchorPos[i * 6 + 1] = c.a.h + 0.3; anchorPos[i * 6 + 2] = c.a.z;
@@ -430,6 +471,83 @@ export function initHero(c) {
     anchors.frustumCulled = false;
     anchors.renderOrder = 7;
     scene.add(anchors);
+
+    /* light beams: crossed vertical planes rising from the landmarks and the tallest towers */
+    var beamTowers = landmarks.slice();
+    tall.slice(0, 4).forEach(function (l) {
+      if (!beamTowers.some(function (b) { return Math.abs(b.x - l.x) < 1 && Math.abs(b.z - l.z) < 1; })) beamTowers.push({ x: l.x, z: l.z, h: l.h });
+    });
+    var beamGeo = new THREE.PlaneGeometry(1, 1);
+    beamGeo.translate(0, 0.5, 0);
+    var beamPhase = new Float32Array(beamTowers.length * 2);
+    beamGeo.setAttribute('aPhase', new THREE.InstancedBufferAttribute(beamPhase, 1));
+    var beamMat = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      vertexShader: [
+        'attribute float aPhase; varying vec2 vUv; varying float vPhase; varying vec3 vW;',
+        'void main(){ vUv = uv; vPhase = aPhase; vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform vec3 uPrimary, uAccent; uniform float uTime, uLight, uFogNear, uFogFar;',
+        'varying vec2 vUv; varying float vPhase; varying vec3 vW;', FOG,
+        'void main(){',
+        '  float x = abs(vUv.x - 0.5) * 2.0;',
+        '  float horiz = pow(1.0 - x, 2.4);',
+        '  float vert = pow(1.0 - vUv.y, 1.7) * smoothstep(0.0, 0.05, vUv.y);',
+        '  float flow = 0.55 + 0.45 * sin(vUv.y * 22.0 - uTime * 2.6 + vPhase * 6.0);',
+        '  float a = horiz * vert * flow * mix(0.16, 0.6, 1.0 - uLight) * (1.0 - fogF(vW));',
+        '  if (a < 0.004) discard;',
+        '  vec3 col = mix(uPrimary, uAccent, step(0.5, fract(vPhase * 0.37)));',
+        '  gl_FragColor = vec4(mix(col, vec3(1.0), 0.15 * (1.0 - uLight)), a);',
+        '}'
+      ].join('\n')
+    });
+    var beams = new THREE.InstancedMesh(beamGeo, beamMat, beamTowers.length * 2);
+    beamTowers.forEach(function (b, i) {
+      for (var k = 0; k < 2; k++) {
+        var qy = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), k * Math.PI / 2);
+        v3.set(b.x, b.h + 0.1, b.z); s3.set(2.2, 14 + b.h * 0.5, 1);
+        m4.compose(v3, qy, s3);
+        beams.setMatrixAt(i * 2 + k, m4);
+        beamPhase[i * 2 + k] = i * 1.7;
+      }
+    });
+    beams.instanceMatrix.needsUpdate = true;
+    beams.frustumCulled = false;
+    beams.renderOrder = 8;
+    scene.add(beams);
+
+    /* crown lights: slow blink on the tallest roofs */
+    var crowns = lots.filter(function (l) { return l.h > 11.5; });
+    var crownGeo = ptsGeo(crowns.length, function () { return 3.4; });
+    var crownPos = crownGeo.getAttribute('position').array, crownAl = crownGeo.getAttribute('aAlpha').array;
+    var crownPhase = new Float32Array(crowns.length);
+    crowns.forEach(function (l, i) {
+      crownPos[i * 3] = l.x; crownPos[i * 3 + 1] = l.h + 0.25; crownPos[i * 3 + 2] = l.z;
+      crownPhase[i] = rnd() * Math.PI * 2;
+    });
+    crownGeo.getAttribute('position').needsUpdate = true;
+    var crownMat = ptsMat(U.uAccent.value);
+    var crownPts = new THREE.Points(crownGeo, crownMat);
+    crownPts.frustumCulled = false;
+    crownPts.renderOrder = 7;
+    scene.add(crownPts);
+
+    /* particle field: slow motes drifting up through the core */
+    var PN = narrow ? 70 : 160;
+    var partGeo = ptsGeo(PN, function (i) { return 1.6 + (i % 3) * 0.6; });
+    var partPos = partGeo.getAttribute('position').array, partAl = partGeo.getAttribute('aAlpha').array;
+    var partSeed = new Float32Array(PN * 2);
+    for (var pk = 0; pk < PN; pk++) {
+      partPos[pk * 3] = (rnd() - 0.5) * half * 1.5; partPos[pk * 3 + 1] = 1 + rnd() * 34; partPos[pk * 3 + 2] = (rnd() - 0.5) * half * 1.5;
+      partSeed[pk * 2] = 0.25 + rnd() * 0.6; partSeed[pk * 2 + 1] = rnd() * Math.PI * 2;
+    }
+    partGeo.getAttribute('position').needsUpdate = true;
+    var partMat = ptsMat(U.uPrimary.value);
+    var particles = new THREE.Points(partGeo, partMat);
+    particles.frustumCulled = false;
+    particles.renderOrder = 7;
+    scene.add(particles);
 
     /* theme */
     function applyTheme() {
@@ -446,15 +564,14 @@ export function initHero(c) {
         U.uEdge.value.set(T.lineStrong); U.uEdgeA.value = 0.7;
       }
       var blend = T.isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
-      [pulseMat, nodeMat, arcDotMat, arcAccDots.material, anchorMat].forEach(function (m) { m.blending = blend; m.needsUpdate = true; });
-      arcMat.opacity = T.isLight ? 0.7 : 0.6;
+      [pulseMat, pulseAccMat, nodeMat, arcDotMat, arcAccDots.material, anchorMat, crownMat, partMat, beamMat].concat(arcMats).forEach(function (m) { m.blending = blend; m.needsUpdate = true; });
       renderer.setClearColor(new THREE.Color(T.bg), 1);
-      paintArcs();
       if (REDUCED) render();
     }
 
     /* simulation */
     var pulsePosArr = pulseGeo.getAttribute('position').array, pulseAlArr = pulseGeo.getAttribute('aAlpha').array;
+    var pulseAccPosArr = pulseAccGeo.getAttribute('position').array, pulseAccAlArr = pulseAccGeo.getAttribute('aAlpha').array;
     function stepPulses(dt) {
       for (var p = 0; p < P; p++) {
         var u = pulses[p];
@@ -479,19 +596,23 @@ export function initHero(c) {
           u.hHead = (u.hHead + 1) % T; u.hist[u.hHead * 2] = px; u.hist[u.hHead * 2 + 1] = pz; u.hLen = Math.min(T, u.hLen + 1);
           u.lx = px; u.lz = pz;
         }
+        var posArr = u.accent ? pulseAccPosArr : pulsePosArr, alArr = u.accent ? pulseAccAlArr : pulseAlArr, otherAl = u.accent ? pulseAlArr : pulseAccAlArr;
         var base = p * T;
-        pulsePosArr[base * 3] = px; pulsePosArr[base * 3 + 1] = 0.45; pulsePosArr[base * 3 + 2] = pz; pulseAlArr[base] = 1;
+        posArr[base * 3] = px; posArr[base * 3 + 1] = 0.45; posArr[base * 3 + 2] = pz; alArr[base] = 1; otherAl[base] = 0;
         for (var k = 1; k < T; k++) {
           var ix = base + k;
+          otherAl[ix] = 0;
           if (k < u.hLen) {
             var hIdx = ((u.hHead - k) % T + T) % T;
-            pulsePosArr[ix * 3] = u.hist[hIdx * 2]; pulsePosArr[ix * 3 + 1] = 0.45; pulsePosArr[ix * 3 + 2] = u.hist[hIdx * 2 + 1];
-            pulseAlArr[ix] = 0.85 * Math.pow(1 - k / T, 1.6);
-          } else pulseAlArr[ix] = 0;
+            posArr[ix * 3] = u.hist[hIdx * 2]; posArr[ix * 3 + 1] = 0.45; posArr[ix * 3 + 2] = u.hist[hIdx * 2 + 1];
+            alArr[ix] = 0.85 * Math.pow(1 - k / T, 1.6);
+          } else alArr[ix] = 0;
         }
       }
       pulseGeo.getAttribute('position').needsUpdate = true;
       pulseGeo.getAttribute('aAlpha').needsUpdate = true;
+      pulseAccGeo.getAttribute('position').needsUpdate = true;
+      pulseAccGeo.getAttribute('aAlpha').needsUpdate = true;
       var decay = Math.exp(-dt * 1.6);
       for (var n = 0; n < nodeI.length; n++) {
         if (nodeI[n] > 0.001) {
@@ -506,6 +627,7 @@ export function initHero(c) {
       var bp = arcAccGeo.getAttribute('position').array, ba = arcAccGeo.getAttribute('aAlpha').array;
       arcs.forEach(function (c, i) {
         c.t = (c.t + c.speed * dt) % 1;
+        c.mat.uniforms.uHead.value = c.t;
         var f = c.t * (c.pts.length - 1), k0 = Math.floor(f), k1 = Math.min(c.pts.length - 1, k0 + 1), ft = f - k0;
         var x = lerp(c.pts[k0].x, c.pts[k1].x, ft), y = lerp(c.pts[k0].y, c.pts[k1].y, ft), z = lerp(c.pts[k0].z, c.pts[k1].z, ft);
         var arrP = c.accent ? bp : ap, arrA = c.accent ? ba : aa, other = c.accent ? aa : ba;
@@ -513,6 +635,19 @@ export function initHero(c) {
       });
       arcDotGeo.getAttribute('position').needsUpdate = true; arcDotGeo.getAttribute('aAlpha').needsUpdate = true;
       arcAccGeo.getAttribute('position').needsUpdate = true; arcAccGeo.getAttribute('aAlpha').needsUpdate = true;
+      /* crown lights blink, particles drift */
+      for (var ci = 0; ci < crowns.length; ci++) crownAl[ci] = 0.15 + 0.85 * Math.pow(0.5 + 0.5 * Math.sin(time * 2.2 + crownPhase[ci]), 8);
+      crownGeo.getAttribute('aAlpha').needsUpdate = true;
+      var partBase = U.uLight.value > 0.5 ? 0.28 : 0.6;
+      for (var pi2 = 0; pi2 < PN; pi2++) {
+        var y2 = partPos[pi2 * 3 + 1] + dt * partSeed[pi2 * 2] * 1.4;
+        if (y2 > 36) y2 = 1;
+        partPos[pi2 * 3 + 1] = y2;
+        partPos[pi2 * 3] += Math.sin(time * 0.5 + partSeed[pi2 * 2 + 1]) * dt * 0.4;
+        partAl[pi2] = partBase * (0.35 + 0.65 * (0.5 + 0.5 * Math.sin(time * 1.4 + partSeed[pi2 * 2 + 1]))) * Math.min(1, (36 - y2) / 8) * Math.min(1, (y2 - 1) / 3);
+      }
+      partGeo.getAttribute('position').needsUpdate = true;
+      partGeo.getAttribute('aAlpha').needsUpdate = true;
     }
 
     function render() { updateCamera(); U.uTime.value = time; renderer.render(scene, camera); }
@@ -526,6 +661,8 @@ export function initHero(c) {
       state.smx = lerp(state.smx, state.mx, 0.04); state.smy = lerp(state.smy, state.my, 0.04);
       stepPulses(dt);
       render();
+      hero.style.setProperty('--px', state.smx.toFixed(3));
+      hero.style.setProperty('--py', state.smy.toFixed(3));
       rafId = requestAnimationFrame(frame);
     }
     function start() { if (REDUCED || state.running || !state.visible || document.hidden) return; state.running = true; last = performance.now(); rafId = requestAnimationFrame(frame); }
@@ -542,13 +679,14 @@ export function initHero(c) {
     }, { passive: true });
 
     if (REDUCED) {
-      for (var w = 0; w < 40; w++) stepPulses(0.05);
+      for (var w = 0; w < 40; w++) { time += 0.05; stepPulses(0.05); }
       render();
     } else {
       if (hasST) {
         gsap.to(state, { scroll: 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.5 } });
         gsap.to(host, { opacity: 0, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: '90% top', scrub: 0.5 } });
         gsap.to('.hero-copy', { y: 70, opacity: 0.1, ease: 'none', scrollTrigger: { trigger: hero, start: '12% top', end: 'bottom top', scrub: 0.5 } });
+        gsap.to('.hero-console', { y: 40, opacity: 0, ease: 'none', scrollTrigger: { trigger: hero, start: '8% top', end: '70% top', scrub: 0.5 } });
       } else {
         window.addEventListener('scroll', function () {
           var p = clamp(window.scrollY / Math.max(1, hero.offsetHeight), 0, 1);
