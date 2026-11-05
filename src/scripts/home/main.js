@@ -6,6 +6,10 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initHero } from "./hero.js";
 import { initProjects } from "./projects.js";
 
+// The hero shaders were authored against three r128, which did no colour-space conversion on
+// THREE.Color. Keep that behaviour so the palette stays exactly as designed.
+THREE.ColorManagement.enabled = false;
+
 
   /* ---------- utils ---------- */
   var root = document.documentElement;

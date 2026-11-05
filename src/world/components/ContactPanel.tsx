@@ -1,4 +1,4 @@
-import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { TurnstileWidget, type TurnstileHandle } from "./TurnstileWidget";
 import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, Loader2, Mail, Send, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -66,7 +66,7 @@ export function ContactPanel() {
   const { contactOpen, setContactOpen } = useWorld();
   const { lang } = useLanguage();
   const t = COPY[lang];
-  const turnstileRef = useRef<TurnstileInstance | undefined>(undefined);
+  const turnstileRef = useRef<TurnstileHandle | null>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -341,13 +341,11 @@ export function ContactPanel() {
                   </div>
 
                   {SITE_KEY ? (
-                    <Turnstile
+                    <TurnstileWidget
                       ref={turnstileRef}
                       siteKey={SITE_KEY}
                       onSuccess={setToken}
-                      onError={() => setToken("")}
-                      onExpire={() => setToken("")}
-                      options={{ theme: "dark", size: "flexible" }}
+                      onFailure={() => setToken("")}
                     />
                   ) : (
                     <p className="text-[12px] text-red-300">{t.captchaMissing}</p>

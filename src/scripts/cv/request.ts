@@ -1,11 +1,6 @@
 import type { Lang } from "@/i18n/content";
 import { requestCopy } from "@/i18n/cv";
-
-type Turnstile = {
-  render(container: HTMLElement, options: Record<string, unknown>): string;
-  reset(widgetId: string): void;
-  remove(widgetId: string): void;
-};
+import { loadTurnstile, type TurnstileApi } from "@/lib/turnstile";
 
 type ErrorBody = {
   error?: string;
@@ -14,14 +9,7 @@ type ErrorBody = {
   retryAfter?: number;
 };
 
-declare global {
-  interface Window {
-    turnstile?: Turnstile;
-  }
-}
-
 const SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
-const TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
 const SENT_KEY = "cv-request-sent";
 const TIMEOUT_MS = 15_000;
 const FIELDS = ["name", "company", "email", "role"] as const;
@@ -39,7 +27,6 @@ const ownerEmail = dialog.dataset.email ?? "";
 
 let token = "";
 let widget: { id: string; lang: Lang } | null = null;
-let turnstileScript: Promise<Turnstile> | null = null;
 let sending = false;
 let blockedUntil = 0;
 let returnFocus: HTMLElement | null = null;
@@ -100,26 +87,12 @@ function rememberSent(email: string | null) {
   }
 }
 
-function loadTurnstile() {
-  turnstileScript ??= new Promise<Turnstile>((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = TURNSTILE_SRC;
-    script.async = true;
-    script.onload = () =>
-      window.turnstile ? resolve(window.turnstile) : reject(new Error("Turnstile missing"));
-    script.onerror = () => reject(new Error("Turnstile failed to load"));
-    document.head.append(script);
-  });
-  return turnstileScript;
-}
-
 async function prepareTurnstile() {
   const widgetLang = lang();
-  let turnstile: Turnstile;
+  let turnstile: TurnstileApi;
   try {
     turnstile = await loadTurnstile();
   } catch {
-    turnstileScript = null;
     showUnavailable();
     return;
   }

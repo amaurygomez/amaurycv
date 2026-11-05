@@ -8,9 +8,6 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
-    ignore:
-      - dependency-name: three
-        update-types: [version-update:semver-major, version-update:semver-minor]
   - package-ecosystem: github-actions
     directory: /
     schedule:
