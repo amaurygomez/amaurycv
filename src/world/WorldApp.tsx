@@ -63,7 +63,7 @@ function DesktopBootFallback() {
       >
         <span
           aria-hidden="true"
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-gold"
+          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-primary"
         />
         Cargando AG World
       </div>

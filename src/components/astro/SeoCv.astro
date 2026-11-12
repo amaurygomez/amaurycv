@@ -14,13 +14,13 @@ const { headline, focus, profile: summary } = cv.es;
     </p>
     <p class="mt-8 leading-relaxed text-ag-text-muted">{summary}</p>
     <p class="mt-8 flex flex-wrap gap-x-6 gap-y-2">
-      <a class="underline underline-offset-4 hover:text-ag-gold" href="/cv?lang=es">
+      <a class="underline underline-offset-4 hover:text-ag-primary" href="/cv?lang=es">
         Ver el CV
       </a>
-      <a class="underline underline-offset-4 hover:text-ag-gold" href="/cv?lang=en" lang="en">
+      <a class="underline underline-offset-4 hover:text-ag-primary" href="/cv?lang=en" lang="en">
         Read the CV in English
       </a>
-      <a class="underline underline-offset-4 hover:text-ag-gold" href={`mailto:${profile.email}`}>
+      <a class="underline underline-offset-4 hover:text-ag-primary" href={`mailto:${profile.email}`}>
         {profile.email}
       </a>
     </p>

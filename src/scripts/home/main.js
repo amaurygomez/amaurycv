@@ -415,12 +415,6 @@ import { initProjects } from "./projects.js";
   /* The 3D hero (three.js) is the heaviest part of the page: it loads on its own, after the page is interactive. */
   import('./hero.js').then(function (m) { m.initHero(ctx()); }).catch(function () { /* the page works without the scene */ });
 
-  /* ---------- AG World mini scene ---------- */
-  (function () {
-    var c = $('#ag-canvas');
-    if (c) isoCity(c, { size: 17, seed: 7, pulses: 5, avatar: true, fit: 1.3 });
-  })();
-
   initProjects(ctx());
 
   /* ---------- process timeline: pulse travels the rail (scroll scrub + idle loop) ---------- */

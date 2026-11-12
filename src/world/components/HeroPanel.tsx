@@ -45,13 +45,13 @@ export function HeroPanel() {
             className="pointer-events-auto absolute bottom-[6rem] left-4 z-25 max-w-[420px] md:bottom-[6.5rem] md:left-6 md:max-w-[460px]"
           >
             <div
-              className="rounded-2xl border border-ag-gold/30 bg-ag-panel/88 px-5 py-4 shadow-[0_28px_70px_-28px_rgba(232,185,107,0.55)] backdrop-blur-md"
+              className="rounded-2xl border border-ag-primary/30 bg-ag-panel/88 px-5 py-4 shadow-[0_28px_70px_-28px_rgba(107,140,255,0.55)] backdrop-blur-md"
               style={{
                 backgroundImage:
-                  "linear-gradient(140deg, rgba(232,185,107,0.10) 0%, rgba(232,185,107,0.02) 55%, transparent 100%)",
+                  "linear-gradient(140deg, rgba(107,140,255,0.10) 0%, rgba(107,140,255,0.02) 55%, transparent 100%)",
               }}
             >
-              <div className="flex items-center gap-1.5 text-[10px] tracking-[0.28em] text-ag-gold uppercase">
+              <div className="flex items-center gap-1.5 text-[10px] tracking-[0.28em] text-ag-primary uppercase">
                 <Sparkles size={11} strokeWidth={2.4} aria-hidden="true" />
                 {journeyEyebrow}
               </div>
@@ -59,7 +59,7 @@ export function HeroPanel() {
               <button
                 type="button"
                 onClick={startTour}
-                className="mt-3.5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-ag-gold px-4 py-3 text-[12px] font-semibold tracking-[0.16em] text-ag-panel uppercase shadow-[0_18px_50px_-20px_rgba(232,185,107,0.7)] transition hover:bg-[#f0c887] hover:shadow-[0_22px_60px_-22px_rgba(232,185,107,0.85)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ag-gold"
+                className="mt-3.5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-ag-primary px-4 py-3 text-[12px] font-semibold tracking-[0.16em] text-ag-panel uppercase shadow-[0_18px_50px_-20px_rgba(107,140,255,0.7)] transition hover:bg-[#8AA4FF] hover:shadow-[0_22px_60px_-22px_rgba(107,140,255,0.85)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ag-primary"
               >
                 <Compass size={14} strokeWidth={2.4} aria-hidden="true" />
                 <span>{journeyCta}</span>
@@ -79,12 +79,12 @@ export function HeroPanel() {
         initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-auto absolute bottom-4 left-4 z-30 flex items-center gap-2.5 rounded-full border border-ag-gold/22 bg-ag-panel/82 px-3 py-2 shadow-[0_20px_60px_-28px_rgba(232,185,107,0.5)] backdrop-blur-md md:bottom-6 md:left-6 md:px-4 md:py-2.5"
+        className="pointer-events-auto absolute bottom-4 left-4 z-30 flex items-center gap-2.5 rounded-full border border-ag-primary/22 bg-ag-panel/82 px-3 py-2 shadow-[0_20px_60px_-28px_rgba(107,140,255,0.5)] backdrop-blur-md md:bottom-6 md:left-6 md:px-4 md:py-2.5"
         aria-label="AG World dock"
       >
         <div className="flex items-center gap-2 border-r border-white/8 pr-2.5 pl-1">
           <span
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-ag-gold/55 bg-ag-gold/12 text-[11px] font-bold tracking-[0.04em] text-ag-gold shadow-[0_0_18px_-4px_rgba(232,185,107,0.6)]"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-ag-primary/55 bg-ag-primary/12 text-[11px] font-bold tracking-[0.04em] text-ag-primary shadow-[0_0_18px_-4px_rgba(107,140,255,0.6)]"
             aria-hidden="true"
           >
             AG
@@ -113,14 +113,14 @@ export function HeroPanel() {
             href={profile.github}
             target="_blank"
             rel="noreferrer"
-            className="hidden items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase transition hover:border-ag-gold/50 hover:text-ag-gold md:inline-flex"
+            className="hidden items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase transition hover:border-ag-primary/50 hover:text-ag-primary md:inline-flex"
           >
             <Code2 size={13} strokeWidth={2.4} />
             GitHub
           </a>
           <a
             href={`${profile.cvPath}?lang=${lang}`}
-            className="hidden items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase transition hover:border-ag-gold/50 hover:text-ag-gold lg:inline-flex"
+            className="hidden items-center gap-1.5 rounded-full border border-white/10 px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase transition hover:border-ag-primary/50 hover:text-ag-primary lg:inline-flex"
           >
             <FileText size={13} strokeWidth={2.4} />
             CV
@@ -133,7 +133,7 @@ export function HeroPanel() {
             <button
               type="button"
               onClick={() => setActiveZone(null)}
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-ag-text-muted transition hover:border-ag-gold/60 hover:text-ag-text"
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-ag-text-muted transition hover:border-ag-primary/60 hover:text-ag-text"
               aria-label={lang === "es" ? "Cerrar zona" : "Close zone"}
             >
               <X size={13} strokeWidth={2.4} />
@@ -162,7 +162,7 @@ function DockButton({
       onClick={onClick}
       className={
         primary
-          ? "inline-flex items-center gap-1.5 rounded-full bg-ag-gold px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-panel uppercase transition hover:bg-[#f0c887]"
+          ? "inline-flex items-center gap-1.5 rounded-full bg-ag-primary px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-panel uppercase transition hover:bg-[#8AA4FF]"
           : "inline-flex items-center gap-1.5 rounded-full border border-ag-teal/40 px-3 py-1.5 text-[10.5px] font-semibold tracking-[0.16em] text-ag-text uppercase transition hover:border-ag-teal hover:text-ag-teal"
       }
     >
@@ -183,7 +183,7 @@ function LanguageToggle({
     <div
       role="group"
       aria-label="Language"
-      className="inline-flex items-center gap-0.5 rounded-full border border-ag-gold/25 bg-ag-bg/70 p-0.5"
+      className="inline-flex items-center gap-0.5 rounded-full border border-ag-primary/25 bg-ag-bg/70 p-0.5"
     >
       {(["es", "en"] as const).map((code) => {
         const active = lang === code;
@@ -197,7 +197,7 @@ function LanguageToggle({
             aria-label={label}
             className={`rounded-full px-2.5 py-0.5 text-[10px] tracking-[0.22em] uppercase transition ${
               active
-                ? "bg-ag-gold font-semibold text-ag-panel"
+                ? "bg-ag-primary font-semibold text-ag-panel"
                 : "text-ag-text-muted hover:text-ag-text"
             } `}
           >

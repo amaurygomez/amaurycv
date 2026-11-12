@@ -25,13 +25,14 @@ export function ZoneNavigator() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-      className="pointer-events-auto absolute inset-x-2 top-[3.6rem] z-30 flex justify-center sm:inset-x-auto sm:top-4 sm:left-1/2 sm:-translate-x-1/2"
+      // Full-width row so the pill is sized by its content, not by half the viewport.
+      className="pointer-events-none absolute inset-x-2 top-[3.6rem] z-30 flex justify-center sm:top-4"
       aria-label={lang === "es" ? "Capítulos profesionales" : "Career chapters"}
     >
       <div
-        className="flex max-w-full items-stretch gap-1 overflow-x-auto rounded-full border border-white/10 bg-ag-bg/85 p-1 backdrop-blur-md sm:overflow-visible"
+        className="pointer-events-auto flex max-w-full items-stretch gap-1 overflow-x-auto rounded-full border border-white/10 bg-ag-bg/85 p-1 backdrop-blur-md sm:overflow-visible"
         style={{
-          boxShadow: "0 18px 50px -28px rgba(232,185,107,0.45)",
+          boxShadow: "0 18px 50px -28px rgba(107,140,255,0.45)",
         }}
       >
         {CHRONOLOGICAL.map(({ id, year }) => {
@@ -54,7 +55,7 @@ export function ZoneNavigator() {
             >
               <span
                 className="text-[10px] font-bold tracking-[0.04em]"
-                style={{ color: active ? "#0B1020" : zone.accent }}
+                style={{ color: active ? "#0F131C" : zone.accent }}
               >
                 {year}
               </span>

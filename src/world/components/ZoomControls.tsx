@@ -13,7 +13,7 @@ export function ZoomControls() {
 
   return (
     <div
-      className="pointer-events-auto absolute right-4 bottom-4 z-30 flex flex-col items-stretch gap-1 rounded-2xl border border-ag-gold/22 bg-ag-panel/82 p-1.5 shadow-[0_20px_60px_-28px_rgba(232,185,107,0.5)] backdrop-blur-md md:right-6 md:bottom-6"
+      className="pointer-events-auto absolute right-4 bottom-4 z-30 flex flex-col items-stretch gap-1 rounded-2xl border border-ag-primary/22 bg-ag-panel/82 p-1.5 shadow-[0_20px_60px_-28px_rgba(107,140,255,0.5)] backdrop-blur-md md:right-6 md:bottom-6"
       role="group"
       aria-label={lang === "es" ? "Controles de zoom" : "Zoom controls"}
     >
@@ -28,7 +28,7 @@ export function ZoomControls() {
         onClick={resetZoom}
         aria-label={labelReset}
         title={labelReset}
-        className="inline-flex h-7 items-center justify-center rounded-md px-2 text-[9px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase tabular-nums transition hover:text-ag-gold"
+        className="inline-flex h-7 items-center justify-center rounded-md px-2 text-[9px] font-semibold tracking-[0.16em] text-ag-text-muted uppercase tabular-nums transition hover:text-ag-primary"
       >
         {pct}%
       </button>
@@ -44,7 +44,7 @@ export function ZoomControls() {
           onClick={resetZoom}
           aria-label={labelReset}
           title={labelReset}
-          className="mt-0.5 inline-flex h-7 w-9 items-center justify-center rounded-md border border-white/8 text-ag-text-muted transition hover:border-ag-gold/55 hover:text-ag-gold"
+          className="mt-0.5 inline-flex h-7 w-9 items-center justify-center rounded-md border border-white/8 text-ag-text-muted transition hover:border-ag-primary/55 hover:text-ag-primary"
         >
           <RotateCcw size={12} strokeWidth={2.4} />
         </button>
@@ -71,7 +71,7 @@ function ZoomBtn({
       disabled={disabled}
       aria-label={ariaLabel}
       title={ariaLabel}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/8 text-ag-text transition hover:border-ag-gold/55 hover:text-ag-gold disabled:cursor-not-allowed disabled:opacity-30"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/8 text-ag-text transition hover:border-ag-primary/55 hover:text-ag-primary disabled:cursor-not-allowed disabled:opacity-30"
     >
       {icon}
     </button>

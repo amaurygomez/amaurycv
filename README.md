@@ -25,10 +25,11 @@ Tailwind CSS 4 · TypeScript · Zod · Vitest · Playwright.
 
 ## Architecture
 
-- `/` is the brand page: static HTML with a three.js hero, a bilingual copy switch, a FAQ with
-  structured data and a contact form. `/world` renders `WorldApp`: above 1023px it lazy-loads
-  `DesktopEntry` and then the Pixi canvas once the world scrolls into view; below that, a
-  scrollable story with no Pixi in the bundle.
+- `/` (Spanish) and `/en` (English) are the brand page, rendered from one component and one
+  dictionary with `hreflang` alternates: static HTML, a three.js hero loaded in its own chunk, a
+  FAQ with structured data and a contact form. `/world` renders `WorldApp`: above 1023px it
+  lazy-loads `DesktopEntry` and then the Pixi canvas; below that, a scrollable story with stills
+  of each room and no Pixi in the bundle.
 - Zone copy lives in `src/world/content/zones.ts` and drives the map, the panels and the mobile
   list; each zone has its own Pixi scene under `src/world/render/scenes/`.
 - `/cv` is the CV itself: static HTML, bilingual (`?lang=es|en`), with a print stylesheet.

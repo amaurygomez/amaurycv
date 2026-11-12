@@ -3,6 +3,8 @@
 // AG World, the interactive portfolio, lives at /world.
 import "@fontsource-variable/geist";
 import "@fontsource-variable/geist-mono";
+import worldEn from "@/assets/world/overview.en.webp";
+import worldEs from "@/assets/world/overview.es.webp";
 import PersonSchema from "@/components/astro/PersonSchema.astro";
 import type { Lang } from "@/i18n/content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
@@ -32,7 +34,6 @@ const faqSchema = {
 };
 ---
 
-
 <BaseLayout
   title={tr("meta.title")}
   description={tr("hero.sub")}
@@ -47,7 +48,8 @@ const faqSchema = {
   <Fragment slot="head">
     <script is:inline>
       try {
-        if (localStorage.getItem("ag-theme") === "dark") document.documentElement.dataset.theme = "dark";
+        if (localStorage.getItem("ag-theme") === "dark")
+          document.documentElement.dataset.theme = "dark";
       } catch {
         // Storage is unavailable in private mode; the light default stands.
       }
@@ -55,84 +57,310 @@ const faqSchema = {
     <PersonSchema />
     <script type="application/ld+json" is:inline set:html={JSON.stringify(faqSchema)} />
   </Fragment>
-  <a class="skip" href="#servicios" data-i="skip">{tr("skip")}</a>
+  <a class="skip" href="#servicios" data-i="skip">
+    {tr("skip")}
+  </a>
   <header class="nav" id="nav">
     <div class="wrap nav-inner">
       <a class="brand" href="#top" aria-label={tr("brand.aria")} data-i-aria="brand.aria">
-        <svg class="mono-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 26L10 6l7.5 20M6 19h8"/><path d="M28.95 11.05A7 7 0 1 0 31 16h-7"/></svg>
-        <span><span class="wordmark">Amaury Gómez</span><span class="descriptor" data-i="brand.desc">{tr("brand.desc")}</span></span>
+        <svg
+          class="mono-mark"
+          viewBox="0 0 32 32"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M2.5 26L10 6l7.5 20M6 19h8" />
+          <path d="M28.95 11.05A7 7 0 1 0 31 16h-7" />
+        </svg>
+        <span>
+          <span class="wordmark">Amaury Gómez</span>
+          <span class="descriptor" data-i="brand.desc">
+            {tr("brand.desc")}
+          </span>
+        </span>
       </a>
       <nav class="nav-links" aria-label={tr("nav.main")} data-i-aria="nav.main">
-        <a href="#servicios" data-spy="servicios" data-i="nav.services">{tr("nav.services")}</a>
-        <a href="#proyectos" data-spy="proyectos" data-i="nav.projects">{tr("nav.projects")}</a>
-        <a href="#enfoque" data-spy="enfoque" data-i="nav.approach">{tr("nav.approach")}</a>
-        <a href="#proceso" data-spy="proceso" data-i="nav.process">{tr("nav.process")}</a>
-        <a href="#fundador" data-spy="fundador" data-i="nav.founder">{tr("nav.founder")}</a>
-        <a href="#contacto" data-spy="contacto" data-i="nav.contact">{tr("nav.contact")}</a>
+        <a href="#servicios" data-spy="servicios" data-i="nav.services">
+          {tr("nav.services")}
+        </a>
+        <a href="#proyectos" data-spy="proyectos" data-i="nav.projects">
+          {tr("nav.projects")}
+        </a>
+        <a href="#enfoque" data-spy="enfoque" data-i="nav.approach">
+          {tr("nav.approach")}
+        </a>
+        <a href="#proceso" data-spy="proceso" data-i="nav.process">
+          {tr("nav.process")}
+        </a>
+        <a href="#fundador" data-spy="fundador" data-i="nav.founder">
+          {tr("nav.founder")}
+        </a>
+        <a href="#contacto" data-spy="contacto" data-i="nav.contact">
+          {tr("nav.contact")}
+        </a>
         <span class="nav-ind" id="nav-ind" aria-hidden="true"></span>
       </nav>
       <div class="nav-actions">
         <div class="lang" role="group" aria-label={tr("nav.lang")} data-i-aria="nav.lang">
-          <button type="button" class="lang-btn" data-lang="es" aria-pressed={lang === "es"}>ES</button>
-          <span class="lang-sep" aria-hidden="true">/</span>
-          <button type="button" class="lang-btn" data-lang="en" aria-pressed={lang === "en"}>EN</button>
+          <button type="button" class="lang-btn" data-lang="es" aria-pressed={lang === "es"}>
+            ES
+          </button>
+          <span class="lang-sep" aria-hidden="true">
+            /
+          </span>
+          <button type="button" class="lang-btn" data-lang="en" aria-pressed={lang === "en"}>
+            EN
+          </button>
         </div>
-        <button type="button" class="icon-btn" id="theme-btn" aria-label={tr("nav.theme")} data-i-aria="nav.theme">
-          <svg class="ico-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-          <svg class="ico-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <button
+          type="button"
+          class="icon-btn"
+          id="theme-btn"
+          aria-label={tr("nav.theme")}
+          data-i-aria="nav.theme"
+        >
+          <svg
+            class="ico-sun"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+          </svg>
+          <svg
+            class="ico-moon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+          </svg>
         </button>
-        <a class="btn btn-primary btn-sm nav-cta" href="#contacto" data-i="nav.talk">{tr("nav.talk")}</a>
-        <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label={tr("nav.menu")} data-i-aria="nav.menu" aria-expanded="false" aria-controls="mobile-menu">
-          <svg class="ico-bars" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-          <svg class="ico-x" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        <a class="btn btn-primary btn-sm nav-cta" href="#contacto" data-i="nav.talk">
+          {tr("nav.talk")}
+        </a>
+        <button
+          type="button"
+          class="icon-btn menu-btn"
+          id="menu-btn"
+          aria-label={tr("nav.menu")}
+          data-i-aria="nav.menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu"
+        >
+          <svg
+            class="ico-bars"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+          <svg
+            class="ico-x"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
         </button>
       </div>
     </div>
     <div class="mobile-menu" id="mobile-menu">
-      <a href="#servicios" data-i="nav.services">{tr("nav.services")}</a>
-      <a href="#proyectos" data-i="nav.projects">{tr("nav.projects")}</a>
-      <a href="#enfoque" data-i="nav.approach">{tr("nav.approach")}</a>
-      <a href="#proceso" data-i="nav.process">{tr("nav.process")}</a>
-      <a href="#fundador" data-i="nav.founder">{tr("nav.founder")}</a>
-      <a href="#contacto" data-i="nav.contact">{tr("nav.contact")}</a>
-      <a class="btn btn-primary" href="#contacto" data-i="nav.talk">{tr("nav.talk")}</a>
+      <a href="#servicios" data-i="nav.services">
+        {tr("nav.services")}
+      </a>
+      <a href="#proyectos" data-i="nav.projects">
+        {tr("nav.projects")}
+      </a>
+      <a href="#enfoque" data-i="nav.approach">
+        {tr("nav.approach")}
+      </a>
+      <a href="#proceso" data-i="nav.process">
+        {tr("nav.process")}
+      </a>
+      <a href="#fundador" data-i="nav.founder">
+        {tr("nav.founder")}
+      </a>
+      <a href="#contacto" data-i="nav.contact">
+        {tr("nav.contact")}
+      </a>
+      <a class="btn btn-primary" href="#contacto" data-i="nav.talk">
+        {tr("nav.talk")}
+      </a>
     </div>
     <span class="progress" id="progress" aria-hidden="true"></span>
   </header>
 
   <main id="top">
     <section class="hero" id="hero">
-      <div class="hero-scene" id="hero-scene" aria-hidden="true"><canvas id="hero-canvas"></canvas></div>
+      <div class="hero-scene" id="hero-scene" aria-hidden="true">
+        <canvas id="hero-canvas"></canvas>
+      </div>
       <div class="hero-veil" aria-hidden="true"></div>
       <div class="wrap hero-inner">
         <div class="hero-copy">
-          <p class="chip"><span class="dot" aria-hidden="true"></span><span data-i="hero.chip">{tr("hero.chip")}</span></p>
-          <h1 class="hero-h1" id="hero-h1">{tr("hero.h1")}</h1>
-          <p class="hero-sub" data-i="hero.sub">{tr("hero.sub")}</p>
+          <p class="chip">
+            <span class="dot" aria-hidden="true"></span>
+            <span data-i="hero.chip">{tr("hero.chip")}</span>
+          </p>
+          <h1 class="hero-h1" id="hero-h1">
+            {tr("hero.h1")}
+          </h1>
+          <p class="hero-sub" data-i="hero.sub">
+            {tr("hero.sub")}
+          </p>
           <div class="hero-cta">
-            <a class="btn btn-primary" href="#contacto"><span data-i="hero.cta1">{tr("hero.cta1")}</span><svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
-            <a class="btn btn-secondary" href="#proyectos"><span data-i="hero.cta2">{tr("hero.cta2")}</span></a>
+            <a class="btn btn-primary" href="#contacto">
+              <span data-i="hero.cta1">{tr("hero.cta1")}</span>
+              <svg
+                class="arr"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 8h10M9 4l4 4-4 4" />
+              </svg>
+            </a>
+            <a class="btn btn-secondary" href="#proyectos">
+              <span data-i="hero.cta2">{tr("hero.cta2")}</span>
+            </a>
           </div>
           <div class="hero-trust">
-            <span class="hero-trust-label" data-i="hero.trust">{tr("hero.trust")}</span>
+            <span class="hero-trust-label" data-i="hero.trust">
+              {tr("hero.trust")}
+            </span>
             <ul class="hero-trust-list">
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor"/></svg><span data-i="hero.t1">{tr("hero.t1")}</span></li>
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M4 21V10M20 21V10M2 10l10-6 10 6M8 21v-7M12 21v-7M16 21v-7"/></svg><span data-i="hero.t2">{tr("hero.t2")}</span></li>
-              <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span data-i="hero.t3">{tr("hero.t3")}</span></li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0" />
+                  <circle cx="12" cy="20" r="1" fill="currentColor" />
+                </svg>
+                <span data-i="hero.t1">{tr("hero.t1")}</span>
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 21h18M4 21V10M20 21V10M2 10l10-6 10 6M8 21v-7M12 21v-7M16 21v-7" />
+                </svg>
+                <span data-i="hero.t2">{tr("hero.t2")}</span>
+              </li>
+              <li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="11" width="18" height="10" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <span data-i="hero.t3">{tr("hero.t3")}</span>
+              </li>
             </ul>
           </div>
         </div>
       </div>
-      <div class="hero-scroll" aria-hidden="true"><span class="hero-scroll-line"></span><span class="hero-scroll-txt" data-i="hero.scroll">{tr("hero.scroll")}</span></div>
+      <div class="hero-scroll" aria-hidden="true">
+        <span class="hero-scroll-line"></span>
+        <span class="hero-scroll-txt" data-i="hero.scroll">
+          {tr("hero.scroll")}
+        </span>
+      </div>
     </section>
 
     <section class="metrics" aria-label={tr("metrics.aria")} data-i-aria="metrics.aria">
       <div class="wrap">
         <ul class="metric-grid">
-          <li class="metric"><span class="num" data-target="11" data-suffix="+">11+</span><span class="label" data-i="m1">{tr("m1")}</span></li>
-          <li class="metric"><span class="num" data-target="24" data-suffix="/7">24/7</span><span class="label" data-i="m2">{tr("m2")}</span></li>
-          <li class="metric"><span class="num" data-target="3">3</span><span class="label" data-i="m3">{tr("m3")}</span></li>
-          <li class="metric"><span class="num" data-static>ES · EN</span><span class="label" data-i="m4">{tr("m4")}</span></li>
+          <li class="metric">
+            <span class="num" data-target="11" data-suffix="+">
+              11+
+            </span>
+            <span class="label" data-i="m1">
+              {tr("m1")}
+            </span>
+          </li>
+          <li class="metric">
+            <span class="num" data-target="24" data-suffix="/7">
+              24/7
+            </span>
+            <span class="label" data-i="m2">
+              {tr("m2")}
+            </span>
+          </li>
+          <li class="metric">
+            <span class="num" data-target="3">
+              3
+            </span>
+            <span class="label" data-i="m3">
+              {tr("m3")}
+            </span>
+          </li>
+          <li class="metric">
+            <span class="num" data-static>
+              ES · EN
+            </span>
+            <span class="label" data-i="m4">
+              {tr("m4")}
+            </span>
+          </li>
         </ul>
       </div>
     </section>
@@ -140,30 +368,104 @@ const faqSchema = {
     <section class="section" id="servicios">
       <div class="wrap">
         <div class="sec-head">
-          <div><span class="label" data-i="svc.eyebrow">{tr("svc.eyebrow")}</span><h2 class="reveal reveal-clip" data-i="svc.title">{tr("svc.title")}</h2><p class="sec-sub" data-i="svc.sub">{tr("svc.sub")}</p></div>
+          <div>
+            <span class="label" data-i="svc.eyebrow">
+              {tr("svc.eyebrow")}
+            </span>
+            <h2 class="reveal reveal-clip" data-i="svc.title">
+              {tr("svc.title")}
+            </h2>
+            <p class="sec-sub" data-i="svc.sub">
+              {tr("svc.sub")}
+            </p>
+          </div>
         </div>
         <div class="svc-grid">
           <article class="svc reveal">
             <span class="idx">01</span>
-            <div class="ico"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="i-stack" aria-hidden="true"><rect class="m1" x="6" y="6" width="28" height="8" rx="2"/><rect class="m2" x="6" y="16" width="28" height="8" rx="2"/><rect class="m3" x="6" y="26" width="28" height="8" rx="2"/><circle class="m4" cx="29" cy="20" r="1.6" fill="currentColor" stroke="none"/></svg></div>
+            <div class="ico">
+              <svg
+                viewBox="0 0 40 40"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="i-stack"
+                aria-hidden="true"
+              >
+                <rect class="m1" x="6" y="6" width="28" height="8" rx="2" />
+                <rect class="m2" x="6" y="16" width="28" height="8" rx="2" />
+                <rect class="m3" x="6" y="26" width="28" height="8" rx="2" />
+                <circle class="m4" cx="29" cy="20" r="1.6" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
             <h3 data-i="svc1.h">{tr("svc1.h")}</h3>
             <p data-i="svc1.p">{tr("svc1.p")}</p>
           </article>
           <article class="svc reveal" style="--d:80ms">
             <span class="idx">02</span>
-            <div class="ico"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="i-ref" aria-hidden="true"><path class="m1" d="M32 20a12 12 0 0 1-20.5 8.5M8 20A12 12 0 0 1 28.5 11.5"/><path class="m2" d="M28.5 6v5.5H23M11.5 34v-5.5H17"/></svg></div>
+            <div class="ico">
+              <svg
+                viewBox="0 0 40 40"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="i-ref"
+                aria-hidden="true"
+              >
+                <path class="m1" d="M32 20a12 12 0 0 1-20.5 8.5M8 20A12 12 0 0 1 28.5 11.5" />
+                <path class="m2" d="M28.5 6v5.5H23M11.5 34v-5.5H17" />
+              </svg>
+            </div>
             <h3 data-i="svc2.h">{tr("svc2.h")}</h3>
             <p data-i="svc2.p">{tr("svc2.p")}</p>
           </article>
           <article class="svc reveal" style="--d:160ms">
             <span class="idx">03</span>
-            <div class="ico"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="i-link" aria-hidden="true"><rect class="m1" x="4" y="13" width="12" height="14" rx="3"/><rect class="m2" x="24" y="13" width="12" height="14" rx="3"/><path class="m3" d="M16 20h8"/><circle cx="10" cy="20" r="1.6" fill="currentColor" stroke="none"/><circle cx="30" cy="20" r="1.6" fill="currentColor" stroke="none"/></svg></div>
+            <div class="ico">
+              <svg
+                viewBox="0 0 40 40"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="i-link"
+                aria-hidden="true"
+              >
+                <rect class="m1" x="4" y="13" width="12" height="14" rx="3" />
+                <rect class="m2" x="24" y="13" width="12" height="14" rx="3" />
+                <path class="m3" d="M16 20h8" />
+                <circle cx="10" cy="20" r="1.6" fill="currentColor" stroke="none" />
+                <circle cx="30" cy="20" r="1.6" fill="currentColor" stroke="none" />
+              </svg>
+            </div>
             <h3 data-i="svc3.h">{tr("svc3.h")}</h3>
             <p data-i="svc3.p">{tr("svc3.p")}</p>
           </article>
           <article class="svc reveal" style="--d:240ms">
             <span class="idx">04</span>
-            <div class="ico"><svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="i-data" aria-hidden="true"><ellipse class="m1" cx="14" cy="9" rx="9" ry="3.5"/><path d="M5 9v10c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5V9M5 19v10c0 1.9 4 3.5 9 3.5"/><path class="m2" d="M26 33v-6"/><path class="m3" d="M30.5 33v-9"/><path class="m4" d="M35 33V21"/></svg></div>
+            <div class="ico">
+              <svg
+                viewBox="0 0 40 40"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="i-data"
+                aria-hidden="true"
+              >
+                <ellipse class="m1" cx="14" cy="9" rx="9" ry="3.5" />
+                <path d="M5 9v10c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5V9M5 19v10c0 1.9 4 3.5 9 3.5" />
+                <path class="m2" d="M26 33v-6" />
+                <path class="m3" d="M30.5 33v-9" />
+                <path class="m4" d="M35 33V21" />
+              </svg>
+            </div>
             <h3 data-i="svc4.h">{tr("svc4.h")}</h3>
             <p data-i="svc4.p">{tr("svc4.p")}</p>
           </article>
@@ -174,147 +476,369 @@ const faqSchema = {
     <section class="section" id="proyectos">
       <div class="wrap">
         <div class="sec-head">
-          <div><span class="label" data-i="proj.eyebrow">{tr("proj.eyebrow")}</span><h2 class="reveal reveal-clip" data-i="proj.title">{tr("proj.title")}</h2></div>
-          <span class="sec-note" data-i="proj.note">{tr("proj.note")}</span>
+          <div>
+            <span class="label" data-i="proj.eyebrow">
+              {tr("proj.eyebrow")}
+            </span>
+            <h2 class="reveal reveal-clip" data-i="proj.title">
+              {tr("proj.title")}
+            </h2>
+          </div>
+          <span class="sec-note" data-i="proj.note">
+            {tr("proj.note")}
+          </span>
         </div>
         <div class="story" id="story">
           <div class="story-stage">
             <nav class="story-rail" aria-label={tr("proj.eyebrow")} data-i-aria="proj.eyebrow">
-              <span class="story-count" aria-hidden="true"><span class="story-cur" id="story-cur">01</span><span class="story-sep">/ 03</span></span>
+              <span class="story-count" aria-hidden="true">
+                <span class="story-cur" id="story-cur">
+                  01
+                </span>
+                <span class="story-sep">/ 03</span>
+              </span>
               <span class="story-bar" aria-hidden="true"></span>
               <ol class="story-index">
-                <li><button type="button" class="story-jump" data-step="0" aria-current="true"><span class="n">01</span><span class="t" data-i="p1.h">{tr("p1.h")}</span></button></li>
-                <li><button type="button" class="story-jump" data-step="1"><span class="n">02</span><span class="t" data-i="p2.h">{tr("p2.h")}</span></button></li>
-                <li><button type="button" class="story-jump" data-step="2"><span class="n">03</span><span class="t" data-i="p3.h">{tr("p3.h")}</span></button></li>
+                <li>
+                  <button type="button" class="story-jump" data-step="0" aria-current="true">
+                    <span class="n">01</span>
+                    <span class="t" data-i="p1.h">
+                      {tr("p1.h")}
+                    </span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" class="story-jump" data-step="1">
+                    <span class="n">02</span>
+                    <span class="t" data-i="p2.h">
+                      {tr("p2.h")}
+                    </span>
+                  </button>
+                </li>
+                <li>
+                  <button type="button" class="story-jump" data-step="2">
+                    <span class="n">03</span>
+                    <span class="t" data-i="p3.h">
+                      {tr("p3.h")}
+                    </span>
+                  </button>
+                </li>
               </ol>
             </nav>
 
             <article class="story-item" id="proj-1">
               <div class="story-fig" data-chrome="crm / coverage-map">
-                <svg class="dg" id="d1" viewBox="0 0 520 390" role="img" aria-label={tr("d1.aria")} data-i-aria="d1.aria"></svg>
+                <svg
+                  class="dg"
+                  id="d1"
+                  viewBox="0 0 520 390"
+                  role="img"
+                  aria-label={tr("d1.aria")}
+                  data-i-aria="d1.aria"
+                ></svg>
               </div>
               <div class="story-body">
                 <span class="story-num">01 / 03</span>
-                <span class="label" data-i="p1.tag">{tr("p1.tag")}</span>
+                <span class="label" data-i="p1.tag">
+                  {tr("p1.tag")}
+                </span>
                 <h3 data-i="p1.h">{tr("p1.h")}</h3>
                 <p data-i="p1.p">{tr("p1.p")}</p>
-                <ul class="stack"><li>.NET</li><li>Oracle</li><li>Angular</li><li>Google Maps</li></ul>
+                <ul class="stack">
+                  <li>.NET</li>
+                  <li>Oracle</li>
+                  <li>Angular</li>
+                  <li>Google Maps</li>
+                </ul>
               </div>
             </article>
 
             <article class="story-item" id="proj-2">
               <div class="story-fig" data-chrome="identity / gateway">
-                <svg class="dg" id="d2" viewBox="0 0 520 390" role="img" aria-label={tr("d2.aria")} data-i-aria="d2.aria">
+                <svg
+                  class="dg"
+                  id="d2"
+                  viewBox="0 0 520 390"
+                  role="img"
+                  aria-label={tr("d2.aria")}
+                  data-i-aria="d2.aria"
+                >
                   <defs>
-                    <linearGradient id="g2-mw" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".10"/><stop offset=".3" stop-color="var(--primary)" stop-opacity="0"/></linearGradient>
-                    <radialGradient id="g2-pk"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".35" stop-color="var(--primary)"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></radialGradient>
-                    <radialGradient id="g2-pka"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".35" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></radialGradient>
+                    <linearGradient id="g2-mw" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stop-color="var(--primary)" stop-opacity=".10" />
+                      <stop offset=".3" stop-color="var(--primary)" stop-opacity="0" />
+                    </linearGradient>
+                    <radialGradient id="g2-pk">
+                      <stop offset="0" stop-color="#fff" stop-opacity=".9" />
+                      <stop offset=".35" stop-color="var(--primary)" />
+                      <stop offset="1" stop-color="var(--primary)" stop-opacity="0" />
+                    </radialGradient>
+                    <radialGradient id="g2-pka">
+                      <stop offset="0" stop-color="#fff" stop-opacity=".9" />
+                      <stop offset=".35" stop-color="var(--accent)" />
+                      <stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
+                    </radialGradient>
                   </defs>
-                  <path class="wire" id="d2-p1" d="M160 82 C 184 82, 184 118, 208 118"/>
-                  <path class="wire" id="d2-p2" d="M160 195 L 208 195"/>
-                  <path class="wire" id="d2-p3" d="M160 308 C 184 308, 184 272, 208 272"/>
-                  <path class="wire" id="d2-p4" d="M368 195 L 408 195"/>
-                  <path class="wire" id="d2-p5" d="M352 250 C 382 250, 382 206, 408 206"/>
+                  <path class="wire" id="d2-p1" d="M160 82 C 184 82, 184 118, 208 118" />
+                  <path class="wire" id="d2-p2" d="M160 195 L 208 195" />
+                  <path class="wire" id="d2-p3" d="M160 308 C 184 308, 184 272, 208 272" />
+                  <path class="wire" id="d2-p4" d="M368 195 L 408 195" />
+                  <path class="wire" id="d2-p5" d="M352 250 C 382 250, 382 206, 408 206" />
                   <g class="flows" id="d2-flows">
-                    <path class="wire-flow" d="M160 82 C 184 82, 184 118, 208 118"/>
-                    <path class="wire-flow" d="M160 195 L 208 195"/>
-                    <path class="wire-flow" d="M160 308 C 184 308, 184 272, 208 272"/>
-                    <path class="wire-flow" d="M368 195 L 408 195"/>
-                    <path class="wire-flow flow-acc" d="M352 250 C 382 250, 382 206, 408 206"/>
+                    <path class="wire-flow" d="M160 82 C 184 82, 184 118, 208 118" />
+                    <path class="wire-flow" d="M160 195 L 208 195" />
+                    <path class="wire-flow" d="M160 308 C 184 308, 184 272, 208 272" />
+                    <path class="wire-flow" d="M368 195 L 408 195" />
+                    <path class="wire-flow flow-acc" d="M352 250 C 382 250, 382 206, 408 206" />
                   </g>
                   <g class="ext" id="d2-ext1">
-                    <rect class="box" x="24" y="56" width="136" height="52" rx="10"/>
-                    <circle class="led" cx="38" cy="70" r="3"/>
-                    <text class="t-ink" x="92" y="86" text-anchor="middle" data-i="d2.api1">{tr("d2.api1")}</text>
+                    <rect class="box" x="24" y="56" width="136" height="52" rx="10" />
+                    <circle class="led" cx="38" cy="70" r="3" />
+                    <text class="t-ink" x="92" y="86" text-anchor="middle" data-i="d2.api1">
+                      {tr("d2.api1")}
+                    </text>
                   </g>
                   <g class="ext" id="d2-ext2">
-                    <rect class="box" x="24" y="169" width="136" height="52" rx="10"/>
-                    <circle class="led" cx="38" cy="183" r="3"/>
-                    <text class="t-ink" x="92" y="199" text-anchor="middle" data-i="d2.api2">{tr("d2.api2")}</text>
-                    <text class="dn-label t-dn" x="92" y="243" text-anchor="middle" data-i="d2.down">{tr("d2.down")}</text>
+                    <rect class="box" x="24" y="169" width="136" height="52" rx="10" />
+                    <circle class="led" cx="38" cy="183" r="3" />
+                    <text class="t-ink" x="92" y="199" text-anchor="middle" data-i="d2.api2">
+                      {tr("d2.api2")}
+                    </text>
+                    <text
+                      class="dn-label t-dn"
+                      x="92"
+                      y="243"
+                      text-anchor="middle"
+                      data-i="d2.down"
+                    >
+                      {tr("d2.down")}
+                    </text>
                   </g>
                   <g class="ext" id="d2-ext3">
-                    <rect class="box" x="24" y="282" width="136" height="52" rx="10"/>
-                    <circle class="led" cx="38" cy="296" r="3"/>
-                    <text class="t-ink" x="92" y="312" text-anchor="middle" data-i="d2.api3">{tr("d2.api3")}</text>
+                    <rect class="box" x="24" y="282" width="136" height="52" rx="10" />
+                    <circle class="led" cx="38" cy="296" r="3" />
+                    <text class="t-ink" x="92" y="312" text-anchor="middle" data-i="d2.api3">
+                      {tr("d2.api3")}
+                    </text>
                   </g>
                   <g id="d2-mw">
-                    <rect class="box box-hero" x="208" y="44" width="160" height="302" rx="12"/>
-                    <rect x="209" y="45" width="158" height="300" rx="11" fill="url(#g2-mw)"/>
-                    <path class="shield" d="M288 54c-6 2.5-10 3.5-13 4v8c0 7 6 11.5 13 14 7-2.5 13-7 13-14v-8c-3-.5-7-1.5-13-4z"/>
-                    <path class="shield-tick" d="M282.5 65.5l4 4 7-7"/>
-                    <text class="t-ink t-lg" x="288" y="92" text-anchor="middle" data-i="d2.mw">{tr("d2.mw")}</text>
-                    <rect class="pill" x="224" y="104" width="128" height="28" rx="7"/>
-                    <text x="288" y="122" text-anchor="middle" data-i="d2.auth1">{tr("d2.auth1")}</text>
-                    <rect class="pill" x="224" y="138" width="128" height="28" rx="7"/>
-                    <text x="288" y="156" text-anchor="middle" data-i="d2.auth2">{tr("d2.auth2")}</text>
+                    <rect class="box box-hero" x="208" y="44" width="160" height="302" rx="12" />
+                    <rect x="209" y="45" width="158" height="300" rx="11" fill="url(#g2-mw)" />
+                    <path
+                      class="shield"
+                      d="M288 54c-6 2.5-10 3.5-13 4v8c0 7 6 11.5 13 14 7-2.5 13-7 13-14v-8c-3-.5-7-1.5-13-4z"
+                    />
+                    <path class="shield-tick" d="M282.5 65.5l4 4 7-7" />
+                    <text class="t-ink t-lg" x="288" y="92" text-anchor="middle" data-i="d2.mw">
+                      {tr("d2.mw")}
+                    </text>
+                    <rect class="pill" x="224" y="104" width="128" height="28" rx="7" />
+                    <text x="288" y="122" text-anchor="middle" data-i="d2.auth1">
+                      {tr("d2.auth1")}
+                    </text>
+                    <rect class="pill" x="224" y="138" width="128" height="28" rx="7" />
+                    <text x="288" y="156" text-anchor="middle" data-i="d2.auth2">
+                      {tr("d2.auth2")}
+                    </text>
                     <g class="audit-rows">
-                      <rect class="audit-row" x="232" y="176" width="112" height="3" rx="1.5" style="--w:.92;--d:0s"/>
-                      <rect class="audit-row" x="232" y="184" width="112" height="3" rx="1.5" style="--w:.68;--d:.9s"/>
-                      <rect class="audit-row" x="232" y="192" width="112" height="3" rx="1.5" style="--w:.80;--d:1.8s"/>
-                      <rect class="audit-row" x="232" y="200" width="112" height="3" rx="1.5" style="--w:.55;--d:2.7s"/>
+                      <rect
+                        class="audit-row"
+                        x="232"
+                        y="176"
+                        width="112"
+                        height="3"
+                        rx="1.5"
+                        style="--w:.92;--d:0s"
+                      />
+                      <rect
+                        class="audit-row"
+                        x="232"
+                        y="184"
+                        width="112"
+                        height="3"
+                        rx="1.5"
+                        style="--w:.68;--d:.9s"
+                      />
+                      <rect
+                        class="audit-row"
+                        x="232"
+                        y="192"
+                        width="112"
+                        height="3"
+                        rx="1.5"
+                        style="--w:.80;--d:1.8s"
+                      />
+                      <rect
+                        class="audit-row"
+                        x="232"
+                        y="200"
+                        width="112"
+                        height="3"
+                        rx="1.5"
+                        style="--w:.55;--d:2.7s"
+                      />
                     </g>
-                    <line class="grid-line" x1="224" y1="210" x2="352" y2="210"/>
+                    <line class="grid-line" x1="224" y1="210" x2="352" y2="210" />
                   </g>
                   <g class="cache" id="d2-cache">
-                    <rect class="box-soft" x="224" y="222" width="128" height="60" rx="9"/>
+                    <rect class="box-soft" x="224" y="222" width="128" height="60" rx="9" />
                     <path class="cache-ico" d="M282 238h12M282 243h12M282 248h8" />
-                    <text x="288" y="270" text-anchor="middle" data-i="d2.cache">{tr("d2.cache")}</text>
+                    <text x="288" y="270" text-anchor="middle" data-i="d2.cache">
+                      {tr("d2.cache")}
+                    </text>
                   </g>
                   <g id="d2-app">
-                    <rect class="box" x="408" y="169" width="88" height="52" rx="10"/>
-                    <text class="t-ink" x="452" y="199" text-anchor="middle" data-i="d2.app">{tr("d2.app")}</text>
-                    <rect class="ok-pill" x="421" y="230" width="62" height="18" rx="9"/>
-                    <text class="t-ok" x="452" y="242" text-anchor="middle" style="font-size:9px">200 · OK</text>
+                    <rect class="box" x="408" y="169" width="88" height="52" rx="10" />
+                    <text class="t-ink" x="452" y="199" text-anchor="middle" data-i="d2.app">
+                      {tr("d2.app")}
+                    </text>
+                    <rect class="ok-pill" x="421" y="230" width="62" height="18" rx="9" />
+                    <text class="t-ok" x="452" y="242" text-anchor="middle" style="font-size:9px">
+                      200 · OK
+                    </text>
                   </g>
-                  <text class="served t-acc" id="d2-served" x="496" y="156" text-anchor="end" style="font-size:9px" data-i="d2.served">{tr("d2.served")}</text>
+                  <text
+                    class="served t-acc"
+                    id="d2-served"
+                    x="496"
+                    y="156"
+                    text-anchor="end"
+                    style="font-size:9px"
+                    data-i="d2.served"
+                  >
+                    {tr("d2.served")}
+                  </text>
                   <g id="d2-pk"></g>
                 </svg>
               </div>
               <div class="story-body">
                 <span class="story-num">02 / 03</span>
-                <span class="label" data-i="p2.tag">{tr("p2.tag")}</span>
+                <span class="label" data-i="p2.tag">
+                  {tr("p2.tag")}
+                </span>
                 <h3 data-i="p2.h">{tr("p2.h")}</h3>
                 <p data-i="p2.p">{tr("p2.p")}</p>
-                <ul class="stack"><li>ASP.NET Core</li><li>SQL Server</li><li>Redis</li><li>React</li></ul>
+                <ul class="stack">
+                  <li>ASP.NET Core</li>
+                  <li>SQL Server</li>
+                  <li>Redis</li>
+                  <li>React</li>
+                </ul>
               </div>
             </article>
 
             <article class="story-item" id="proj-3">
               <div class="story-fig" data-chrome="quality / live-panel">
-                <svg class="dg" id="d3" viewBox="0 0 520 390" role="img" aria-label={tr("d3.aria")} data-i-aria="d3.aria">
+                <svg
+                  class="dg"
+                  id="d3"
+                  viewBox="0 0 520 390"
+                  role="img"
+                  aria-label={tr("d3.aria")}
+                  data-i-aria="d3.aria"
+                >
                   <defs>
-                    <linearGradient id="g3-wave" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--primary)" stop-opacity=".28"/><stop offset="1" stop-color="var(--primary)" stop-opacity="0"/></linearGradient>
-                    <linearGradient id="g3-lvl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="var(--primary)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient>
-                    <clipPath id="g3-clip"><rect x="24" y="52" width="472" height="92" rx="10"/></clipPath>
+                    <linearGradient id="g3-wave" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stop-color="var(--primary)" stop-opacity=".28" />
+                      <stop offset="1" stop-color="var(--primary)" stop-opacity="0" />
+                    </linearGradient>
+                    <linearGradient id="g3-lvl" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0" stop-color="var(--primary)" />
+                      <stop offset="1" stop-color="var(--accent)" />
+                    </linearGradient>
+                    <clipPath id="g3-clip">
+                      <rect x="24" y="52" width="472" height="92" rx="10" />
+                    </clipPath>
                   </defs>
                   <g class="hdr" id="d3-hdr">
-                    <rect class="rec-pill" x="20" y="20" width="180" height="22" rx="11"/>
-                    <circle class="rec" id="d3-rec" cx="32" cy="31" r="4"/>
-                    <text class="t-ink" x="42" y="35"><tspan data-i="d3.rec">{tr("d3.rec")}</tspan> · <tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 03</text>
-                    <text class="t-ink t-lg" id="d3-timer" x="496" y="35" text-anchor="end">00:12:37</text>
+                    <rect class="rec-pill" x="20" y="20" width="180" height="22" rx="11" />
+                    <circle class="rec" id="d3-rec" cx="32" cy="31" r="4" />
+                    <text class="t-ink" x="42" y="35">
+                      <tspan data-i="d3.rec">{tr("d3.rec")}</tspan> ·{" "}
+                      <tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 03
+                    </text>
+                    <text class="t-ink t-lg" id="d3-timer" x="496" y="35" text-anchor="end">
+                      00:12:37
+                    </text>
                   </g>
-                  <rect class="wave-panel" x="24" y="52" width="472" height="92" rx="10"/>
+                  <rect class="wave-panel" x="24" y="52" width="472" height="92" rx="10" />
                   <g clip-path="url(#g3-clip)">
-                    <line class="wave-bg" x1="24" y1="100" x2="496" y2="100"/>
-                    <polygon class="wave-fill" id="d3-fill" points="24,100 496,100 496,144 24,144"/>
-                    <polyline class="wave" id="d3-wave" points="24,100 496,100"/>
-                    <line class="playhead" x1="0" y1="52" x2="0" y2="144"/>
+                    <line class="wave-bg" x1="24" y1="100" x2="496" y2="100" />
+                    <polygon
+                      class="wave-fill"
+                      id="d3-fill"
+                      points="24,100 496,100 496,144 24,144"
+                    />
+                    <polyline class="wave" id="d3-wave" points="24,100 496,100" />
+                    <line class="playhead" x1="0" y1="52" x2="0" y2="144" />
                   </g>
-                  <line class="grid-line" id="d3-div" x1="24" y1="152" x2="496" y2="152"/>
-                  <g class="row" data-row="0"><rect class="row-bg" x="24" y="160" width="472" height="40" rx="9"/><rect class="row-acc" x="24" y="166" width="3" height="28" rx="1.5"/><circle class="st s1" cx="44" cy="180" r="4.5"/><text class="t-ink" x="58" y="184"><tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 01</text><text class="st-l" x="200" y="184" data-i="d3.s1">{tr("d3.s1")}</text><g class="lv" transform="translate(330 175)"></g></g>
-                  <g class="row" data-row="1"><rect class="row-bg" x="24" y="208" width="472" height="40" rx="9"/><rect class="row-acc" x="24" y="214" width="3" height="28" rx="1.5"/><circle class="st s2" cx="44" cy="228" r="4.5"/><text class="t-ink" x="58" y="232"><tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 02</text><text class="st-l" x="200" y="232" data-i="d3.s2">{tr("d3.s2")}</text><g class="lv" transform="translate(330 223)"></g></g>
-                  <g class="row live" data-row="2"><rect class="row-bg" x="24" y="256" width="472" height="40" rx="9"/><rect class="row-acc" x="24" y="262" width="3" height="28" rx="1.5"/><circle class="st s3" cx="44" cy="276" r="4.5"/><text class="t-ink" x="58" y="280"><tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 03</text><text class="st-l" x="200" y="280" data-i="d3.s3">{tr("d3.s3")}</text><g class="lv" transform="translate(330 271)"></g></g>
-                  <g class="row" data-row="3"><rect class="row-bg" x="24" y="304" width="472" height="40" rx="9"/><rect class="row-acc" x="24" y="310" width="3" height="28" rx="1.5"/><circle class="st s1" cx="44" cy="324" r="4.5"/><text class="t-ink" x="58" y="328"><tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 04</text><text class="st-l" x="200" y="328" data-i="d3.s1">{tr("d3.s1")}</text><g class="lv" transform="translate(330 319)"></g></g>
-                  <text id="d3-title" x="24" y="372" data-i="d3.title">{tr("d3.title")}</text>
+                  <line class="grid-line" id="d3-div" x1="24" y1="152" x2="496" y2="152" />
+                  <g class="row" data-row="0">
+                    <rect class="row-bg" x="24" y="160" width="472" height="40" rx="9" />
+                    <rect class="row-acc" x="24" y="166" width="3" height="28" rx="1.5" />
+                    <circle class="st s1" cx="44" cy="180" r="4.5" />
+                    <text class="t-ink" x="58" y="184">
+                      <tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 01
+                    </text>
+                    <text class="st-l" x="200" y="184" data-i="d3.s1">
+                      {tr("d3.s1")}
+                    </text>
+                    <g class="lv" transform="translate(330 175)"></g>
+                  </g>
+                  <g class="row" data-row="1">
+                    <rect class="row-bg" x="24" y="208" width="472" height="40" rx="9" />
+                    <rect class="row-acc" x="24" y="214" width="3" height="28" rx="1.5" />
+                    <circle class="st s2" cx="44" cy="228" r="4.5" />
+                    <text class="t-ink" x="58" y="232">
+                      <tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 02
+                    </text>
+                    <text class="st-l" x="200" y="232" data-i="d3.s2">
+                      {tr("d3.s2")}
+                    </text>
+                    <g class="lv" transform="translate(330 223)"></g>
+                  </g>
+                  <g class="row live" data-row="2">
+                    <rect class="row-bg" x="24" y="256" width="472" height="40" rx="9" />
+                    <rect class="row-acc" x="24" y="262" width="3" height="28" rx="1.5" />
+                    <circle class="st s3" cx="44" cy="276" r="4.5" />
+                    <text class="t-ink" x="58" y="280">
+                      <tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 03
+                    </text>
+                    <text class="st-l" x="200" y="280" data-i="d3.s3">
+                      {tr("d3.s3")}
+                    </text>
+                    <g class="lv" transform="translate(330 271)"></g>
+                  </g>
+                  <g class="row" data-row="3">
+                    <rect class="row-bg" x="24" y="304" width="472" height="40" rx="9" />
+                    <rect class="row-acc" x="24" y="310" width="3" height="28" rx="1.5" />
+                    <circle class="st s1" cx="44" cy="324" r="4.5" />
+                    <text class="t-ink" x="58" y="328">
+                      <tspan data-i="d3.agent">{tr("d3.agent")}</tspan> 04
+                    </text>
+                    <text class="st-l" x="200" y="328" data-i="d3.s1">
+                      {tr("d3.s1")}
+                    </text>
+                    <g class="lv" transform="translate(330 319)"></g>
+                  </g>
+                  <text id="d3-title" x="24" y="372" data-i="d3.title">
+                    {tr("d3.title")}
+                  </text>
                 </svg>
               </div>
               <div class="story-body">
                 <span class="story-num">03 / 03</span>
-                <span class="label" data-i="p3.tag">{tr("p3.tag")}</span>
+                <span class="label" data-i="p3.tag">
+                  {tr("p3.tag")}
+                </span>
                 <h3 data-i="p3.h">{tr("p3.h")}</h3>
                 <p data-i="p3.p">{tr("p3.p")}</p>
-                <ul class="stack"><li>.NET</li><li>SignalR</li><li>FFmpeg</li><li>REST</li></ul>
+                <ul class="stack">
+                  <li>.NET</li>
+                  <li>SignalR</li>
+                  <li>FFmpeg</li>
+                  <li>REST</li>
+                </ul>
               </div>
             </article>
           </div>
@@ -325,12 +849,31 @@ const faqSchema = {
     <section class="section" id="enfoque">
       <div class="wrap">
         <div class="sec-head">
-          <div><span class="label" data-i="how.eyebrow">{tr("how.eyebrow")}</span><h2 class="reveal reveal-clip" data-i="how.title">{tr("how.title")}</h2></div>
+          <div>
+            <span class="label" data-i="how.eyebrow">
+              {tr("how.eyebrow")}
+            </span>
+            <h2 class="reveal reveal-clip" data-i="how.title">
+              {tr("how.title")}
+            </h2>
+          </div>
         </div>
         <div class="how-grid">
-          <div class="how reveal"><span class="label">01</span><h3 data-i="how1.h">{tr("how1.h")}</h3><p data-i="how1.p">{tr("how1.p")}</p></div>
-          <div class="how reveal" style="--d:90ms"><span class="label">02</span><h3 data-i="how2.h">{tr("how2.h")}</h3><p data-i="how2.p">{tr("how2.p")}</p></div>
-          <div class="how reveal" style="--d:180ms"><span class="label">03</span><h3 data-i="how3.h">{tr("how3.h")}</h3><p data-i="how3.p">{tr("how3.p")}</p></div>
+          <div class="how reveal">
+            <span class="label">01</span>
+            <h3 data-i="how1.h">{tr("how1.h")}</h3>
+            <p data-i="how1.p">{tr("how1.p")}</p>
+          </div>
+          <div class="how reveal" style="--d:90ms">
+            <span class="label">02</span>
+            <h3 data-i="how2.h">{tr("how2.h")}</h3>
+            <p data-i="how2.p">{tr("how2.p")}</p>
+          </div>
+          <div class="how reveal" style="--d:180ms">
+            <span class="label">03</span>
+            <h3 data-i="how3.h">{tr("how3.h")}</h3>
+            <p data-i="how3.p">{tr("how3.p")}</p>
+          </div>
         </div>
       </div>
     </section>
@@ -338,117 +881,407 @@ const faqSchema = {
     <section class="section" id="proceso">
       <div class="wrap">
         <div class="sec-head">
-          <div><span class="label" data-i="proc.eyebrow">{tr("proc.eyebrow")}</span><h2 class="reveal reveal-clip" data-i="proc.title">{tr("proc.title")}</h2><p class="sec-sub" data-i="proc.sub">{tr("proc.sub")}</p></div>
+          <div>
+            <span class="label" data-i="proc.eyebrow">
+              {tr("proc.eyebrow")}
+            </span>
+            <h2 class="reveal reveal-clip" data-i="proc.title">
+              {tr("proc.title")}
+            </h2>
+            <p class="sec-sub" data-i="proc.sub">
+              {tr("proc.sub")}
+            </p>
+          </div>
         </div>
         <ol class="steps" id="steps">
           <li class="step" data-owner="client" data-phase="1" style="--n:0">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
-            <span class="node" aria-hidden="true"></span><span class="s-phase" data-i="ph1">{tr("ph1")}</span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
+            <span class="node" aria-hidden="true"></span>
+            <span class="s-phase" data-i="ph1">
+              {tr("ph1")}
+            </span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">01</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">01</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                    <path d="M14 3v6h6M8 13h8M8 17h5" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st1.h">{tr("st1.h")}</h3>
               <p data-i="st1.p">{tr("st1.p")}</p>
-              <span class="s-meta" data-i="st1.m">{tr("st1.m")}</span>
+              <span class="s-meta" data-i="st1.m">
+                {tr("st1.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="auto" data-phase="1" style="--n:1">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
             <span class="node" aria-hidden="true"></span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">02</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">02</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
+                    <path d="M19 17l.8 2.2L22 20l-2.2.8L19 23l-.8-2.2L16 20l2.2-.8z" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st2.h">{tr("st2.h")}</h3>
               <p data-i="st2.p">{tr("st2.p")}</p>
-              <span class="s-meta" data-i="st2.m">{tr("st2.m")}</span>
+              <span class="s-meta" data-i="st2.m">
+                {tr("st2.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="founder" data-phase="1" style="--n:2">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
             <span class="node" aria-hidden="true"></span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">03</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 11l2 2 4-4"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">03</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="9" cy="8" r="4" />
+                    <path d="M2 21a7 7 0 0 1 14 0M16 11l2 2 4-4" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st3.h">{tr("st3.h")}</h3>
               <p data-i="st3.p">{tr("st3.p")}</p>
-              <span class="s-meta" data-i="st3.m">{tr("st3.m")}</span>
+              <span class="s-meta" data-i="st3.m">
+                {tr("st3.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="both" data-phase="1" style="--n:3">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
             <span class="node" aria-hidden="true"></span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">04</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">04</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.6a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2z" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st4.h">{tr("st4.h")}</h3>
               <p data-i="st4.p">{tr("st4.p")}</p>
-              <span class="s-meta" data-i="st4.m">{tr("st4.m")}</span>
+              <span class="s-meta" data-i="st4.m">
+                {tr("st4.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="founder" data-phase="2" style="--n:4">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
-            <span class="node" aria-hidden="true"></span><span class="s-phase" data-i="ph2">{tr("ph2")}</span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
+            <span class="node" aria-hidden="true"></span>
+            <span class="s-phase" data-i="ph2">
+              {tr("ph2")}
+            </span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">05</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8 11h6M11 8v6"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">05</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="7" />
+                    <path d="M21 21l-4.3-4.3M8 11h6M11 8v6" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st5.h">{tr("st5.h")}</h3>
               <p data-i="st5.p">{tr("st5.p")}</p>
-              <span class="s-meta" data-i="st5.m">{tr("st5.m")}</span>
+              <span class="s-meta" data-i="st5.m">
+                {tr("st5.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="both" data-phase="2" style="--n:5">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
             <span class="node" aria-hidden="true"></span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">06</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">06</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st6.h">{tr("st6.h")}</h3>
               <p data-i="st6.p">{tr("st6.p")}</p>
-              <span class="s-meta" data-i="st6.m">{tr("st6.m")}</span>
+              <span class="s-meta" data-i="st6.m">
+                {tr("st6.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="both" data-phase="3" style="--n:6">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
-            <span class="node" aria-hidden="true"></span><span class="s-phase" data-i="ph3">{tr("ph3")}</span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
+            <span class="node" aria-hidden="true"></span>
+            <span class="s-phase" data-i="ph3">
+              {tr("ph3")}
+            </span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">07</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.4"/><path d="M21 3v6h-6"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">07</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 12a9 9 0 1 1-2.6-6.4" />
+                    <path d="M21 3v6h-6" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st7.h">{tr("st7.h")}</h3>
               <p data-i="st7.p">{tr("st7.p")}</p>
-              <span class="s-meta" data-i="st7.m">{tr("st7.m")}</span>
+              <span class="s-meta" data-i="st7.m">
+                {tr("st7.m")}
+              </span>
             </div>
           </li>
           <li class="step" data-owner="founder" data-phase="3" style="--n:7">
-            <span class="rail" aria-hidden="true"><span class="rail-fill"></span><span class="head"></span></span>
+            <span class="rail" aria-hidden="true">
+              <span class="rail-fill"></span>
+              <span class="head"></span>
+            </span>
             <span class="node" aria-hidden="true"></span>
             <div class="step-card">
-              <div class="step-top"><span class="s-num">08</span><span class="s-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z"/><path d="M3.3 7L12 12l8.7-5M12 22V12"/></svg></span></div>
+              <div class="step-top">
+                <span class="s-num">08</span>
+                <span class="s-ico" aria-hidden="true">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7z" />
+                    <path d="M3.3 7L12 12l8.7-5M12 22V12" />
+                  </svg>
+                </span>
+              </div>
               <h3 data-i="st8.h">{tr("st8.h")}</h3>
               <p data-i="st8.p">{tr("st8.p")}</p>
-              <span class="s-meta" data-i="st8.m">{tr("st8.m")}</span>
+              <span class="s-meta" data-i="st8.m">
+                {tr("st8.m")}
+              </span>
             </div>
           </li>
         </ol>
 
         <div class="start reveal">
           <div>
-            <span class="label" data-i="start.eyebrow">{tr("start.eyebrow")}</span>
+            <span class="label" data-i="start.eyebrow">
+              {tr("start.eyebrow")}
+            </span>
             <h3 data-i="start.title">{tr("start.title")}</h3>
             <p data-i="start.p">{tr("start.p")}</p>
           </div>
           <div class="email-row">
-            <a class="email" data-email href="mailto:hello@amaurygomez.dev">hello@amaurygomez.dev</a>
-            <button type="button" class="copy" data-copy aria-label={tr("contact.copyAria")} data-i-aria="contact.copyAria"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span data-copy-label data-i="contact.copy">{tr("contact.copy")}</span></button>
+            <a class="email" data-email href="mailto:hello@amaurygomez.dev">
+              hello@amaurygomez.dev
+            </a>
+            <button
+              type="button"
+              class="copy"
+              data-copy
+              aria-label={tr("contact.copyAria")}
+              data-i-aria="contact.copyAria"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="9" y="9" width="12" height="12" rx="2" />
+                <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+              </svg>
+              <span data-copy-label data-i="contact.copy">
+                {tr("contact.copy")}
+              </span>
+            </button>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section stack-sec" id="stack" aria-label={tr("stack.aria")} data-i-aria="stack.aria">
-      <div class="wrap"><span class="label" data-i="stack.eyebrow">{tr("stack.eyebrow")}</span></div>
-      <div class="marquee" aria-hidden="true"><div class="track">
-        <span>C#</span><span>.NET</span><span>ASP.NET Core</span><span>SQL Server</span><span>Oracle</span><span>Redis</span><span>SignalR</span><span>React</span><span>Angular</span><span>TypeScript</span><span>Docker</span><span>GitLab CI/CD</span>
-        <span>C#</span><span>.NET</span><span>ASP.NET Core</span><span>SQL Server</span><span>Oracle</span><span>Redis</span><span>SignalR</span><span>React</span><span>Angular</span><span>TypeScript</span><span>Docker</span><span>GitLab CI/CD</span>
-      </div></div>
-      <div class="marquee rev" aria-hidden="true"><div class="track">
-        <span>Docker</span><span>GitLab CI/CD</span><span>TypeScript</span><span>Angular</span><span>React</span><span>SignalR</span><span>Redis</span><span>Oracle</span><span>SQL Server</span><span>ASP.NET Core</span><span>.NET</span><span>C#</span>
-        <span>Docker</span><span>GitLab CI/CD</span><span>TypeScript</span><span>Angular</span><span>React</span><span>SignalR</span><span>Redis</span><span>Oracle</span><span>SQL Server</span><span>ASP.NET Core</span><span>.NET</span><span>C#</span>
-      </div></div>
+    <section
+      class="section stack-sec"
+      id="stack"
+      aria-label={tr("stack.aria")}
+      data-i-aria="stack.aria"
+    >
+      <div class="wrap">
+        <span class="label" data-i="stack.eyebrow">
+          {tr("stack.eyebrow")}
+        </span>
+      </div>
+      <div class="marquee" aria-hidden="true">
+        <div class="track">
+          <span>C#</span>
+          <span>.NET</span>
+          <span>ASP.NET Core</span>
+          <span>SQL Server</span>
+          <span>Oracle</span>
+          <span>Redis</span>
+          <span>SignalR</span>
+          <span>React</span>
+          <span>Angular</span>
+          <span>TypeScript</span>
+          <span>Docker</span>
+          <span>GitLab CI/CD</span>
+          <span>C#</span>
+          <span>.NET</span>
+          <span>ASP.NET Core</span>
+          <span>SQL Server</span>
+          <span>Oracle</span>
+          <span>Redis</span>
+          <span>SignalR</span>
+          <span>React</span>
+          <span>Angular</span>
+          <span>TypeScript</span>
+          <span>Docker</span>
+          <span>GitLab CI/CD</span>
+        </div>
+      </div>
+      <div class="marquee rev" aria-hidden="true">
+        <div class="track">
+          <span>Docker</span>
+          <span>GitLab CI/CD</span>
+          <span>TypeScript</span>
+          <span>Angular</span>
+          <span>React</span>
+          <span>SignalR</span>
+          <span>Redis</span>
+          <span>Oracle</span>
+          <span>SQL Server</span>
+          <span>ASP.NET Core</span>
+          <span>.NET</span>
+          <span>C#</span>
+          <span>Docker</span>
+          <span>GitLab CI/CD</span>
+          <span>TypeScript</span>
+          <span>Angular</span>
+          <span>React</span>
+          <span>SignalR</span>
+          <span>Redis</span>
+          <span>Oracle</span>
+          <span>SQL Server</span>
+          <span>ASP.NET Core</span>
+          <span>.NET</span>
+          <span>C#</span>
+        </div>
+      </div>
       <ul class="wrap mono" hidden>
-        <li>C#</li><li>.NET</li><li>ASP.NET Core</li><li>SQL Server</li><li>Oracle</li><li>Redis</li><li>SignalR</li><li>React</li><li>Angular</li><li>TypeScript</li><li>Docker</li><li>GitLab CI/CD</li>
+        <li>C#</li>
+        <li>.NET</li>
+        <li>ASP.NET Core</li>
+        <li>SQL Server</li>
+        <li>Oracle</li>
+        <li>Redis</li>
+        <li>SignalR</li>
+        <li>React</li>
+        <li>Angular</li>
+        <li>TypeScript</li>
+        <li>Docker</li>
+        <li>GitLab CI/CD</li>
       </ul>
     </section>
 
@@ -456,15 +1289,71 @@ const faqSchema = {
       <div class="wrap">
         <article class="ag reveal">
           <div class="ag-body">
-            <span class="label" data-i="ag.tag">{tr("ag.tag")}</span>
+            <span class="label" data-i="ag.tag">
+              {tr("ag.tag")}
+            </span>
             <h3 data-i="ag.h">{tr("ag.h")}</h3>
             <p data-i="ag.p">{tr("ag.p")}</p>
             <div class="ag-links">
-              <a class="btn btn-primary" href="/world"><span data-i="ag.cta1">{tr("ag.cta1")}</span><svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
-              <a class="arrow-link" href="https://github.com/amaurygomez/amaurycv"><span class="txt" data-i="ag.cta2">{tr("ag.cta2")}</span><svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+              <a class="btn btn-primary" href="/world">
+                <span data-i="ag.cta1">{tr("ag.cta1")}</span>
+                <svg
+                  class="arr"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </a>
+              <a class="arrow-link" href="https://github.com/amaurygomez/amaurycv">
+                <span class="txt" data-i="ag.cta2">
+                  {tr("ag.cta2")}
+                </span>
+                <svg
+                  class="arr"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </a>
             </div>
           </div>
-          <div class="ag-fig" aria-hidden="true"><canvas id="ag-canvas"></canvas></div>
+          <a class="ag-fig" href="/world" tabindex="-1" aria-hidden="true">
+            <!-- The real map, rendered from /world; the language switch shows the matching one. -->
+            <img
+              data-lang-img="es"
+              src={worldEs.src}
+              width={worldEs.width}
+              height={worldEs.height}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+            <img
+              data-lang-img="en"
+              src={worldEn.src}
+              width={worldEn.width}
+              height={worldEn.height}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
         </article>
       </div>
     </section>
@@ -473,24 +1362,115 @@ const faqSchema = {
       <div class="wrap">
         <div class="founder">
           <div class="portrait reveal" aria-hidden="true">
-            <svg class="cross" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice"><defs><pattern id="crosses" width="44" height="44" patternUnits="userSpaceOnUse"><path d="M22 17v10M17 22h10" stroke="currentColor" stroke-width="1" opacity=".7"/></pattern></defs><rect width="400" height="500" fill="url(#crosses)"/></svg>
-            <svg class="big-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 26L10 6l7.5 20M6 19h8"/><path d="M28.95 11.05A7 7 0 1 0 31 16h-7"/></svg>
-            <span class="tag" data-i="founder.tag">{tr("founder.tag")}</span>
+            <svg class="cross" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <pattern id="crosses" width="44" height="44" patternUnits="userSpaceOnUse">
+                  <path
+                    d="M22 17v10M17 22h10"
+                    stroke="currentColor"
+                    stroke-width="1"
+                    opacity=".7"
+                  />
+                </pattern>
+              </defs>
+              <rect width="400" height="500" fill="url(#crosses)" />
+            </svg>
+            <svg
+              class="big-mark"
+              viewBox="0 0 32 32"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M2.5 26L10 6l7.5 20M6 19h8" />
+              <path d="M28.95 11.05A7 7 0 1 0 31 16h-7" />
+            </svg>
+            <span class="tag" data-i="founder.tag">
+              {tr("founder.tag")}
+            </span>
           </div>
           <div class="founder-body">
-            <span class="label" data-i="founder.eyebrow">{tr("founder.eyebrow")}</span>
+            <span class="label" data-i="founder.eyebrow">
+              {tr("founder.eyebrow")}
+            </span>
             <h2 class="reveal reveal-clip">Amaury Gómez</h2>
-            <p class="subtitle" data-i="founder.sub">{tr("founder.sub")}</p>
-            <p class="bio" data-i="founder.bio">{tr("founder.bio")}</p>
+            <p class="subtitle" data-i="founder.sub">
+              {tr("founder.sub")}
+            </p>
+            <p class="bio" data-i="founder.bio">
+              {tr("founder.bio")}
+            </p>
             <ul class="timeline">
-              <li class="tl reveal"><span class="role" data-i="e1.r">{tr("e1.r")}</span><span class="ten" data-i="e1.t">{tr("e1.t")}</span><span class="org" data-i="e1.o">{tr("e1.o")}</span></li>
-              <li class="tl reveal" style="--d:60ms"><span class="role" data-i="e2.r">{tr("e2.r")}</span><span class="ten" data-i="e2.t">{tr("e2.t")}</span><span class="org" data-i="e2.o">{tr("e2.o")}</span></li>
-              <li class="tl reveal" style="--d:120ms"><span class="role" data-i="e3.r">{tr("e3.r")}</span><span class="ten" data-i="e3.t">{tr("e3.t")}</span><span class="org" data-i="e3.o">{tr("e3.o")}</span></li>
-              <li class="tl reveal" style="--d:180ms"><span class="role" data-i="e4.r">{tr("e4.r")}</span><span class="ten" data-i="e4.t">{tr("e4.t")}</span><span class="org" data-i="e4.o">{tr("e4.o")}</span></li>
+              <li class="tl reveal">
+                <span class="role" data-i="e1.r">
+                  {tr("e1.r")}
+                </span>
+                <span class="ten" data-i="e1.t">
+                  {tr("e1.t")}
+                </span>
+                <span class="org" data-i="e1.o">
+                  {tr("e1.o")}
+                </span>
+              </li>
+              <li class="tl reveal" style="--d:60ms">
+                <span class="role" data-i="e2.r">
+                  {tr("e2.r")}
+                </span>
+                <span class="ten" data-i="e2.t">
+                  {tr("e2.t")}
+                </span>
+                <span class="org" data-i="e2.o">
+                  {tr("e2.o")}
+                </span>
+              </li>
+              <li class="tl reveal" style="--d:120ms">
+                <span class="role" data-i="e3.r">
+                  {tr("e3.r")}
+                </span>
+                <span class="ten" data-i="e3.t">
+                  {tr("e3.t")}
+                </span>
+                <span class="org" data-i="e3.o">
+                  {tr("e3.o")}
+                </span>
+              </li>
+              <li class="tl reveal" style="--d:180ms">
+                <span class="role" data-i="e4.r">
+                  {tr("e4.r")}
+                </span>
+                <span class="ten" data-i="e4.t">
+                  {tr("e4.t")}
+                </span>
+                <span class="org" data-i="e4.o">
+                  {tr("e4.o")}
+                </span>
+              </li>
             </ul>
             <div class="founder-foot">
-              <span class="note" data-i="founder.note">{tr("founder.note")}</span>
-              <a class="arrow-link" href="/cv"><span class="txt" data-i="founder.cv">{tr("founder.cv")}</span><svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+              <span class="note" data-i="founder.note">
+                {tr("founder.note")}
+              </span>
+              <a class="arrow-link" href="/cv">
+                <span class="txt" data-i="founder.cv">
+                  {tr("founder.cv")}
+                </span>
+                <svg
+                  class="arr"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
@@ -501,12 +1481,30 @@ const faqSchema = {
       <div class="wrap">
         <div class="cv reveal">
           <div>
-            <span class="label" data-i="cv.eyebrow">{tr("cv.eyebrow")}</span>
+            <span class="label" data-i="cv.eyebrow">
+              {tr("cv.eyebrow")}
+            </span>
             <h3 data-i="cv.h">{tr("cv.h")}</h3>
             <p data-i="cv.p">{tr("cv.p")}</p>
           </div>
           <div class="cv-action">
-            <a class="btn btn-primary" href="/cv#full-cv"><span data-i="cv.btn">{tr("cv.btn")}</span><svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+            <a class="btn btn-primary" href="/cv#full-cv">
+              <span data-i="cv.btn">{tr("cv.btn")}</span>
+              <svg
+                class="arr"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M3 8h10M9 4l4 4-4 4" />
+              </svg>
+            </a>
           </div>
         </div>
       </div>
@@ -515,12 +1513,34 @@ const faqSchema = {
     <section class="section" id="faq">
       <div class="wrap">
         <div class="sec-head">
-          <div><span class="label" data-i="faq.eyebrow">{tr("faq.eyebrow")}</span><h2 class="reveal reveal-clip" data-i="faq.title">{tr("faq.title")}</h2></div>
+          <div>
+            <span class="label" data-i="faq.eyebrow">
+              {tr("faq.eyebrow")}
+            </span>
+            <h2 class="reveal reveal-clip" data-i="faq.title">
+              {tr("faq.title")}
+            </h2>
+          </div>
         </div>
         <div class="faq-list">
           {faq[lang].map((item, i) => (
             <details class="faq reveal" name="faq" open={i === 0}>
-              <summary><span data-i={`faq${i + 1}.q`}>{item.q}</span><svg class="faq-ico" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+              <summary>
+                <span data-i={`faq${i + 1}.q`}>{item.q}</span>
+                <svg
+                  class="faq-ico"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+              </summary>
               <p data-i={`faq${i + 1}.a`}>{item.a}</p>
             </details>
           ))}
@@ -532,50 +1552,222 @@ const faqSchema = {
       <div class="wrap">
         <div class="contact-grid">
           <div class="contact-intro">
-            <span class="label" data-i="contact.eyebrow" style="display:block;margin-bottom:18px">{tr("contact.eyebrow")}</span>
-            <h2 class="reveal reveal-clip" data-i="contact.h">{tr("contact.h")}</h2>
-            <p class="contact-lead" data-i="contact.p">{tr("contact.p")}</p>
+            <span class="label" data-i="contact.eyebrow" style="display:block;margin-bottom:18px">
+              {tr("contact.eyebrow")}
+            </span>
+            <h2 class="reveal reveal-clip" data-i="contact.h">
+              {tr("contact.h")}
+            </h2>
+            <p class="contact-lead" data-i="contact.p">
+              {tr("contact.p")}
+            </p>
             <ul class="contact-points">
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span data-i="contact.b1">{tr("contact.b1")}</span></li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span data-i="contact.b2">{tr("contact.b2")}</span></li>
-              <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><span data-i="contact.b3">{tr("contact.b3")}</span></li>
+              <li>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span data-i="contact.b1">{tr("contact.b1")}</span>
+              </li>
+              <li>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span data-i="contact.b2">{tr("contact.b2")}</span>
+              </li>
+              <li>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <span data-i="contact.b3">{tr("contact.b3")}</span>
+              </li>
             </ul>
-            <p class="contact-alt" data-i="contact.alt">{tr("contact.alt")}</p>
+            <p class="contact-alt" data-i="contact.alt">
+              {tr("contact.alt")}
+            </p>
             <div class="email-row">
-              <a class="email" data-email href="mailto:hello@amaurygomez.dev">hello@amaurygomez.dev</a>
-              <button type="button" class="copy" data-copy aria-label={tr("contact.copyAria")} data-i-aria="contact.copyAria"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg><span data-copy-label data-i="contact.copy">{tr("contact.copy")}</span></button>
+              <a class="email" data-email href="mailto:hello@amaurygomez.dev">
+                hello@amaurygomez.dev
+              </a>
+              <button
+                type="button"
+                class="copy"
+                data-copy
+                aria-label={tr("contact.copyAria")}
+                data-i-aria="contact.copyAria"
+              >
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="9" y="9" width="12" height="12" rx="2" />
+                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+                </svg>
+                <span data-copy-label data-i="contact.copy">
+                  {tr("contact.copy")}
+                </span>
+              </button>
             </div>
           </div>
           <!-- Hidden until the script confirms the form can send (it needs Turnstile); the email row always works. -->
           <div class="contact-card" id="contact-card" hidden>
             <form id="contact-form" novalidate>
               <div class="f-row">
-                <div class="field"><label for="cf-name" data-i="cf.name">{tr("cf.name")}</label><input id="cf-name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="80" /></div>
-                <div class="field"><label for="cf-email" data-i="cf.email">{tr("cf.email")}</label><input id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" /></div>
+                <div class="field">
+                  <label for="cf-name" data-i="cf.name">
+                    {tr("cf.name")}
+                  </label>
+                  <input
+                    id="cf-name"
+                    name="name"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    minlength="2"
+                    maxlength="80"
+                  />
+                </div>
+                <div class="field">
+                  <label for="cf-email" data-i="cf.email">
+                    {tr("cf.email")}
+                  </label>
+                  <input
+                    id="cf-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    inputmode="email"
+                    required
+                    maxlength="120"
+                  />
+                </div>
               </div>
               <div class="field">
-                <label for="cf-type" data-i="cf.type">{tr("cf.type")}</label>
+                <label for="cf-type" data-i="cf.type">
+                  {tr("cf.type")}
+                </label>
                 <select id="cf-type" name="type">
-                  <option value="req.t1" data-i="req.t1">{tr("req.t1")}</option>
-                  <option value="req.t2" data-i="req.t2">{tr("req.t2")}</option>
-                  <option value="req.t3" data-i="req.t3">{tr("req.t3")}</option>
-                  <option value="req.t4" data-i="req.t4">{tr("req.t4")}</option>
-                  <option value="cf.t5" data-i="cf.t5">{tr("cf.t5")}</option>
+                  <option value="req.t1" data-i="req.t1">
+                    {tr("req.t1")}
+                  </option>
+                  <option value="req.t2" data-i="req.t2">
+                    {tr("req.t2")}
+                  </option>
+                  <option value="req.t3" data-i="req.t3">
+                    {tr("req.t3")}
+                  </option>
+                  <option value="req.t4" data-i="req.t4">
+                    {tr("req.t4")}
+                  </option>
+                  <option value="cf.t5" data-i="cf.t5">
+                    {tr("cf.t5")}
+                  </option>
                 </select>
               </div>
               <div class="field">
-                <label for="cf-message" data-i="cf.message">{tr("cf.message")}</label>
-                <textarea id="cf-message" name="message" rows="5" required minlength="20" maxlength="1800" aria-describedby="cf-hint"></textarea>
-                <span class="field-hint" id="cf-hint" data-i="cf.hint">{tr("cf.hint")}</span>
+                <label for="cf-message" data-i="cf.message">
+                  {tr("cf.message")}
+                </label>
+                <textarea
+                  id="cf-message"
+                  name="message"
+                  rows="5"
+                  required
+                  minlength="20"
+                  maxlength="1800"
+                  aria-describedby="cf-hint"
+                ></textarea>
+                <span class="field-hint" id="cf-hint" data-i="cf.hint">
+                  {tr("cf.hint")}
+                </span>
               </div>
-              <div class="cf-trap" aria-hidden="true"><label for="cf-website">Website</label><input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
+              <div class="cf-trap" aria-hidden="true">
+                <label for="cf-website">Website</label>
+                <input
+                  id="cf-website"
+                  name="website"
+                  type="text"
+                  tabindex="-1"
+                  autocomplete="off"
+                />
+              </div>
               <div class="cf-captcha" data-turnstile></div>
               <p class="f-error" id="cf-error" role="alert"></p>
-              <button type="submit" class="btn btn-primary cf-submit"><span data-submit-label data-i="cf.send">{tr("cf.send")}</span><svg class="arr" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></button>
-              <p class="privacy" data-i="cf.privacy">{tr("cf.privacy")}</p>
+              <button type="submit" class="btn btn-primary cf-submit">
+                <span data-submit-label data-i="cf.send">
+                  {tr("cf.send")}
+                </span>
+                <svg
+                  class="arr"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M3 8h10M9 4l4 4-4 4" />
+                </svg>
+              </button>
+              <p class="privacy" data-i="cf.privacy">
+                {tr("cf.privacy")}
+              </p>
             </form>
             <div class="contact-ok" id="contact-ok" role="status" tabindex="-1" hidden>
-              <span class="contact-ok-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="contact-ok-ico">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </span>
               <h3 data-i="cf.okTitle">{tr("cf.okTitle")}</h3>
               <p data-i="cf.okText">{tr("cf.okText")}</p>
             </div>
@@ -589,18 +1781,59 @@ const faqSchema = {
     <div class="wrap">
       <div class="footer-inner">
         <a class="brand" href="#top" aria-label={tr("brand.aria")} data-i-aria="brand.aria">
-          <svg class="mono-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 26L10 6l7.5 20M6 19h8"/><path d="M28.95 11.05A7 7 0 1 0 31 16h-7"/></svg>
-          <span><span class="wordmark">Amaury Gómez</span><span class="descriptor" data-i="brand.desc">{tr("brand.desc")}</span></span>
+          <svg
+            class="mono-mark"
+            viewBox="0 0 32 32"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M2.5 26L10 6l7.5 20M6 19h8" />
+            <path d="M28.95 11.05A7 7 0 1 0 31 16h-7" />
+          </svg>
+          <span>
+            <span class="wordmark">Amaury Gómez</span>
+            <span class="descriptor" data-i="brand.desc">
+              {tr("brand.desc")}
+            </span>
+          </span>
         </a>
         <div class="footer-links">
-          <a class="ul" href="https://github.com/amaurygomez">GitHub</a>
-          <a class="ul" href="https://www.credly.com/users/aegrdz">Credly</a>
-          <a class="arrow-link" href="/world"><span class="txt" data-i="footer.ag">{tr("footer.ag")}</span><svg class="arr" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg></a>
+          <a class="ul" href="https://github.com/amaurygomez">
+            GitHub
+          </a>
+          <a class="ul" href="https://www.credly.com/users/aegrdz">
+            Credly
+          </a>
+          <a class="arrow-link" href="/world">
+            <span class="txt" data-i="footer.ag">
+              {tr("footer.ag")}
+            </span>
+            <svg
+              class="arr"
+              width="14"
+              height="14"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </a>
         </div>
       </div>
       <div class="footer-meta">
         <span data-i="footer.copy">{tr("footer.copy")}</span>
-        <span class="mono" data-i="footer.line">{tr("footer.line")}</span>
+        <span class="mono" data-i="footer.line">
+          {tr("footer.line")}
+        </span>
       </div>
     </div>
   </footer>

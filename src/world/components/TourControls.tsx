@@ -37,7 +37,7 @@ export function TourControls() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="pointer-events-auto fixed right-4 bottom-[5.4rem] left-4 z-50 flex items-center justify-center gap-1 rounded-2xl border border-ag-gold/30 bg-ag-panel/90 px-2 py-2 shadow-[0_8px_32px_-8px_rgba(232,185,107,0.35)] backdrop-blur-md sm:right-auto sm:bottom-6 sm:left-1/2 sm:-translate-x-1/2 sm:rounded-full"
+          className="pointer-events-auto fixed right-4 bottom-[5.4rem] left-4 z-50 flex items-center justify-center gap-1 rounded-2xl border border-ag-primary/30 bg-ag-panel/90 px-2 py-2 shadow-[0_8px_32px_-8px_rgba(107,140,255,0.35)] backdrop-blur-md sm:right-auto sm:bottom-[5.6rem] sm:left-1/2 sm:-translate-x-1/2 sm:rounded-full"
           role="toolbar"
           aria-label={lang === "es" ? "Controles de recorrido" : "Tour controls"}
         >
@@ -45,14 +45,14 @@ export function TourControls() {
             type="button"
             onClick={tourPrev}
             disabled={tourStep === 0}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text/80 uppercase transition hover:text-ag-gold disabled:cursor-not-allowed disabled:opacity-30"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text/80 uppercase transition hover:text-ag-primary disabled:cursor-not-allowed disabled:opacity-30"
           >
             {labels.prev[lang]}
           </button>
 
-          <div className="flex min-w-0 items-center gap-1.5 rounded-full border border-ag-gold/20 bg-ag-gold/10 px-3 py-1.5">
-            <Compass size={11} strokeWidth={2.4} className="text-ag-gold" />
-            <span className="truncate text-[11px] font-semibold tracking-[0.08em] whitespace-nowrap text-ag-gold tabular-nums">
+          <div className="flex min-w-0 items-center gap-1.5 rounded-full border border-ag-primary/20 bg-ag-primary/10 px-3 py-1.5">
+            <Compass size={11} strokeWidth={2.4} className="text-ag-primary" />
+            <span className="truncate text-[11px] font-semibold tracking-[0.08em] whitespace-nowrap text-ag-primary tabular-nums">
               {tourStep + 1} / {TOUR_LENGTH} {stepLabel}
             </span>
           </div>
@@ -60,7 +60,7 @@ export function TourControls() {
           <button
             type="button"
             onClick={tourNext}
-            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text/80 uppercase transition hover:text-ag-gold"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-[0.14em] text-ag-text/80 uppercase transition hover:text-ag-primary"
           >
             {tourStep < TOUR_LENGTH - 1
               ? labels.next[lang]
@@ -69,7 +69,7 @@ export function TourControls() {
                 : "Finish"}
           </button>
 
-          <div className="mx-1 h-5 w-px bg-ag-gold/20" aria-hidden />
+          <div className="mx-1 h-5 w-px bg-ag-primary/20" aria-hidden />
 
           <button
             type="button"

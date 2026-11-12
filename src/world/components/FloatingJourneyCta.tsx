@@ -54,7 +54,7 @@ export function FloatingJourneyCta() {
           className="pointer-events-auto fixed inset-x-3 bottom-4 z-[65] sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2"
           aria-label={lang === "es" ? "Acciones finales del recorrido" : "Journey actions"}
         >
-          <div className="flex flex-col items-center gap-2 rounded-2xl border border-ag-gold/25 bg-ag-panel/92 p-2 shadow-[0_22px_60px_-32px_rgba(232,185,107,0.55)] backdrop-blur-xl">
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-ag-primary/25 bg-ag-panel/92 p-2 shadow-[0_22px_60px_-32px_rgba(107,140,255,0.55)] backdrop-blur-xl">
             <p className="px-2 pt-1 text-center font-display text-[14px] leading-snug text-ag-text">
               {closingLine}
             </p>
@@ -63,7 +63,7 @@ export function FloatingJourneyCta() {
                 const Icon = item.icon;
                 const label = lang === "es" ? item.labelEs : item.labelEn;
                 const baseClass =
-                  "inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ag-text transition hover:border-ag-gold/55 hover:text-ag-gold focus-visible:outline-ag-gold";
+                  "inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-ag-text transition hover:border-ag-primary/55 hover:text-ag-primary focus-visible:outline-ag-primary";
 
                 if (item.key === "stack") {
                   return (

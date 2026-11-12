@@ -6,7 +6,7 @@ type MetaphorProps = {
 };
 
 export const TelecomCoverageMetaphor: FC<MetaphorProps> = ({ accent, className }) => {
-  const navy = "#0B1020";
+  const navy = "#0F131C";
   const mid = "#1A2238";
   const slate = "#374151";
   const offWhite = "#F7F3EA";

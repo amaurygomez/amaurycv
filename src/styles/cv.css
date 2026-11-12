@@ -23,18 +23,18 @@
 }
 
 :root {
-  --c-desk: #070b14;
+  --c-desk: #07090f;
   --c-surface: #0d1322;
   --c-field: #0a0f1c;
   --c-sheet: transparent;
-  --c-ink: #f7f3ea;
+  --c-ink: #f2f4f8;
   --c-ink-muted: #a8b0c2;
   --c-ink-faint: #8a92a5;
-  --c-line: rgb(247 243 234 / 0.08);
-  --c-line-strong: rgb(232 185 107 / 0.22);
+  --c-line: rgb(242 244 248 / 0.08);
+  --c-line-strong: rgb(107 140 255 / 0.22);
   --c-field-border: #5c667f;
-  --c-accent: #e8b96b;
-  --c-on-accent: #0b1020;
+  --c-accent: #6b8cff;
+  --c-on-accent: #07090f;
   --c-signal: #5eead4;
   --c-danger: #f59e8b;
 

@@ -39,11 +39,12 @@ test("keyboard navigation selects, opens, and closes zones", async ({ page }) =>
   await expect(page.getByRole("dialog")).toBeHidden();
 });
 
-test("intro can be skipped", async ({ page }) => {
+test("the world opens without an intro gate", async ({ page }) => {
   await page.goto("/world");
-  await expect(page.getByRole("button", { name: /Saltar|Skip/ })).toBeVisible();
-  await page.getByRole("button", { name: /Saltar|Skip/ }).click();
-  await expect(page.getByText("AG World")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Saltar|Skip|Enter AG World/ })).toHaveCount(0);
+  await expect(
+    page.getByRole("navigation", { name: /Career chapters|Capítulos profesionales/ }),
+  ).toBeVisible();
 });
 
 test("cta links point to the expected targets", async ({ page }) => {

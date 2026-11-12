@@ -58,13 +58,13 @@ function getOverviewCamera(
   userZoom: number,
 ) {
   const bounds = getWorldBounds();
-  const marginX = compactViewport ? 18 : 80;
-  const marginY = compactViewport ? 88 : 120;
+  const marginX = compactViewport ? 18 : 40;
+  const marginY = compactViewport ? 88 : 84;
   const scale =
     Math.min(
       (viewportW - marginX * 2) / bounds.width,
       (viewportH - marginY * 2) / bounds.height,
-      1,
+      1.6,
     ) * userZoom;
   const x = viewportW / 2 - (bounds.minX + bounds.width / 2) * scale;
   // Compact viewports shift the map down to clear the top bar and chapter strip.
@@ -314,16 +314,25 @@ export default function WorldStageCanvas() {
     const start = performance.now();
     const from = cameraRef.current;
     const to = targetCamera;
-    const duration = compactViewport ? 520 : 680;
+    // Room to room is a longer flight that pulls back mid-way; everything else is a short ease.
+    const travel = Math.hypot(to.x - from.x, to.y - from.y);
+    const flight = !compactViewport && activeZone !== null && from.scale > 1.2 && travel > 240;
+    const duration = compactViewport ? 520 : flight ? 980 : 720;
 
     const animate = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
       const eased = cubicBezierEase(progress);
+      const linear = lerp(from.scale, to.scale, eased);
+      const scale = linear * (flight ? 1 - 0.2 * Math.sin(Math.PI * eased) : 1);
+      // The pull-back scales around the viewport centre so the path stays a straight glide.
+      const cx = size.w / 2;
+      const cy = size.h / 2;
+      const k = scale / linear;
       const next = clampCamera(
         {
-          x: lerp(from.x, to.x, eased),
-          y: lerp(from.y, to.y, eased),
-          scale: lerp(from.scale, to.scale, eased),
+          x: cx + (lerp(from.x, to.x, eased) - cx) * k,
+          y: cy + (lerp(from.y, to.y, eased) - cy) * k,
+          scale,
         },
         size.w,
         size.h,
@@ -358,7 +367,7 @@ export default function WorldStageCanvas() {
         <Application
           width={size.w}
           height={size.h}
-          background="#070B14"
+          background="#07090F"
           preference="webgl"
           antialias
           resolution={window.devicePixelRatio || 1}
