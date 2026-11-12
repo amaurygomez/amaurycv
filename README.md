@@ -1,17 +1,34 @@
 # amaurycv
 
-Personal site of Amaury Gómez: an isometric portfolio world and a printable CV.
-Live at https://amaurygomez.dev
+[![CI](https://github.com/amaurygomez/amaurycv/actions/workflows/ci.yml/badge.svg)](https://github.com/amaurygomez/amaurycv/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+
+**Amaury Gómez · Senior Full Stack Engineer (.NET / React / SQL Server).** 11+ years building and
+modernizing production systems for telecommunications, government and banking.
+
+[![amaurygomez.dev](public/og.png)](https://amaurygomez.dev)
+
+| Start here                                            |                                                             |
+| ----------------------------------------------------- | ----------------------------------------------------------- |
+| [amaurygomez.dev](https://amaurygomez.dev)            | Services, featured projects, process and the contact form   |
+| [/cv](https://amaurygomez.dev/cv)                     | The CV in Spanish and English, web and PDF                  |
+| [/world](https://amaurygomez.dev/world)               | AG World: the career as an isometric, interactive city      |
+| [hello@amaurygomez.dev](mailto:hello@amaurygomez.dev) | Projects and senior remote roles; replies in 24 to 48 hours |
+
+This repository is the site itself, kept public as a working sample: typed end to end, tested
+in CI, with server routes behind bot protection and rate limits, and no secret in the tree.
 
 ## Stack
 
-Astro 7 (static, Vercel adapter) · React 19 islands · PixiJS 8 via `@pixi/react` · Tailwind CSS 4 ·
-TypeScript · Zod · Vitest · Playwright.
+Astro 7 (static, Vercel adapter) · React 19 islands · PixiJS 8 via `@pixi/react` · three.js ·
+Tailwind CSS 4 · TypeScript · Zod · Vitest · Playwright.
 
 ## Architecture
 
-- `/` renders `WorldApp`: above 1023px it lazy-loads `DesktopEntry` and then the Pixi canvas once
-  the world scrolls into view; below that, a scrollable story with no Pixi in the bundle.
+- `/` is the brand page: static HTML with a three.js hero, a bilingual copy switch, a FAQ with
+  structured data and a contact form. `/world` renders `WorldApp`: above 1023px it lazy-loads
+  `DesktopEntry` and then the Pixi canvas once the world scrolls into view; below that, a
+  scrollable story with no Pixi in the bundle.
 - Zone copy lives in `src/world/content/zones.ts` and drives the map, the panels and the mobile
   list; each zone has its own Pixi scene under `src/world/render/scenes/`.
 - `/cv` is the CV itself: static HTML, bilingual (`?lang=es|en`), with a print stylesheet.
@@ -55,6 +72,16 @@ scripts/         cv-pdf.mjs (print), cv-seal.ts (encrypt)
 sealed/          Encrypted full CV, useless without CV_FULL_KEY
 tests/           Vitest units and Playwright end-to-end specs
 ```
+
+## Quality and maintenance
+
+- CI runs typecheck, ESLint, unit tests, the production build, `npm audit` and the Playwright
+  end-to-end suite (with axe accessibility checks) on every pull request.
+- Dependabot opens one grouped pull request per month. Minor, patch and security updates merge
+  on their own once CI is green (`.github/workflows/dependabot-auto-merge.yml`); major upgrades
+  wait for a review.
+- `tests/unit/privacy.test.ts` fails the build if an employer name, a date or an age leaks into
+  the public tree.
 
 ## Privacy
 

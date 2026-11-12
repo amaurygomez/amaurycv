@@ -23,5 +23,7 @@ Resend); report those to their own programs.
   deployment; the ciphertext is inert without it.
 - API routes are protected by Cloudflare Turnstile and Upstash rate limits, and the keepalive
   cron requires a bearer secret.
-- Dependencies are updated by Dependabot and audited in CI; the `main` branch is protected and
+- Dependencies are updated monthly by Dependabot (grouped, with a 7-day release cooldown) and
+  audited in CI. Minor, patch and security updates merge on their own once CI is green; major
+  upgrades wait for a manual review. The `main` branch is protected and
   only changes through reviewed pull requests with green checks.
