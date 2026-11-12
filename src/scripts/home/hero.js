@@ -5,8 +5,10 @@
 // the avenues, rooftop links with flowing packets, holographic rings around the main tower and light beams on the
 // landmarks. Kept to the right of the headline.
 /* eslint-disable @typescript-eslint/no-unused-vars -- shared helper bag; each module uses a subset */
+import { THREE } from "./three.js";
+
 export function initHero(c) {
-  var THREE = c.THREE, gsap = c.gsap, $ = c.$, $$ = c.$$, clamp = c.clamp, lerp = c.lerp, mulberry32 = c.mulberry32, rgba = c.rgba, mixHex = c.mixHex,
+  var gsap = c.gsap, $ = c.$, $$ = c.$$, clamp = c.clamp, lerp = c.lerp, mulberry32 = c.mulberry32, rgba = c.rgba, mixHex = c.mixHex,
     tokens = c.tokens, onTheme = c.onTheme, t = c.t, langListeners = c.langListeners, REDUCED = c.REDUCED, hasGsap = c.hasGsap, hasST = c.hasST, hasIO = c.hasIO,
     Ticker = c.Ticker, isoCity = c.isoCity, onceInView = c.onceInView, hero = c.hero;
   /* ---------- hero: 3D city-network ---------- */
@@ -404,13 +406,13 @@ export function initHero(c) {
       var p = state.p;
       var away = 1 - settle;
       var theta = 0.74 + Math.sin(time * 0.05) * 0.09 + state.smx * 0.06 - away * 0.42;
-      var el = (narrow ? 0.66 : 0.50) + p * 0.45 + state.smy * 0.035 + away * 0.2;
-      var R = (narrow ? 168 : 132) + p * 40 + away * 52;
+      var el = (narrow ? 0.50 : 0.50) + p * 0.45 + state.smy * 0.035 + away * 0.2;
+      var R = (narrow ? 118 : 132) + p * 40 + away * 52;
       var shift = narrow ? 0 : 25;
       var rx = Math.cos(theta), rz = -Math.sin(theta);
       var tx = -rx * shift, tz = -rz * shift;
       camera.position.set(tx + R * Math.cos(el) * Math.sin(theta), R * Math.sin(el), tz + R * Math.cos(el) * Math.cos(theta));
-      camera.lookAt(tx, narrow ? 3 : 6.5, tz);
+      camera.lookAt(tx, narrow ? 8 : 6.5, tz);
       U.uFogNear.value = R * 0.95; U.uFogFar.value = R * 1.75;
     }
     function resize() {
@@ -852,7 +854,6 @@ export function initHero(c) {
         gsap.to(state, { scroll: 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.5 } });
         gsap.to(host, { opacity: 0, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: '90% top', scrub: 0.5 } });
         gsap.to('.hero-copy', { y: 70, opacity: 0.1, ease: 'none', scrollTrigger: { trigger: hero, start: '12% top', end: 'bottom top', scrub: 0.5 } });
-        gsap.to('.hero-console', { y: 40, opacity: 0, ease: 'none', scrollTrigger: { trigger: hero, start: '8% top', end: '70% top', scrub: 0.5 } });
       } else {
         window.addEventListener('scroll', function () {
           var p = clamp(window.scrollY / Math.max(1, hero.offsetHeight), 0, 1);

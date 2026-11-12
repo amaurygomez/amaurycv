@@ -14,6 +14,8 @@ interface Props {
   colorScheme?: string;
   themeColor?: string;
   siteName?: string;
+  /** Same page in each language, as site paths; rendered as hreflang alternates. */
+  alternates?: Partial<Record<"es" | "en", string>>;
 }
 
 const {
@@ -26,6 +28,7 @@ const {
   colorScheme = "dark",
   themeColor = "#070B14",
   siteName = "AG World",
+  alternates,
 } = Astro.props;
 
 // Vercel serves pages without a trailing slash, so the canonical URL drops it too.
@@ -44,6 +47,17 @@ const canonical = new URL(Astro.url.pathname.replace(/(.)\/$/, "$1"), Astro.site
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    {alternates &&
+      Object.entries(alternates).map(([code, path]) => (
+        <link rel="alternate" hreflang={code} href={new URL(path, Astro.site).toString()} />
+      ))}
+    {alternates?.es && (
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={new URL(alternates.es, Astro.site).toString()}
+      />
+    )}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <meta property="og:type" content="website" />

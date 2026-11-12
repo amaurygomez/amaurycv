@@ -11,7 +11,9 @@ const secret = (options = {}) =>
 export default defineConfig({
   site: "https://amaurygomez.dev",
   output: "static",
-  adapter: vercel(),
+  // Cookieless page analytics served from the same origin; it reports only once Web Analytics is
+  // enabled for the project on Vercel.
+  adapter: vercel({ webAnalytics: { enabled: true } }),
   integrations: [react(), sitemap()],
   env: {
     schema: {
