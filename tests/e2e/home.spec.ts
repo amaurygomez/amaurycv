@@ -17,6 +17,7 @@ test("home switches to English without a reload", async ({ page }) => {
     page.getByRole("heading", { level: 1, name: /Software engineering for operations/ }),
   ).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page).toHaveURL(/\/en$/);
 });
 
 test("home has no serious or critical accessibility violations", async ({ page }) => {
@@ -77,4 +78,17 @@ test("home contact form sends the message with the project type", async ({ page 
     website: "",
     turnstileToken: "test-token-123",
   });
+});
+
+test("/en is served in English, with hreflang alternates, and shares the language with /cv", async ({
+  page,
+}) => {
+  await page.goto("/en");
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Software engineering for operations/ }),
+  ).toBeVisible();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator('link[hreflang="es"]')).toHaveAttribute("href", /amaurygomez\.dev\/$/);
+  await expect(page.locator('link[hreflang="en"]')).toHaveAttribute("href", /\/en$/);
+  expect(await page.evaluate(() => localStorage.getItem("amaurycv-lang"))).toBe("en");
 });

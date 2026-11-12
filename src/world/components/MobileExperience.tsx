@@ -15,6 +15,13 @@ import { useCallback, useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { content, profile } from "@/i18n/content";
 import { ZONE_META } from "@/world/content/zones";
+
+// Stills of each room, rendered from the desktop map: phones get the world's look without Pixi.
+const ZONE_PREVIEWS = import.meta.glob<string>("/src/assets/world/*.webp", {
+  eager: true,
+  query: "?url",
+  import: "default",
+});
 import { useWorld } from "@/world/state/useWorld";
 import type { ZoneId } from "@/world/types";
 import { CapabilityGroupCard } from "./career/CapabilityGroupCard";
@@ -75,13 +82,13 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
       ? [
           { label: "Telecomunicaciones", accent: "#5EEAD4" },
           { label: "Sector Público", accent: "#34D399" },
-          { label: "Banca", accent: "#E8B96B" },
+          { label: "Banca", accent: "#6B8CFF" },
           { label: "Software / Ops", accent: "#A78BFA" },
         ]
       : [
           { label: "Telecommunications", accent: "#5EEAD4" },
           { label: "Public Sector", accent: "#34D399" },
-          { label: "Banking", accent: "#E8B96B" },
+          { label: "Banking", accent: "#6B8CFF" },
           { label: "Software / Ops", accent: "#A78BFA" },
         ];
 
@@ -94,7 +101,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
         className="pointer-events-none absolute inset-x-0 top-0 h-[520px]"
         style={{
           background:
-            "radial-gradient(110% 60% at 50% 0%, rgba(232,185,107,0.18) 0%, rgba(7,11,20,0) 70%), radial-gradient(80% 50% at 80% 8%, rgba(94,234,212,0.12) 0%, rgba(7,11,20,0) 65%)",
+            "radial-gradient(110% 60% at 50% 0%, rgba(107,140,255,0.18) 0%, rgba(7,9,15,0) 70%), radial-gradient(80% 50% at 80% 8%, rgba(94,234,212,0.12) 0%, rgba(7,9,15,0) 65%)",
         }}
       />
 
@@ -102,13 +109,13 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span
-              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-ag-gold/55 bg-ag-gold/15 text-[12px] font-bold tracking-[0.04em] text-ag-gold"
-              style={{ boxShadow: "0 0 22px -4px rgba(232,185,107,0.6)" }}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-ag-primary/55 bg-ag-primary/15 text-[12px] font-bold tracking-[0.04em] text-ag-primary"
+              style={{ boxShadow: "0 0 22px -4px rgba(107,140,255,0.6)" }}
             >
               AG
             </span>
             <div className="leading-tight">
-              <div className="text-[10px] tracking-[0.3em] text-ag-gold uppercase">AG World</div>
+              <div className="text-[10px] tracking-[0.3em] text-ag-primary uppercase">AG World</div>
               <div className="mt-0.5 text-[9.5px] tracking-[0.22em] text-ag-text-muted/70 uppercase">
                 amaurygomez.dev
               </div>
@@ -120,7 +127,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
         <h1 className="mt-7 font-display text-[28px] leading-tight">{profile.shortName}</h1>
         <p className="mt-1.5 text-[12.5px] text-ag-text-muted">{role}</p>
         <div className="mt-2.5 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-0.5 text-[10.5px] tracking-[0.16em] text-ag-text-muted uppercase">
-          <MapPin size={11} className="text-ag-gold" />
+          <MapPin size={11} className="text-ag-primary" />
           Santo Domingo, RD
         </div>
 
@@ -129,12 +136,12 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
         <div
           className="mt-5 flex gap-2.5 rounded-xl border p-3 text-[12.5px] leading-relaxed text-ag-text/86"
           style={{
-            borderColor: "rgba(232,185,107,0.32)",
+            borderColor: "rgba(107,140,255,0.32)",
             background:
-              "linear-gradient(135deg, rgba(232,185,107,0.12) 0%, rgba(232,185,107,0.02) 60%, transparent 100%)",
+              "linear-gradient(135deg, rgba(107,140,255,0.12) 0%, rgba(107,140,255,0.02) 60%, transparent 100%)",
           }}
         >
-          <Quote size={14} className="mt-0.5 shrink-0 text-ag-gold" />
+          <Quote size={14} className="mt-0.5 shrink-0 text-ag-primary" />
           <span>{positioning}</span>
         </div>
 
@@ -175,7 +182,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
           <button
             type="button"
             onClick={() => setContactOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full bg-ag-gold px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.16em] text-ag-panel uppercase transition hover:bg-[#f0c887]"
+            className="inline-flex items-center gap-2 rounded-full bg-ag-primary px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.16em] text-ag-panel uppercase transition hover:bg-[#8AA4FF]"
           >
             <Mail size={13} strokeWidth={2.6} />
             {lang === "es" ? "Contacto" : "Contact"}
@@ -192,14 +199,14 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
             href={profile.github}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-ag-gold/35 px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.16em] text-ag-text uppercase transition hover:border-ag-gold hover:text-ag-gold"
+            className="inline-flex items-center gap-2 rounded-full border border-ag-primary/35 px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.16em] text-ag-text uppercase transition hover:border-ag-primary hover:text-ag-primary"
           >
             <Code2 size={13} strokeWidth={2.6} />
             GitHub
           </a>
           <a
             href={`${profile.cvPath}?lang=${lang}`}
-            className="inline-flex items-center gap-2 rounded-full border border-ag-gold/35 px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.16em] text-ag-text uppercase transition hover:border-ag-gold hover:text-ag-gold"
+            className="inline-flex items-center gap-2 rounded-full border border-ag-primary/35 px-4 py-2.5 text-[11.5px] font-semibold tracking-[0.16em] text-ag-text uppercase transition hover:border-ag-primary hover:text-ag-primary"
           >
             <FileText size={13} strokeWidth={2.6} />
             CV
@@ -279,7 +286,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
                   }}
                   className="inline-flex shrink-0 flex-col items-center gap-0.5 rounded-full px-3 py-1.5 text-[9.5px] tracking-[0.14em] uppercase"
                   style={{
-                    color: active ? "#0B1020" : zone.accent,
+                    color: active ? "#0F131C" : zone.accent,
                     background: active ? zone.accent : `${zone.accent}10`,
                     border: `1px solid ${zone.accent}55`,
                     boxShadow: active ? `0 0 16px -4px ${zone.accent}` : undefined,
@@ -304,6 +311,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
             zone={ZONE_META[id]}
             year={year}
             lang={lang}
+            preview={ZONE_PREVIEWS[`/src/assets/world/${id}.${lang}.webp`]}
             expanded={expandedZone === id}
             onToggle={() => toggleZone(id)}
           />
@@ -356,7 +364,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
       </section>
 
       <section className="border-t border-white/5 px-5 py-10 text-center">
-        <div className="mb-3 text-[9.5px] tracking-[0.24em] text-ag-gold uppercase">
+        <div className="mb-3 text-[9.5px] tracking-[0.24em] text-ag-primary uppercase">
           {lang === "es" ? "Cierre" : "Close"}
         </div>
         <h2 className="font-display text-[24px] leading-tight">
@@ -372,7 +380,7 @@ export function MobileExperience({ onEnterWorld }: { onEnterWorld: () => void })
         <button
           type="button"
           onClick={() => setContactOpen(true)}
-          className="mt-6 inline-flex items-center gap-2 rounded-full bg-ag-gold px-7 py-3.5 text-[12px] font-semibold tracking-[0.18em] text-ag-panel uppercase shadow-[0_18px_50px_-20px_rgba(232,185,107,0.6)] transition hover:bg-[#f0c887]"
+          className="mt-6 inline-flex items-center gap-2 rounded-full bg-ag-primary px-7 py-3.5 text-[12px] font-semibold tracking-[0.18em] text-ag-panel uppercase shadow-[0_18px_50px_-20px_rgba(107,140,255,0.6)] transition hover:bg-[#8AA4FF]"
         >
           <Mail size={14} strokeWidth={2.6} />
           {lang === "es" ? "Escribirme" : "Reach out"}
@@ -396,7 +404,7 @@ function LanguageToggle({
     <div
       role="group"
       aria-label="Language"
-      className="inline-flex items-center gap-0.5 rounded-full border border-ag-gold/25 bg-ag-bg/70 p-0.5"
+      className="inline-flex items-center gap-0.5 rounded-full border border-ag-primary/25 bg-ag-bg/70 p-0.5"
     >
       {(["es", "en"] as const).map((code) => {
         const active = lang === code;
@@ -410,7 +418,7 @@ function LanguageToggle({
             aria-label={label}
             className={`rounded-full px-2.5 py-0.5 text-[10px] tracking-[0.22em] uppercase transition ${
               active
-                ? "bg-ag-gold font-semibold text-ag-panel"
+                ? "bg-ag-primary font-semibold text-ag-panel"
                 : "text-ag-text-muted hover:text-ag-text"
             }`}
           >

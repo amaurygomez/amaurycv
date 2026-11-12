@@ -70,11 +70,12 @@ export function ZonePill() {
       {zone && (
         <motion.div
           key={zone.id}
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 12 }}
+          exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-          className="pointer-events-none absolute bottom-6 left-1/2 z-40 max-w-[min(94vw,640px)] -translate-x-1/2 rounded-2xl border bg-ag-panel/92 px-4 py-3 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.7)] backdrop-blur-md"
+          // Under the chapter bar, clear of the dock and the journey card at the bottom.
+          className="pointer-events-none absolute top-[5.25rem] left-1/2 z-40 max-w-[min(94vw,640px)] -translate-x-1/2 rounded-2xl border bg-ag-panel/92 px-4 py-3 shadow-[0_18px_40px_-20px_rgba(0,0,0,0.7)] backdrop-blur-md"
           style={{
             borderColor: `${zone.accent}40`,
             boxShadow: `0 18px 40px -20px ${zone.accent}80`,

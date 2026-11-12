@@ -1,0 +1,74 @@
+---
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import "@/styles/home.css";
+---
+
+<BaseLayout
+  title="Página no encontrada · Amaury Gómez"
+  description="La página que busca no existe o cambió de dirección."
+  lockScroll={false}
+  bodyClass="home"
+  colorScheme="light dark"
+  themeColor="#FAFAF9"
+  siteName="Amaury Gómez"
+>
+  <Fragment slot="head">
+    <meta name="robots" content="noindex" />
+    <script is:inline>
+      try {
+        if (localStorage.getItem("ag-theme") === "dark")
+          document.documentElement.dataset.theme = "dark";
+      } catch {
+        // Storage is unavailable in private mode; the light default stands.
+      }
+    </script>
+  </Fragment>
+  <main class="nf">
+    <div class="wrap">
+      <p class="label">Error 404</p>
+      <h1>Esta página no existe.</h1>
+      <p class="nf-sub">
+        Puede que la dirección haya cambiado.{" "}
+        <span lang="en">This page does not exist or has moved.</span>
+      </p>
+      <div class="nf-actions">
+        <a class="btn btn-primary" href="/">
+          Ir al inicio
+        </a>
+        <a class="btn btn-secondary" href="/en" lang="en">
+          English home
+        </a>
+        <a class="btn btn-secondary" href="/cv">
+          Ver el CV
+        </a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .nf {
+    min-height: 100vh;
+    display: grid;
+    align-items: center;
+    padding: 96px 0;
+  }
+  .nf h1 {
+    font-size: clamp(36px, 6vw, 72px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 18px 0;
+  }
+  .nf-sub {
+    color: var(--ink-2);
+    max-width: 52ch;
+  }
+  .nf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+  }
+</style>

@@ -11,6 +11,8 @@ type CareerChapterCardProps = {
   expanded: boolean;
   onToggle: () => void;
   id?: string;
+  /** The room as it looks in the interactive map. */
+  preview?: string;
 };
 
 export function CareerChapterCard({
@@ -20,6 +22,7 @@ export function CareerChapterCard({
   expanded,
   onToggle,
   id,
+  preview,
 }: CareerChapterCardProps) {
   const accent = zone.accent;
   const sector = lang === "es" ? zone.sectorEs : zone.sectorEn;
@@ -40,6 +43,18 @@ export function CareerChapterCard({
         boxShadow: `0 22px 60px -38px ${accent}`,
       }}
     >
+      {preview && (
+        <img
+          src={preview}
+          alt=""
+          width={720}
+          height={450}
+          loading="lazy"
+          decoding="async"
+          className="block aspect-[16/9] w-full object-cover"
+          style={{ maskImage: "linear-gradient(180deg, #000 62%, transparent 100%)" }}
+        />
+      )}
       <button
         type="button"
         onClick={onToggle}

@@ -41,7 +41,7 @@ export default function MobileWorld({ onExit }: { onExit: () => void }) {
           <button
             type="button"
             onClick={startTour}
-            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-ag-gold/40 bg-ag-panel/85 px-3 py-2 text-[10px] font-semibold tracking-[0.18em] text-ag-gold uppercase backdrop-blur-md"
+            className="pointer-events-auto inline-flex items-center gap-1.5 rounded-full border border-ag-primary/40 bg-ag-panel/85 px-3 py-2 text-[10px] font-semibold tracking-[0.18em] text-ag-primary uppercase backdrop-blur-md"
           >
             <Compass size={13} strokeWidth={2.4} />
             {lang === "es" ? "Recorrido" : "Tour"}
@@ -81,7 +81,7 @@ function MobileWorldFallback() {
       >
         <span
           aria-hidden="true"
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-gold"
+          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-primary"
         />
         Cargando AG World
       </div>

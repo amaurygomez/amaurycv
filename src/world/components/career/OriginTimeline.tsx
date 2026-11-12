@@ -22,7 +22,7 @@ export function OriginTimeline({ nodes, lang, accent }: OriginTimelineProps) {
             className="absolute top-1.5 -left-[27px] inline-flex h-3.5 w-3.5 items-center justify-center rounded-full border-2"
             style={{
               borderColor: accent,
-              background: "#0B1020",
+              background: "#0F131C",
               boxShadow: `0 0 12px ${accent}`,
             }}
             aria-hidden="true"

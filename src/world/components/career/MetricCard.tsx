@@ -8,7 +8,7 @@ type MetricCardProps = {
   index?: number;
 };
 
-const DEFAULT_ACCENT = "#E8B96B";
+const DEFAULT_ACCENT = "#6B8CFF";
 
 export function MetricCard({
   value,

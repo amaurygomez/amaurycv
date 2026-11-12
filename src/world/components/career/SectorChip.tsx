@@ -24,7 +24,7 @@ export function SectorChip({
         className={`inline-flex items-center rounded-md font-semibold uppercase ${sizeClass}`}
         style={{
           background: accent,
-          color: "#0B1020",
+          color: "#0F131C",
           boxShadow: `0 0 14px -3px ${accent}`,
         }}
       >

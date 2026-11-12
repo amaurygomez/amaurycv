@@ -268,8 +268,10 @@ h3{font-weight:600;letter-spacing:-.015em;line-height:1.2}
 .ag-body h3{font-size:clamp(24px,2.6vw,34px);margin-bottom:14px;text-wrap:balance}
 .ag-body p{color:var(--ink-2);max-width:48ch}
 .ag-links{display:flex;flex-wrap:wrap;gap:12px 28px;margin-top:28px;align-items:center}
-.ag-fig{position:relative;background:var(--sunken);border-left:1px solid var(--line);min-height:320px}
-.ag-fig canvas{position:absolute;inset:0;width:100%;height:100%}
+.ag-fig{position:relative;display:block;background:#07090F;border-left:1px solid var(--line);min-height:320px;overflow:hidden}
+.ag-fig img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease-out)}
+.ag:hover .ag-fig img{transform:scale(1.04)}
+html[lang="en"] [data-lang-img="es"],html:not([lang="en"]) [data-lang-img="en"]{display:none}
 @media (max-width:900px){
   .ag{grid-template-columns:1fr}
   .ag-fig{border-left:0;border-top:1px solid var(--line);min-height:280px;aspect-ratio:16/10}

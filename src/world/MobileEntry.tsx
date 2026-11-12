@@ -1,36 +1,15 @@
 import { lazy, Suspense, useCallback, useState } from "react";
 import { ContactPanel } from "./components/ContactPanel";
-import { IntroSequence } from "./components/IntroSequence";
 import { MobileExperience } from "./components/MobileExperience";
 import { StackPanel } from "./components/StackPanel";
 
 const MobileWorld = lazy(() => import("./MobileWorld"));
 
-const INTRO_STORAGE_KEY = "introSeen";
-
 export function MobileEntry() {
-  const [introDone, setIntroDone] = useState(
-    typeof window !== "undefined" && window.localStorage.getItem(INTRO_STORAGE_KEY) === "1",
-  );
   const [worldOpen, setWorldOpen] = useState(false);
-
-  const completeIntro = useCallback(() => {
-    window.localStorage.setItem(INTRO_STORAGE_KEY, "1");
-    setIntroDone(true);
-  }, []);
 
   const enterWorld = useCallback(() => setWorldOpen(true), []);
   const exitWorld = useCallback(() => setWorldOpen(false), []);
-
-  // The intro needs a fixed viewport shell; after it, the story is a normal
-  // document so native scroll and pull-to-refresh keep working.
-  if (!introDone) {
-    return (
-      <div className="fixed inset-0 overflow-hidden bg-ag-bg text-ag-text">
-        <IntroSequence onComplete={completeIntro} mobile />
-      </div>
-    );
-  }
 
   if (worldOpen) {
     return (
@@ -59,7 +38,7 @@ function WorldBootFallback() {
       >
         <span
           aria-hidden="true"
-          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-gold"
+          className="inline-block h-2 w-2 animate-pulse rounded-full bg-ag-primary"
         />
         Cargando AG World
       </div>

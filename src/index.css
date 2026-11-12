@@ -12,16 +12,17 @@
   }
 }
 
+/* AG World shares the home's dark palette: same background, surface, text and cobalt primary. */
 :root {
-  --ag-bg: #070b14;
-  --ag-panel: #0b1020;
+  --ag-bg: #07090f;
+  --ag-panel: #0f131c;
   --ag-floor: #101827;
   --ag-floor-alt: #152033;
-  --ag-gold: #e8b96b;
+  --ag-primary: #6b8cff;
   --ag-teal: #5eead4;
-  --ag-text: #f7f3ea;
-  --ag-text-muted: #a8b0c2;
-  --ag-line: rgba(232, 185, 107, 0.16);
+  --ag-text: #f2f4f8;
+  --ag-text-muted: #b6bcc8;
+  --ag-line: rgba(107, 140, 255, 0.16);
 }
 
 @theme inline {
@@ -29,12 +30,13 @@
   --color-ag-panel: var(--ag-panel);
   --color-ag-floor: var(--ag-floor);
   --color-ag-floor-alt: var(--ag-floor-alt);
-  --color-ag-gold: var(--ag-gold);
+  --color-ag-primary: var(--ag-primary);
   --color-ag-teal: var(--ag-teal);
   --color-ag-text: var(--ag-text);
   --color-ag-text-muted: var(--ag-text-muted);
-  --font-display: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  /* AG World loads Geist, the home typeface; /cv does not, so it keeps Inter. */
+  --font-display: "Geist Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 }
 
 /* /cv tokens: values live in src/styles/cv.css so the paper surface can swap them. */
@@ -92,7 +94,7 @@ html {
   scroll-behavior: smooth;
   background: var(--ag-bg);
   color: var(--ag-text);
-  font-family: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Geist Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "cv11", "ss01", "ss03";
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -104,7 +106,7 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--ag-gold);
+  outline: 2px solid var(--ag-primary);
   outline-offset: 2px;
   border-radius: 0.5rem;
 }

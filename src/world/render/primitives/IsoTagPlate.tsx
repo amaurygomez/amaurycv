@@ -1,7 +1,8 @@
-import { useCallback } from "react";
+import { useCallback, useContext } from "react";
 import type { Graphics } from "pixi.js";
 import { iso } from "@/world/lib/iso";
 import { hex } from "@/world/render/utils";
+import { TagVisibility } from "./tagVisibility";
 
 // Text is rasterized at 3x and scaled back down so labels stay sharp at the
 // camera's max zoom, without switching to BitmapText.
@@ -36,7 +37,9 @@ export function IsoTagPlate({
     [x, y, z, halfWidth, accent],
   );
 
+  const visible = useContext(TagVisibility);
   const p = iso(x, y, z);
+  if (!visible) return null;
   return (
     <pixiContainer>
       <pixiGraphics draw={drawPlate} />

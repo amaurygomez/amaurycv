@@ -60,7 +60,7 @@ const COPY = {
   },
 } as const;
 
-const ACCENT = "#E8B96B";
+const ACCENT = "#6B8CFF";
 
 export function ContactPanel() {
   const { contactOpen, setContactOpen } = useWorld();
@@ -204,7 +204,7 @@ export function ContactPanel() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] cursor-default bg-[#070B14]/65 backdrop-blur-sm"
+            className="fixed inset-0 z-[80] cursor-default bg-[#07090F]/65 backdrop-blur-sm"
           />
           <motion.aside
             initial={{ opacity: 0, y: 28, scale: 0.98 }}
@@ -214,14 +214,14 @@ export function ContactPanel() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="contact-title"
-            className="fixed inset-x-2 bottom-2 z-[81] max-h-[92vh] overflow-y-auto rounded-2xl border bg-[#0B1020]/96 backdrop-blur-xl sm:inset-x-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-h-[88vh] sm:w-[460px] sm:-translate-x-1/2 sm:-translate-y-1/2 md:w-[520px]"
+            className="fixed inset-x-2 bottom-2 z-[81] max-h-[92vh] overflow-y-auto rounded-2xl border bg-[#0F131C]/96 backdrop-blur-xl sm:inset-x-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:max-h-[88vh] sm:w-[460px] sm:-translate-x-1/2 sm:-translate-y-1/2 md:w-[520px]"
             style={{
               borderColor: `${ACCENT}33`,
               boxShadow: `0 28px 90px -42px ${ACCENT}`,
             }}
           >
             <header
-              className="sticky top-0 z-10 border-b bg-[#0B1020]/95 px-6 pt-6 pb-5 backdrop-blur-xl md:px-7"
+              className="sticky top-0 z-10 border-b bg-[#0F131C]/95 px-6 pt-6 pb-5 backdrop-blur-xl md:px-7"
               style={{
                 borderColor: `${ACCENT}24`,
                 backgroundImage: `linear-gradient(180deg, ${ACCENT}12 0%, transparent 100%)`,
@@ -317,7 +317,7 @@ export function ContactPanel() {
                       maxLength={2000}
                       rows={5}
                       aria-describedby="contact-message-hint"
-                      className="w-full resize-y rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[14px] text-[#F7F3EA] transition outline-none focus:border-[#E8B96B]/55 focus:bg-white/[0.06]"
+                      className="w-full resize-y rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[14px] text-[#F7F3EA] transition outline-none focus:border-[#6B8CFF]/55 focus:bg-white/[0.06]"
                     />
                     <div
                       id="contact-message-hint"
@@ -327,7 +327,7 @@ export function ContactPanel() {
                       <span
                         className={
                           messageRemaining > 0
-                            ? "text-[#E8B96B]/80"
+                            ? "text-[#6B8CFF]/80"
                             : messageCount > 2000
                               ? "text-red-300"
                               : "text-[#A8B0C2]/60"
@@ -362,7 +362,7 @@ export function ContactPanel() {
                   <button
                     type="submit"
                     disabled={!canSubmit}
-                    className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#E8B96B] px-5 py-3 text-[12px] font-semibold tracking-[0.16em] text-[#0B1020] uppercase transition hover:bg-[#f0c887] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#6B8CFF] px-5 py-3 text-[12px] font-semibold tracking-[0.16em] text-[#0F131C] uppercase transition hover:bg-[#8AA4FF] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {status === "submitting" ? (
                       <>
@@ -429,7 +429,7 @@ function Field({
         minLength={minLength}
         maxLength={maxLength}
         autoComplete={autoComplete}
-        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-[#F7F3EA] transition outline-none focus:border-[#E8B96B]/55 focus:bg-white/[0.06]"
+        className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-[14px] text-[#F7F3EA] transition outline-none focus:border-[#6B8CFF]/55 focus:bg-white/[0.06]"
       />
     </div>
   );
@@ -446,12 +446,12 @@ function SuccessState({
 }) {
   return (
     <div className="flex flex-col items-center gap-4 py-6 text-center">
-      <CheckCircle2 size={48} className="text-[#E8B96B]" />
+      <CheckCircle2 size={48} className="text-[#6B8CFF]" />
       <p className="text-[15px] text-[#F7F3EA]">{message}</p>
       <button
         type="button"
         onClick={onClose}
-        className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#E8B96B]/40 px-5 py-2 text-[11px] font-semibold tracking-[0.16em] text-[#F7F3EA] uppercase transition hover:border-[#E8B96B] hover:text-[#E8B96B]"
+        className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#6B8CFF]/40 px-5 py-2 text-[11px] font-semibold tracking-[0.16em] text-[#F7F3EA] uppercase transition hover:border-[#6B8CFF] hover:text-[#6B8CFF]"
       >
         {closeLabel}
       </button>

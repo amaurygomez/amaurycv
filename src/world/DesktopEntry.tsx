@@ -1,9 +1,8 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ContactPanel } from "./components/ContactPanel";
 import { FloatingJourneyCta } from "./components/FloatingJourneyCta";
 import { HeroPanel } from "./components/HeroPanel";
-import { IntroSequence } from "./components/IntroSequence";
 import { StackPanel } from "./components/StackPanel";
 import { TourControls } from "./components/TourControls";
 import { ZoneNavigator } from "./components/ZoneNavigator";
@@ -14,14 +13,10 @@ import { ZONE_ORDER } from "./content/zones";
 import { useWorld } from "./state/useWorld";
 
 const WorldStageCanvas = lazy(() => import("./components/WorldStageCanvas"));
-const INTRO_STORAGE_KEY = "introSeen";
 
 export function DesktopEntry() {
   const reducedMotion = useReducedMotion();
   const worldRef = useRef<HTMLDivElement>(null);
-  const [introDone, setIntroDone] = useState(
-    typeof window !== "undefined" && window.localStorage.getItem(INTRO_STORAGE_KEY) === "1",
-  );
   const [shouldLoadCanvas, setShouldLoadCanvas] = useState(false);
   const { activeZone } = useWorld();
 
@@ -41,24 +36,15 @@ export function DesktopEntry() {
     return () => observer.disconnect();
   }, [activeZone]);
 
-  const completeIntro = useCallback(() => {
-    window.localStorage.setItem(INTRO_STORAGE_KEY, "1");
-    setIntroDone(true);
-  }, []);
-
   return (
     <div ref={worldRef} className="fixed inset-0 overflow-hidden bg-ag-bg text-ag-text">
-      <WorldIdleOverlay dimmed={!introDone} reducedMotion={reducedMotion} />
+      <WorldIdleOverlay reducedMotion={reducedMotion} />
 
       <div
-        className="absolute inset-0 transition-[opacity,transform,filter] duration-500 ease-out"
-        style={{
-          // An open zone only dims the stage slightly: WorldMap already fades the
-          // other rooms, and a global blur would also blur the selected one.
-          opacity: !introDone ? 0.24 : activeZone ? 0.92 : 1,
-          transform: !introDone ? "scale(0.96)" : "scale(1)",
-          filter: !introDone ? "blur(3px)" : "none",
-        }}
+        className="absolute inset-0 transition-opacity duration-500 ease-out"
+        // An open zone only dims the stage slightly: WorldMap already fades the
+        // other rooms, and a global blur would also blur the selected one.
+        style={{ opacity: activeZone ? 0.92 : 1 }}
       >
         {shouldLoadCanvas ? (
           <Suspense fallback={<WorldStageFallback />}>
@@ -69,22 +55,16 @@ export function DesktopEntry() {
         )}
       </div>
 
-      {introDone && (
-        <>
-          <KeyboardNavigation />
-          <HeroPanel />
-          <ZoneNavigator />
-          <ZonePill />
-          <ZonePanel />
-          <TourControls />
-          <ZoomControls />
-          <FloatingJourneyCta />
-          <ContactPanel />
-          <StackPanel />
-        </>
-      )}
-
-      {!introDone && <IntroSequence onComplete={completeIntro} mobile={false} />}
+      <KeyboardNavigation />
+      <HeroPanel />
+      <ZoneNavigator />
+      <ZonePill />
+      <ZonePanel />
+      <TourControls />
+      <ZoomControls />
+      <FloatingJourneyCta />
+      <ContactPanel />
+      <StackPanel />
     </div>
   );
 }
@@ -144,23 +124,13 @@ function KeyboardNavigation() {
   return null;
 }
 
-function WorldIdleOverlay({
-  dimmed,
-  reducedMotion,
-}: {
-  dimmed: boolean;
-  reducedMotion: boolean | null;
-}) {
+function WorldIdleOverlay({ reducedMotion }: { reducedMotion: boolean | null }) {
   return (
     <>
       <motion.div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-10"
-        animate={
-          reducedMotion
-            ? { opacity: dimmed ? 0.88 : 0.74 }
-            : { opacity: dimmed ? [0.84, 0.9, 0.84] : [0.68, 0.74, 0.68] }
-        }
+        animate={reducedMotion ? { opacity: 0.74 } : { opacity: [0.68, 0.74, 0.68] }}
         transition={{
           duration: reducedMotion ? 0 : 4,
           repeat: reducedMotion ? 0 : Number.POSITIVE_INFINITY,
@@ -168,7 +138,7 @@ function WorldIdleOverlay({
         }}
         style={{
           background:
-            "radial-gradient(120% 80% at 50% 50%, transparent 54%, rgba(7,11,20,0.88) 100%)",
+            "radial-gradient(120% 80% at 50% 50%, transparent 54%, rgba(7,9,15,0.88) 100%)",
         }}
       />
       <motion.div
@@ -196,7 +166,7 @@ function WorldIdleOverlay({
 
 function WorldStageFallback() {
   return (
-    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(94,234,212,0.08),transparent_30%),linear-gradient(180deg,#070B14_0%,#0B1020_100%)]">
+    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(94,234,212,0.08),transparent_30%),linear-gradient(180deg,#07090F_0%,#0F131C_100%)]">
       <div className="absolute inset-0 [background-image:linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:100%_18px,18px_100%] opacity-[0.018]" />
     </div>
   );

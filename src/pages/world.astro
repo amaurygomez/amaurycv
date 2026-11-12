@@ -1,4 +1,5 @@
 ---
+import "@fontsource-variable/geist";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import SeoCv from "@/components/astro/SeoCv.astro";
 import PersonSchema from "@/components/astro/PersonSchema.astro";
@@ -10,7 +11,13 @@ const description =
   "Ingeniero de software senior desde Santo Domingo, RD, con más de 11 años construyendo y manteniendo plataformas empresariales en telecomunicaciones, banca, sector público y software transaccional. .NET, React, Java, Oracle, SQL Server, mapas, APIs y modernización de sistemas legados. AG World: portafolio interactivo.";
 ---
 
-<BaseLayout title={title} description={description} lang="es">
+<BaseLayout
+  title={title}
+  description={description}
+  lang="es"
+  themeColor="#07090F"
+  bodyClass="bg-ag-bg text-ag-text [font-feature-settings:normal]"
+>
   <PersonSchema slot="head" />
   <SeoCv />
   <WorldApp client:only="react" />

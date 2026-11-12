@@ -7,6 +7,12 @@ type Turnstile = {
   remove(widgetId: string): void;
 };
 type Lang = "es" | "en";
+declare global {
+  interface Window {
+    va?: (event: string, payload: { name: string; data?: Record<string, string> }) => void;
+  }
+}
+
 type ErrorBody = { error?: string; field?: string | null; code?: string | null };
 
 const SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
@@ -192,6 +198,7 @@ function init(card: HTMLElement, form: HTMLFormElement, siteKey: string) {
       if (response.ok) {
         form.hidden = true;
         ok.hidden = false;
+        window.va?.("event", { name: "contact_sent", data: { type: select.value } });
         ok.focus();
         return;
       }
