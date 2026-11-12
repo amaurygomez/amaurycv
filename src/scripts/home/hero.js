@@ -1,8 +1,9 @@
 // Home hero: 3D city-network (three.js). Receives shared helpers from main.js.
-// Look: a white architectural maquette by day (soft hemisphere + key light, contact shadows, thin edge lines)
-// and a graphite night model with lit windows after dark. On both, a cobalt data network travels the streets
-// of the dense core: street pulses, rooftop links with flowing packets, light beams on the landmarks,
-// a radar sweep on the ground and a drifting particle field. Kept to the right of the headline.
+// Look: a glass-and-white architectural model by day and a lit night skyline after dark. The city builds itself
+// on load (towers rise in a wave from the core while the camera settles), then runs as a live system: curtain-wall
+// facades with lit floors, a scan that sweeps the streets and climbs the towers, street pulses, air traffic above
+// the avenues, rooftop links with flowing packets, holographic rings around the main tower and light beams on the
+// landmarks. Kept to the right of the headline.
 /* eslint-disable @typescript-eslint/no-unused-vars -- shared helper bag; each module uses a subset */
 export function initHero(c) {
   var THREE = c.THREE, gsap = c.gsap, $ = c.$, $$ = c.$$, clamp = c.clamp, lerp = c.lerp, mulberry32 = c.mulberry32, rgba = c.rgba, mixHex = c.mixHex,
@@ -25,13 +26,14 @@ export function initHero(c) {
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
       if (!renderer.getContext()) throw new Error('no context');
+      renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     } catch { renderer = null; }
     if (!renderer) { fallback(); return; }
 
     var DPR = Math.min(window.devicePixelRatio || 1, narrow ? 1.5 : 2);
     renderer.setPixelRatio(DPR);
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(30, 1, 1, 600);
+    var camera = new THREE.PerspectiveCamera(32, 1, 1, 600);
 
     var CELL = 6, SW = 1.6, N = 16, half = N * CELL / 2;
     var rnd = mulberry32(7919);
@@ -43,9 +45,17 @@ export function initHero(c) {
       uAccent: { value: new THREE.Color('#6A3BD6') }, uInk: { value: new THREE.Color('#0B0F19') },
       uShadow: { value: new THREE.Color('#9AA1AE') }, uShadowA: { value: 0.42 }, uEdge: { value: new THREE.Color('#C9CDD6') }, uEdgeA: { value: 0.55 },
       uTime: { value: 0 }, uFogNear: { value: 40 }, uFogFar: { value: 90 }, uCell: { value: CELL }, uHalf: { value: half }, uSW: { value: SW },
-      uPx: { value: DPR }, uLight: { value: 1 }, uSun: { value: new THREE.Vector3(0.85, 0.5, 0.12).normalize() }
+      uPx: { value: DPR }, uLight: { value: 1 }, uIntro: { value: 1 }, uFx: { value: 1 }, uSun: { value: new THREE.Vector3(0.85, 0.5, 0.12).normalize() }
     };
     var FOG = 'float fogF(vec3 w){ return smoothstep(uFogNear, uFogFar, distance(w, cameraPosition)); }';
+    /* build-in: 0..1 height factor for a footprint centred at c; the core rises first, with a small overshoot */
+    var GROW = [
+      'uniform float uIntro;',
+      'float growF(vec2 c){',
+      '  float t = clamp(uIntro * 1.9 - length(c) / (uHalf * 1.42) * 0.9, 0.0, 1.0) - 1.0;',
+      '  return t * t * (2.4 * t + 1.4) + 1.0;',
+      '}'
+    ].join('\n');
 
     /* ground: off-white plates, streets barely indicated; a radar sweep and a soft core glow travel the grid */
     var groundMat = new THREE.ShaderMaterial({
@@ -55,7 +65,7 @@ export function initHero(c) {
         'void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
       ].join('\n'),
       fragmentShader: [
-        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uPrimary,uAccent; uniform float uCell,uHalf,uSW,uFogNear,uFogFar,uLight,uTime;',
+        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uPrimary,uAccent; uniform float uCell,uHalf,uSW,uFogNear,uFogFar,uLight,uTime,uFx;',
         'varying vec3 vW;', FOG,
         'void main(){',
         '  vec2 g = mod(vW.xz + uHalf, uCell); vec2 de = min(g, uCell - g); float ds = min(de.x, de.y);',
@@ -67,19 +77,37 @@ export function initHero(c) {
         '  col = mix(col, uLine, curb * mix(0.35, 0.5, uLight));',
         '  float rr = length(vW.xz);',
         '  float inCity = 1.0 - smoothstep(uHalf - 2.0, uHalf + 8.0, max(abs(vW.x), abs(vW.z)));',
-        /* night: streets carry a faint cobalt light and the core glows from below */
         '  float night = 1.0 - uLight;',
+        /* lane markings: dashed centre line on every street, cut at the intersections */
+        '  float along = de.x < de.y ? vW.z : vW.x;',
+        '  float cross = step(max(de.x, de.y), uSW * 0.5);',
+        '  float lane = (1.0 - smoothstep(0.03, 0.08, ds)) * step(0.5, fract(along / 1.3)) * (1.0 - cross);',
+        '  col = mix(col, mix(uLineStrong, uSurface, night * 0.2), lane * mix(0.25, 0.6, uLight));',
+        /* night: streets carry a faint cobalt light and the core glows from below */
         '  col += uPrimary * street * 0.10 * night;',
-        '  col += uPrimary * (1.0 - smoothstep(0.0, uHalf * 0.95, rr)) * 0.09 * night;',
-        /* radar sweep: a ring expanding from the core every few seconds */
+        '  col += uPrimary * (1.0 - smoothstep(0.0, uHalf * 0.95, rr)) * 0.10 * night;',
+        /* scan: a ring expanding from the core every few seconds (the facades pick it up as it passes) */
         '  float ringR = mod(uTime * 13.0, 120.0);',
         '  float ring = exp(-pow((rr - ringR) * 0.38, 2.0)) * (1.0 - smoothstep(50.0, 115.0, ringR));',
-        '  col = mix(col, uPrimary, ring * mix(0.14, 0.5, night));',
-        /* holographic grid: street centre lines glow at night */
+        '  col = mix(col, uPrimary, ring * mix(0.16, 0.5, night));',
+        /* holographic rings drawn on the ground around the core, their dashes turning in opposite directions */
+        '  float ang = atan(vW.z, vW.x) / 6.28318;',
+        '  float h1 = (1.0 - smoothstep(0.0, 0.16, abs(rr - uHalf * 0.34))) * mix(0.35, 1.0, step(0.5, fract(ang * 48.0 + uTime * 0.05)));',
+        '  float h2 = (1.0 - smoothstep(0.0, 0.14, abs(rr - uHalf * 0.72))) * mix(0.25, 1.0, step(0.6, fract(ang * 96.0 - uTime * 0.03)));',
+        '  col = mix(col, uPrimary, (h1 + h2 * 0.7) * mix(0.30, 0.65, night) * uFx);',
+        /* street centre lines glow at night */
         '  float centre = 1.0 - smoothstep(0.0, 0.14, ds);',
-        '  col += uPrimary * centre * 0.35 * night * (0.6 + 0.4 * sin(uTime * 0.8 + rr * 0.12));',
-        '  col = mix(uBg, col, inCity);',
+        '  col += uPrimary * centre * 0.32 * night * (0.6 + 0.4 * sin(uTime * 0.8 + rr * 0.12));',
+        /* beyond the last block the plan continues as a survey grid of points */
+        '  vec2 gd = (fract(vW.xz / uCell + 0.5) - 0.5) * uCell;',
+        '  float survey = (1.0 - smoothstep(0.10, 0.22, length(gd))) * (1.0 - inCity);',
+        '  vec3 outside = mix(uBg, mix(uLineStrong, uPrimary, night), survey * mix(0.55, 0.75, uLight));',
+        '  col = mix(outside, col, inCity);',
         '  col = mix(col, uBg, fogF(vW));',
+        /* skyline glow: cobalt-to-violet light pooled behind the core, reaching past the last block */
+        '  vec2 hp = vW.xz - vec2(-22.0, -24.0);',
+        '  float haze = pow(clamp(1.0 - length(hp) / (uHalf * 1.7), 0.0, 1.0), 2.0);',
+        '  col = mix(col, mix(uPrimary, uAccent, clamp(0.5 + hp.x * 0.012, 0.0, 1.0)), haze * mix(0.26, 0.13, uLight));',
         '  gl_FragColor = vec4(col, 1.0);',
         '}'
       ].join('\n')
@@ -89,24 +117,36 @@ export function initHero(c) {
     ground.renderOrder = 0;
     scene.add(ground);
 
-    /* city layout: dense tall core at the origin, low periphery, a few slender landmarks */
+    /* city layout: dense tall core at the origin, low periphery. Towers are stacks of concentric tiers
+       (podium, shaft, setbacks), so every lot keeps its box primitive. kind: 0 building, 1 landmark, 2 mast.
+       roof marks the top tier of a stack: links, crown lights and beams anchor there. */
     var lots = [];
     var inner = CELL - SW, lotSz = inner / 2, gap = 0.34;
-    function addLot(x, z, w, d, h, seed) { lots.push({ x: x, z: z, w: w, d: d, h: h, seed: seed }); }
+    function addLot(x, z, w, d, h, seed, kind, roof) { var l = { x: x, z: z, w: w, d: d, h: h, seed: seed, kind: kind || 0, roof: roof !== false }; lots.push(l); return l; }
+    /* a tower of 1 to 4 tiers; returns its top tier */
+    function addTower(x, z, w, d, h, kind) {
+      var seed = rnd(), tiers = h > 16 ? 4 : h > 10 ? 3 : h > 6.5 ? 2 : 1, topLot = null;
+      if (h > 6.5 && rnd() < 0.7) addLot(x, z, Math.min(w * 1.22, inner - gap), Math.min(d * 1.22, inner - gap), 0.9 + rnd() * 0.9, seed, 0, false); /* podium */
+      for (var ti = 0; ti < tiers; ti++) {
+        var f = ti / Math.max(1, tiers - 1), shrink = 1 - ti * (0.16 + rnd() * 0.05);
+        var th = tiers === 1 ? h : h * (0.58 + 0.42 * f);
+        topLot = addLot(x, z, w * shrink, d * shrink, th, seed, kind, ti === tiers - 1);
+      }
+      if (h > 13 || kind === 1) addLot(x, z, 0.16, 0.16, h * (1.12 + rnd() * 0.14), seed, 2, false); /* mast */
+      return topLot;
+    }
     for (var bi = 0; bi < N; bi++) for (var bj = 0; bj < N; bj++) {
       var bx = -half + bi * CELL + CELL / 2, bz = -half + bj * CELL + CELL / 2;
       var dist = Math.hypot(bx, bz) / (half * 0.98);
       var fall = Math.pow(Math.max(0, 1 - dist), 1.7);
       if (dist > 0.62 && rnd() < 0.42) continue; /* open lots on the periphery */
       var r = rnd();
-      if (r < 0.22 + fall * 0.3) {
+      if (r < 0.24 + fall * 0.34) {
         /* one tower per block */
         var ms = inner - gap * 2;
-        var th = 2.5 + Math.pow(rnd(), 1.35) * (3 + 15 * fall);
-        var tw = ms * (0.72 + rnd() * 0.24), td = ms * (0.72 + rnd() * 0.24);
-        addLot(bx, bz, tw, td, th, rnd());
-        if (th > 9 && rnd() < 0.5) addLot(bx, bz, tw * 0.62, td * 0.62, th * (1.14 + rnd() * 0.12), rnd()); /* setback crown */
-      } else if (r < 0.42 + fall * 0.2) {
+        var th = 2.5 + Math.pow(rnd(), 1.3) * (3 + 17 * fall);
+        addTower(bx, bz, ms * (0.66 + rnd() * 0.22), ms * (0.66 + rnd() * 0.22), th, 0);
+      } else if (r < 0.44 + fall * 0.2) {
         /* two slabs */
         var vert = rnd() < 0.5;
         for (var si = 0; si < 2; si++) {
@@ -127,76 +167,111 @@ export function initHero(c) {
         }
       }
     }
-    /* landmarks: three slender towers close to the core */
+    /* landmarks: the main tower at the core and three slender ones around it */
     var landmarks = [];
-    [[1, 0], [-1, 1], [0, -2]].forEach(function (o, k) {
-      var cx = o[0] * CELL, cz = o[1] * CELL, ms2 = inner - gap * 2;
+    [[0, 0, 31], [2, -1, 24], [-2, 1, 21.5], [1, 2, 19]].forEach(function (o) {
+      var cx = o[0] * CELL + CELL / 2, cz = o[1] * CELL + CELL / 2, ms2 = inner - gap * 2;
       for (var q = lots.length - 1; q >= 0; q--) if (Math.abs(lots[q].x - cx) < CELL / 2 && Math.abs(lots[q].z - cz) < CELL / 2) lots.splice(q, 1);
-      var lh = 21 - k * 2.5, lw = ms2 * 0.58, ld = ms2 * 0.66;
-      addLot(cx, cz, lw, ld, lh, rnd());
-      addLot(cx, cz, lw * 0.7, ld * 0.7, lh * 1.12, rnd());
-      landmarks.push({ x: cx, z: cz, h: lh * 1.12 });
+      var topLot = addTower(cx, cz, ms2 * 0.74, ms2 * 0.8, o[2], 1);
+      landmarks.push({ x: cx, z: cz, h: topLot.h, w: topLot.w });
     });
+    var mainTower = landmarks[0];
 
     var boxGeo = new THREE.BoxGeometry(1, 1, 1);
     boxGeo.translate(0, 0.5, 0);
-    var seeds = new Float32Array(lots.length), hts = new Float32Array(lots.length);
-    lots.forEach(function (l, i) { seeds[i] = l.seed; hts[i] = l.h; });
+    var seeds = new Float32Array(lots.length), hts = new Float32Array(lots.length), kinds = new Float32Array(lots.length);
+    lots.forEach(function (l, i) { seeds[i] = l.seed; hts[i] = l.h; kinds[i] = l.kind; });
     boxGeo.setAttribute('aSeed', new THREE.InstancedBufferAttribute(seeds, 1));
     boxGeo.setAttribute('aH', new THREE.InstancedBufferAttribute(hts, 1));
+    boxGeo.setAttribute('aKind', new THREE.InstancedBufferAttribute(kinds, 1));
     var bMat = new THREE.ShaderMaterial({
       uniforms: U,
       polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 2,
       vertexShader: [
-        'attribute float aSeed; attribute float aH;',
-        'varying vec3 vW; varying vec3 vN; varying float vTop; varying float vSeed; varying float vH;',
+        'attribute float aSeed; attribute float aH; attribute float aKind; uniform float uHalf;', GROW,
+        'varying vec3 vW; varying vec3 vN; varying vec3 vL; varying vec3 vS; varying float vSeed; varying float vH; varying float vKind;',
         'void main(){',
-        '  vec4 lp = instanceMatrix * vec4(position, 1.0);',
-        '  vec4 wp = modelMatrix * lp; vW = wp.xyz;',
+        '  vS = vec3(length(instanceMatrix[0].xyz), length(instanceMatrix[1].xyz), length(instanceMatrix[2].xyz));',
+        '  float g = growF(instanceMatrix[3].xz);',
+        '  vec3 p = position; p.y *= g;',
+        '  vec4 wp = modelMatrix * instanceMatrix * vec4(p, 1.0); vW = wp.xyz;',
         '  vN = normalize(mat3(modelMatrix) * mat3(instanceMatrix) * normal);',
-        '  vTop = position.y; vSeed = aSeed; vH = aH;',
+        '  vL = position * vS; vSeed = aSeed; vH = aH * g; vKind = aKind;',
         '  gl_Position = projectionMatrix * viewMatrix * wp;',
         '}'
       ].join('\n'),
       fragmentShader: [
-        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uInk,uSun,uPrimary,uAccent; uniform float uFogNear,uFogFar,uLight,uTime;',
-        'varying vec3 vW; varying vec3 vN; varying float vTop; varying float vSeed; varying float vH;', FOG,
+        'uniform vec3 uBg,uSurface,uSunken,uLine,uLineStrong,uInk,uSun,uPrimary,uAccent; uniform float uFogNear,uFogFar,uLight,uTime,uFx;',
+        'varying vec3 vW; varying vec3 vN; varying vec3 vL; varying vec3 vS; varying float vSeed; varying float vH; varying float vKind;', FOG,
+        'float hash(vec2 p){ return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }',
         'void main(){',
         '  vec3 n = normalize(vN);',
+        '  float top = step(0.5, n.y), wall = 1.0 - top, night = 1.0 - uLight;',
         '  float ndl = max(dot(n, uSun), 0.0);',
-        '  float wall = 1.0 - step(0.5, n.y);',
-        /* procedural windows on every wall: a grid of panes, each one lit or dark by a stable hash */
+        '  float mast = step(1.5, vKind), landmark = step(0.5, vKind) * (1.0 - mast);',
         '  float sideX = step(0.5, abs(n.x));',
-        '  float hc = mix(vW.x, vW.z, sideX);',
-        '  vec2 cell = vec2(hc / 0.78, vW.y / 0.92);',
-        '  vec2 cf = fract(cell); vec2 ci = floor(cell);',
-        '  float wx = step(0.24, cf.x) - step(0.76, cf.x);',
-        '  float wy = step(0.30, cf.y) - step(0.72, cf.y);',
-        '  float band = step(0.5, vW.y) * (1.0 - step(vH - 0.45, vW.y));',
-        '  float win = wx * wy * wall * band;',
-        '  float hsh = fract(sin(dot(ci + vec2(vSeed * 91.7, n.x * 3.1 + n.z * 7.3), vec2(12.9898, 78.233))) * 43758.5453);',
-        '  float lit = smoothstep(0.52, 0.60, hsh + 0.05 * sin(uTime * 0.6 + hsh * 60.0));',
-        /* light: white foam-board maquette. tops white, sun-facing walls warm-white, shade walls cool gray */
-        '  float lighting = mix(0.30 + 0.5 * ndl, 0.97, step(0.5, n.y));',
-        '  lighting += (vSeed - 0.5) * 0.04;',
-        '  vec3 albedoL = uSurface;',
-        '  vec3 shadeL = mix(uLineStrong, uLine, 0.2);',
-        '  vec3 colL = mix(shadeL, albedoL, clamp(lighting, 0.0, 1.0));',
-        '  float aoL = (1.0 - smoothstep(0.0, 2.6, vW.y)) * (1.0 - step(0.5, n.y));',
-        '  colL = mix(colL, mix(uLineStrong, uInk, 0.08), aoL * 0.28);',
-        '  colL = mix(colL, mix(colL, uLineStrong, 0.55), win * 0.55);',
-        '  colL = mix(colL, mix(colL, uPrimary, 0.22), win * lit * 0.5);',
-        /* dark: graphite model, tops catch a faint sky, windows glow cobalt-white */
-        '  vec3 litD = mix(uSurface, uLineStrong, 0.8);',
-        '  vec3 shadeD = mix(uSunken, uSurface, 0.35);',
-        '  vec3 colD = mix(shadeD, litD, clamp(lighting, 0.0, 1.0));',
-        '  float aoD = (1.0 - smoothstep(0.0, 3.0, vW.y)) * (1.0 - step(0.5, n.y));',
-        '  colD = mix(colD, uBg, aoD * 0.5);',
-        '  colD = mix(colD, uBg, win * (1.0 - lit) * 0.6);',
-        '  vec3 glow = mix(uPrimary, vec3(1.0), 0.45 + 0.25 * hsh);',
-        '  colD += glow * win * lit * (0.75 + 0.25 * sin(uTime * 1.3 + hsh * 20.0));',
-        '  colD += uPrimary * step(0.5, n.y) * 0.06;',
+        '  float u = mix(vL.x, vL.z, sideX), width = mix(vS.x, vS.z, sideX);',
+        /* curtain wall: bays and floors. Each building picks vertical fins, horizontal ribbons or a full grid. */
+        '  float bayW = mix(0.44, 0.62, fract(vSeed * 7.3));',
+        '  vec2 cell = vec2(u / bayW + 0.5 * step(0.5, fract(vSeed * 3.1)), vW.y / 0.6);',
+        '  vec2 cf = fract(cell), ci = floor(cell);',
+        '  float mull = smoothstep(0.0, 0.12, cf.x) * (1.0 - smoothstep(0.88, 1.0, cf.x));',
+        '  float span = smoothstep(0.0, 0.18, cf.y) * (1.0 - smoothstep(0.78, 0.96, cf.y));',
+        '  float style = fract(vSeed * 13.7);',
+        '  float pane = style < 0.34 ? mull * mix(1.0, span, 0.3) : (style < 0.67 ? span * mix(1.0, mull, 0.2) : mull * span);',
+        '  float pier = smoothstep(0.02, 0.14, 0.5 * width - abs(u));',
+        '  float band = smoothstep(0.3, 0.55, vW.y) * (1.0 - smoothstep(vH - 0.5, vH - 0.3, vW.y));',
+        '  float glassArea = wall * band * pier * (1.0 - mast);',
+        /* far towers resolve to an even glass tone instead of shimmering */
+        '  float detail = 1.0 - smoothstep(0.35, 0.95, max(fwidth(cell.x), fwidth(cell.y)));',
+        '  pane = mix(0.62, pane, detail) * glassArea;',
+        '  float hgt = clamp(vW.y / 26.0, 0.0, 1.0);',
+        '  float lighting = mix(0.22 + 0.70 * ndl, 1.0, top) + (vSeed - 0.5) * 0.04;',
+        '  float floorLit = step(0.74, hash(vec2(ci.y, floor(vSeed * 57.0))));',
+        '  float h1 = hash(ci + vec2(floor(vSeed * 91.0), n.x * 3.0 + n.z * 7.0));',
+        '  float cellLit = smoothstep(0.70, 0.78, h1 + 0.05 * sin(uTime * 0.6 + h1 * 60.0)) * detail;',
+        '  float ao = (1.0 - smoothstep(0.0, 2.8, vW.y)) * wall;',
+        '  vec2 re = vec2(0.5 * vS.x - abs(vL.x), 0.5 * vS.z - abs(vL.z));',
+        '  float rim = (1.0 - smoothstep(0.09, 0.15, min(re.x, re.y))) * top * (1.0 - mast);',
+        '  float crown = wall * smoothstep(vH - 0.36, vH - 0.30, vW.y) * step(7.0, vH) * (1.0 - mast);',
+        '  vec3 trim = mix(uPrimary, uAccent, landmark);',
+        /* landmarks: lit corner strips with a light running up them */
+        '  float strip = landmark * wall * (1.0 - smoothstep(0.05, 0.12, 0.5 * width - abs(u))) * band;',
+        '  float lift = exp(-pow(fract(vW.y / 30.0 - uTime * 0.16 - vSeed) * 7.0, 2.0));',
+        /* day: white structure, pale blue glass that brightens towards the sky, a few floors tinted */
+        '  vec3 structL = mix(mix(uLineStrong, uLine, 0.25), uSurface, clamp(lighting, 0.0, 1.0));',
+        '  vec3 glassL = mix(mix(uSurface, uPrimary, 0.42), mix(uSurface, uPrimary, 0.17), hgt) * (0.80 + 0.20 * clamp(lighting, 0.0, 1.0));',
+        '  glassL = mix(glassL, mix(uSurface, uPrimary, 0.62), floorLit * 0.45);',
+        '  vec3 colL = mix(structL, glassL, pane);',
+        '  colL = mix(colL, mix(uLineStrong, uInk, 0.10), ao * 0.30);',
+        '  colL = mix(colL, mix(uSurface, uSunken, 0.6), top * 0.55);',
+        '  colL = mix(colL, uSurface, rim);',
+        '  colL = mix(colL, trim, crown * 0.45 * step(10.0, vH));',
+        '  colL = mix(colL, uAccent, strip * (0.30 + 0.55 * lift));',
+        '  colL = mix(colL, mix(uLineStrong, uInk, 0.25), mast);',
+        /* night: dark glass, lit panes and whole lit floors, neon crown and a wash of street light at the base */
+        '  vec3 structD = mix(mix(uSunken, uSurface, 0.4), mix(uSurface, uLineStrong, 0.7), clamp(lighting, 0.0, 1.0));',
+        '  vec3 glassD = mix(uBg, uPrimary, 0.07 + 0.13 * hgt) * (0.8 + 0.5 * ndl);',
+        '  vec3 colD = mix(structD, glassD, pane);',
+        '  vec3 glow = mix(uPrimary, vec3(1.0), 0.12 + 0.42 * hash(ci.yx + floor(vSeed * 31.0)));',
+        '  glow = mix(glow, uAccent, 0.7 * step(0.88, hash(vec2(ci.y * 1.7, floor(vSeed * 11.0)))));',
+        '  float litAmt = max(cellLit * (0.55 + 0.45 * h1), floorLit * 0.62) * (0.8 + 0.2 * sin(uTime * 1.3 + h1 * 20.0));',
+        '  colD += glow * pane * mix(0.16, litAmt, detail) * 0.95;',
+        '  colD = mix(colD, uBg, ao * 0.4);',
+        '  colD += uPrimary * (1.0 - smoothstep(0.0, 1.8, vW.y)) * wall * 0.22;',
+        '  colD = mix(colD, mix(uSunken, uPrimary, 0.10), top * 0.7);',
+        '  colD += trim * (rim * 0.35 * step(7.0, vH) + crown * 0.95);',
+        '  colD += uAccent * strip * (0.45 + 1.3 * lift);',
+        '  colD = mix(colD, mix(uLineStrong, uPrimary, 0.4), mast);',
+        /* the ground scan climbs every facade it reaches */
+        '  float rr = length(vW.xz), ringR = mod(uTime * 13.0, 120.0);',
+        '  float sweep = exp(-pow((rr - ringR) * 0.45, 2.0)) * (1.0 - smoothstep(50.0, 115.0, ringR)) * wall;',
+        '  colL = mix(colL, uPrimary, sweep * 0.20);',
+        '  colD += uPrimary * sweep * 0.6;',
         '  vec3 col = mix(colD, colL, uLight);',
+        /* aerial perspective, then the page background */
+        '  float far = smoothstep(uFogNear * 0.72, uFogFar, distance(vW, cameraPosition));',
+        '  col = mix(col, mix(uBg, uPrimary, 0.10), far * 0.5);',
         '  col = mix(col, uBg, fogF(vW));',
         '  gl_FragColor = vec4(col, 1.0);',
         '}'
@@ -220,9 +295,9 @@ export function initHero(c) {
     var shadows = new THREE.InstancedMesh(shGeo, new THREE.ShaderMaterial({
       uniforms: U, transparent: true, depthWrite: false,
       vertexShader: [
-        'attribute vec2 aPad; attribute float aStr;',
+        'attribute vec2 aPad; attribute float aStr; uniform float uHalf;', GROW,
         'varying vec2 vUv; varying vec2 vPad; varying float vStr; varying vec3 vW;',
-        'void main(){ vUv = uv; vPad = aPad; vStr = aStr; vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
+        'void main(){ vUv = uv; vPad = aPad; vStr = aStr * clamp(growF(instanceMatrix[3].xz), 0.0, 1.0); vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
       ].join('\n'),
       fragmentShader: [
         'uniform vec3 uShadow; uniform float uShadowA,uFogNear,uFogFar;',
@@ -246,7 +321,7 @@ export function initHero(c) {
       m4.compose(v3, q0, s3);
       shadows.setMatrixAt(i, m4);
       shPad[i * 2] = pad / w; shPad[i * 2 + 1] = pad / d;
-      shStr[i] = 0.55 + 0.45 * k;
+      shStr[i] = l.kind === 2 ? 0 : 0.55 + 0.45 * k;
     });
     shGeo.setAttribute('aPad', new THREE.InstancedBufferAttribute(shPad, 2));
     shGeo.setAttribute('aStr', new THREE.InstancedBufferAttribute(shStr, 1));
@@ -259,19 +334,22 @@ export function initHero(c) {
       [[-0.5, 0, -0.5], [-0.5, 1, -0.5]], [[0.5, 0, -0.5], [0.5, 1, -0.5]], [[0.5, 0, 0.5], [0.5, 1, 0.5]], [[-0.5, 0, 0.5], [-0.5, 1, 0.5]],
       [[-0.5, 1, -0.5], [0.5, 1, -0.5]], [[0.5, 1, -0.5], [0.5, 1, 0.5]], [[0.5, 1, 0.5], [-0.5, 1, 0.5]], [[-0.5, 1, 0.5], [-0.5, 1, -0.5]]
     ];
-    var edgePos = new Float32Array(lots.length * EDGES.length * 6);
-    lots.forEach(function (l, i) {
+    var edged = lots.filter(function (l) { return l.kind !== 2; });
+    var edgePos = new Float32Array(edged.length * EDGES.length * 6), edgeC = new Float32Array(edged.length * EDGES.length * 4);
+    edged.forEach(function (l, i) {
       EDGES.forEach(function (e, k) {
-        var o = (i * EDGES.length + k) * 6;
+        var o = (i * EDGES.length + k) * 6, oc = (i * EDGES.length + k) * 4;
         edgePos[o] = l.x + e[0][0] * l.w; edgePos[o + 1] = e[0][1] * l.h; edgePos[o + 2] = l.z + e[0][2] * l.d;
         edgePos[o + 3] = l.x + e[1][0] * l.w; edgePos[o + 4] = e[1][1] * l.h; edgePos[o + 5] = l.z + e[1][2] * l.d;
+        edgeC[oc] = l.x; edgeC[oc + 1] = l.z; edgeC[oc + 2] = l.x; edgeC[oc + 3] = l.z;
       });
     });
     var edgeGeo = new THREE.BufferGeometry();
     edgeGeo.setAttribute('position', new THREE.BufferAttribute(edgePos, 3));
+    edgeGeo.setAttribute('aC', new THREE.BufferAttribute(edgeC, 2));
     var edgeMat = new THREE.ShaderMaterial({
       uniforms: U, transparent: true, depthWrite: false,
-      vertexShader: 'varying vec3 vW; void main(){ vec4 wp = modelMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }',
+      vertexShader: ['attribute vec2 aC; uniform float uHalf;', GROW, 'varying vec3 vW; void main(){ vec3 p = position; p.y *= growF(aC); vec4 wp = modelMatrix * vec4(p, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'].join('\n'),
       fragmentShader: [
         'uniform vec3 uEdge; uniform float uEdgeA,uFogNear,uFogFar; varying vec3 vW;', FOG,
         'void main(){ float a = uEdgeA * (1.0 - smoothstep(uFogNear * 0.8, uFogFar * 0.8, distance(vW, cameraPosition))); if (a < 0.01) discard; gl_FragColor = vec4(uEdge, a); }'
@@ -284,12 +362,12 @@ export function initHero(c) {
     /* points shader (pulses, nodes, arc dots, particles): solid core + soft halo */
     var ptsVert = [
       'attribute float aAlpha; attribute float aSize;',
-      'uniform float uPx, uFogNear, uFogFar;',
+      'uniform float uPx, uFogNear, uFogFar, uFx;',
       'varying float vA;',
       'void main(){',
       '  vec4 wp = modelMatrix * vec4(position, 1.0);',
       '  float d = distance(wp.xyz, cameraPosition);',
-      '  vA = aAlpha * (1.0 - smoothstep(uFogNear, uFogFar, d));',
+      '  vA = aAlpha * uFx * (1.0 - smoothstep(uFogNear, uFogFar, d));',
       '  vec4 mv = viewMatrix * wp;',
       '  gl_PointSize = aSize * uPx * (140.0 / -mv.z);',
       '  gl_Position = projectionMatrix * mv;',
@@ -307,7 +385,7 @@ export function initHero(c) {
       '}'
     ].join('\n');
     function ptsMat(color) {
-      var u = { uPx: U.uPx, uFogNear: U.uFogNear, uFogFar: U.uFogFar, uLight: U.uLight, uColor: { value: color } };
+      var u = { uPx: U.uPx, uFogNear: U.uFogNear, uFogFar: U.uFogFar, uLight: U.uLight, uFx: U.uFx, uColor: { value: color } };
       return new THREE.ShaderMaterial({ uniforms: u, vertexShader: ptsVert, fragmentShader: ptsFrag, transparent: true, depthWrite: false, depthTest: true, blending: THREE.NormalBlending });
     }
     function ptsGeo(count, sizeFn) {
@@ -321,17 +399,18 @@ export function initHero(c) {
     }
 
     /* camera */
-    var time = 0;
+    var time = 0, settle = 1; /* settle: 0 at the start of the build-in, 1 once the camera has arrived */
     function updateCamera() {
       var p = state.p;
-      var theta = 0.74 + Math.sin(time * 0.04) * 0.07 + state.smx * 0.05;
-      var el = (narrow ? 0.68 : 0.58) + p * 0.45 + state.smy * 0.03;
-      var R = (narrow ? 170 : 150) + p * 40;
-      var shift = narrow ? 0 : 27;
+      var away = 1 - settle;
+      var theta = 0.74 + Math.sin(time * 0.05) * 0.09 + state.smx * 0.06 - away * 0.42;
+      var el = (narrow ? 0.66 : 0.50) + p * 0.45 + state.smy * 0.035 + away * 0.2;
+      var R = (narrow ? 168 : 132) + p * 40 + away * 52;
+      var shift = narrow ? 0 : 25;
       var rx = Math.cos(theta), rz = -Math.sin(theta);
       var tx = -rx * shift, tz = -rz * shift;
       camera.position.set(tx + R * Math.cos(el) * Math.sin(theta), R * Math.sin(el), tz + R * Math.cos(el) * Math.cos(theta));
-      camera.lookAt(tx, narrow ? 2 : 4, tz);
+      camera.lookAt(tx, narrow ? 3 : 6.5, tz);
       U.uFogNear.value = R * 0.95; U.uFogFar.value = R * 1.75;
     }
     function resize() {
@@ -399,9 +478,9 @@ export function initHero(c) {
     scene.add(nodePts);
 
     /* rooftop links: glowing tubes between tall towers of the core, each carrying a flowing packet */
-    var tall = lots.filter(function (l) { return l.h > 8 && Math.hypot(l.x, l.z) < half * 0.6 && ndcX(l.x, l.h, l.z) > minX + 0.08; });
+    var tall = lots.filter(function (l) { return l.roof && l.h > 8 && Math.hypot(l.x, l.z) < half * 0.6 && ndcX(l.x, l.h, l.z) > minX + 0.08; });
     tall.sort(function (a, b) { return b.h - a.h; });
-    var arcs = [], tries = 0, ARCS = narrow ? 5 : 10;
+    var arcs = [], tries = 0, ARCS = narrow ? 5 : 11;
     while (arcs.length < ARCS && tries < 600 && tall.length > 3) {
       tries++;
       var a = tall[Math.floor(rnd() * Math.min(tall.length, 14))], b = tall[Math.floor(rnd() * tall.length)];
@@ -421,14 +500,14 @@ export function initHero(c) {
       'void main(){ vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
     ].join('\n');
     var arcFrag = [
-      'uniform vec3 uColor, uBg; uniform float uHead, uLight, uFogNear, uFogFar;',
+      'uniform vec3 uColor, uBg; uniform float uHead, uLight, uFogNear, uFogFar, uFx;',
       'varying vec2 vUv; varying vec3 vW;', FOG,
       'void main(){',
       '  float u = vUv.x;',
       '  float d = fract(uHead - u);',               /* distance behind the packet head along the link */
       '  float tail = exp(-d * 7.0);',
       '  float base = mix(0.16, 0.30, 1.0 - uLight) * (0.35 + 0.65 * sin(u * 3.14159));',
-      '  float a = (base + tail * 0.9) * (1.0 - fogF(vW));',
+      '  float a = (base + tail * 0.9) * uFx * (1.0 - fogF(vW));',
       '  vec3 col = mix(uColor, vec3(1.0), tail * mix(0.25, 0.55, 1.0 - uLight));',
       '  gl_FragColor = vec4(col, a);',
       '}'
@@ -437,7 +516,7 @@ export function initHero(c) {
     arcs.forEach(function (c) {
       var geo = new THREE.TubeGeometry(c.curve, 40, narrow ? 0.16 : 0.13, 6, false);
       var mat = new THREE.ShaderMaterial({
-        uniforms: { uColor: { value: (c.accent ? U.uAccent : U.uPrimary).value }, uBg: U.uBg, uHead: { value: c.t }, uLight: U.uLight, uFogNear: U.uFogNear, uFogFar: U.uFogFar },
+        uniforms: { uColor: { value: (c.accent ? U.uAccent : U.uPrimary).value }, uBg: U.uBg, uHead: { value: c.t }, uLight: U.uLight, uFx: U.uFx, uFogNear: U.uFogNear, uFogFar: U.uFogFar },
         vertexShader: arcVert, fragmentShader: arcFrag, transparent: true, depthWrite: false
       });
       c.mat = mat;
@@ -488,14 +567,14 @@ export function initHero(c) {
         'void main(){ vUv = uv; vPhase = aPhase; vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
       ].join('\n'),
       fragmentShader: [
-        'uniform vec3 uPrimary, uAccent; uniform float uTime, uLight, uFogNear, uFogFar;',
+        'uniform vec3 uPrimary, uAccent; uniform float uTime, uLight, uFogNear, uFogFar, uFx;',
         'varying vec2 vUv; varying float vPhase; varying vec3 vW;', FOG,
         'void main(){',
         '  float x = abs(vUv.x - 0.5) * 2.0;',
         '  float horiz = pow(1.0 - x, 2.4);',
         '  float vert = pow(1.0 - vUv.y, 1.7) * smoothstep(0.0, 0.05, vUv.y);',
         '  float flow = 0.55 + 0.45 * sin(vUv.y * 22.0 - uTime * 2.6 + vPhase * 6.0);',
-        '  float a = horiz * vert * flow * mix(0.16, 0.6, 1.0 - uLight) * (1.0 - fogF(vW));',
+        '  float a = horiz * vert * flow * mix(0.20, 0.6, 1.0 - uLight) * uFx * (1.0 - fogF(vW));',
         '  if (a < 0.004) discard;',
         '  vec3 col = mix(uPrimary, uAccent, step(0.5, fract(vPhase * 0.37)));',
         '  gl_FragColor = vec4(mix(col, vec3(1.0), 0.15 * (1.0 - uLight)), a);',
@@ -518,7 +597,7 @@ export function initHero(c) {
     scene.add(beams);
 
     /* crown lights: slow blink on the tallest roofs */
-    var crowns = lots.filter(function (l) { return l.h > 11.5; });
+    var crowns = lots.filter(function (l) { return l.roof && l.h > 11.5; });
     var crownGeo = ptsGeo(crowns.length, function () { return 3.4; });
     var crownPos = crownGeo.getAttribute('position').array, crownAl = crownGeo.getAttribute('aAlpha').array;
     var crownPhase = new Float32Array(crowns.length);
@@ -549,6 +628,63 @@ export function initHero(c) {
     particles.renderOrder = 7;
     scene.add(particles);
 
+    /* air traffic: drones cruising above the avenues of the core, each with a short trail */
+    var DN = narrow ? 7 : 16, DT = 9, drones = [];
+    for (var di2 = 0; di2 < DN; di2++) {
+      var lane = (Math.floor(rnd() * 9) - 4) * CELL;
+      drones.push({ alongX: di2 % 2 === 0, lane: lane, y: 5.5 + rnd() * 12, dir: rnd() < 0.5 ? 1 : -1, s: rnd(), speed: 0.028 + rnd() * 0.03, accent: di2 % 4 === 3 });
+    }
+    var droneSize = function (i) { var k = i % DT; return k === 0 ? 4.6 : 3.0 * (1 - k / DT) + 0.9; };
+    var droneGeo = ptsGeo(DN * DT, droneSize), droneAccGeo = ptsGeo(DN * DT, droneSize);
+    var droneMat = ptsMat(U.uPrimary.value), droneAccMat = ptsMat(U.uAccent.value);
+    [[droneGeo, droneMat], [droneAccGeo, droneAccMat]].forEach(function (pair) {
+      var pts = new THREE.Points(pair[0], pair[1]);
+      pts.frustumCulled = false; pts.renderOrder = 7;
+      scene.add(pts);
+    });
+    var SPAN = half * 0.74;
+
+    /* holographic rings: dashed rings turning around the main tower, plus a halo above its roof */
+    var ringGeo = new THREE.PlaneGeometry(1, 1);
+    ringGeo.rotateX(-Math.PI / 2);
+    var RINGS = [[0.34, 11.5, 0.22, 40], [0.58, 9.5, -0.3, 32], [0.82, 7.5, 0.4, 24], [1.06, 5, -0.6, 14]];
+    var ringData = new Float32Array(RINGS.length * 2);
+    RINGS.forEach(function (r, i) { ringData[i * 2] = r[2]; ringData[i * 2 + 1] = r[3]; });
+    ringGeo.setAttribute('aRing', new THREE.InstancedBufferAttribute(ringData, 2));
+    var ringMat = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+      vertexShader: [
+        'attribute vec2 aRing; varying vec2 vUv; varying vec2 vRing; varying vec3 vW;',
+        'void main(){ vUv = uv; vRing = aRing; vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0); vW = wp.xyz; gl_Position = projectionMatrix * viewMatrix * wp; }'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform vec3 uPrimary, uAccent; uniform float uTime, uLight, uFx, uFogNear, uFogFar;',
+        'varying vec2 vUv; varying vec2 vRing; varying vec3 vW;', FOG,
+        'void main(){',
+        '  vec2 p = vUv - 0.5; float r = length(p) * 2.0; float ang = atan(p.y, p.x) / 6.28318;',
+        '  float w = fwidth(r) * 1.5;',
+        '  float outer = 1.0 - smoothstep(0.035, 0.035 + w, abs(r - 0.90));',
+        '  float inner = 1.0 - smoothstep(0.012, 0.012 + w, abs(r - 0.74));',
+        '  float dash = step(0.42, fract(ang * vRing.y + uTime * vRing.x));',
+        '  float tick = step(0.86, fract(ang * vRing.y * 3.0 - uTime * vRing.x * 0.5));',
+        '  float a = (outer * mix(0.25, 1.0, dash) + inner * tick * 0.8) * mix(0.55, 0.95, 1.0 - uLight) * uFx * (1.0 - fogF(vW));',
+        '  if (a < 0.01) discard;',
+        '  gl_FragColor = vec4(mix(uPrimary, uAccent, inner * tick), a);',
+        '}'
+      ].join('\n')
+    });
+    var rings = new THREE.InstancedMesh(ringGeo, ringMat, RINGS.length);
+    RINGS.forEach(function (r, i) {
+      var size = r[1];
+      v3.set(mainTower.x, mainTower.h * r[0], mainTower.z); s3.set(size, 1, size);
+      m4.compose(v3, q0, s3);
+      rings.setMatrixAt(i, m4);
+    });
+    rings.instanceMatrix.needsUpdate = true;
+    rings.frustumCulled = false;
+    rings.renderOrder = 8;
+    scene.add(rings);
+
     /* theme */
     function applyTheme() {
       var T = tokens();
@@ -564,7 +700,7 @@ export function initHero(c) {
         U.uEdge.value.set(T.lineStrong); U.uEdgeA.value = 0.7;
       }
       var blend = T.isLight ? THREE.NormalBlending : THREE.AdditiveBlending;
-      [pulseMat, pulseAccMat, nodeMat, arcDotMat, arcAccDots.material, anchorMat, crownMat, partMat, beamMat].concat(arcMats).forEach(function (m) { m.blending = blend; m.needsUpdate = true; });
+      [pulseMat, pulseAccMat, nodeMat, arcDotMat, arcAccDots.material, anchorMat, crownMat, partMat, beamMat, droneMat, droneAccMat, ringMat].concat(arcMats).forEach(function (m) { m.blending = blend; m.needsUpdate = true; });
       renderer.setClearColor(new THREE.Color(T.bg), 1);
       if (REDUCED) render();
     }
@@ -635,6 +771,25 @@ export function initHero(c) {
       });
       arcDotGeo.getAttribute('position').needsUpdate = true; arcDotGeo.getAttribute('aAlpha').needsUpdate = true;
       arcAccGeo.getAttribute('position').needsUpdate = true; arcAccGeo.getAttribute('aAlpha').needsUpdate = true;
+      /* air traffic */
+      var dP = droneGeo.getAttribute('position').array, dA = droneGeo.getAttribute('aAlpha').array;
+      var eP = droneAccGeo.getAttribute('position').array, eA = droneAccGeo.getAttribute('aAlpha').array;
+      for (var dn = 0; dn < DN; dn++) {
+        var dr2 = drones[dn];
+        dr2.s = (dr2.s + dr2.speed * dt) % 1;
+        var headPos = (dr2.s * 2 - 1) * SPAN * dr2.dir;
+        var hx = dr2.alongX ? headPos : dr2.lane, hz = dr2.alongX ? dr2.lane : headPos;
+        var edgeFade = Math.sin(dr2.s * Math.PI);
+        var vis = ndcX(hx, dr2.y, hz) > minX + 0.05 ? Math.min(1, edgeFade * 4) : 0;
+        var arrP2 = dr2.accent ? eP : dP, arrA2 = dr2.accent ? eA : dA, offA = dr2.accent ? dA : eA;
+        for (var dk = 0; dk < DT; dk++) {
+          var o2 = dn * DT + dk, back = headPos - dr2.dir * dk * 0.42;
+          arrP2[o2 * 3] = dr2.alongX ? back : dr2.lane; arrP2[o2 * 3 + 1] = dr2.y; arrP2[o2 * 3 + 2] = dr2.alongX ? dr2.lane : back;
+          arrA2[o2] = vis * (dk === 0 ? 0.95 : 0.6 * Math.pow(1 - dk / DT, 1.5)); offA[o2] = 0;
+        }
+      }
+      droneGeo.getAttribute('position').needsUpdate = true; droneGeo.getAttribute('aAlpha').needsUpdate = true;
+      droneAccGeo.getAttribute('position').needsUpdate = true; droneAccGeo.getAttribute('aAlpha').needsUpdate = true;
       /* crown lights blink, particles drift */
       for (var ci = 0; ci < crowns.length; ci++) crownAl[ci] = 0.15 + 0.85 * Math.pow(0.5 + 0.5 * Math.sin(time * 2.2 + crownPhase[ci]), 8);
       crownGeo.getAttribute('aAlpha').needsUpdate = true;
@@ -651,6 +806,16 @@ export function initHero(c) {
     }
 
     function render() { updateCamera(); U.uTime.value = time; renderer.render(scene, camera); }
+    /* build-in: towers rise over ~2.6 s while the camera settles; the network switches on at the end */
+    var introT = 0, INTRO = 2.6;
+    function stepIntro(dt) {
+      if (introT >= INTRO + 1.4) return;
+      introT += dt;
+      var k = clamp(introT / INTRO, 0, 1), c2 = clamp(introT / (INTRO + 1.2), 0, 1);
+      U.uIntro.value = k;
+      settle = 1 - Math.pow(1 - c2, 3);
+      U.uFx.value = clamp((introT - INTRO * 0.55) / 1.3, 0, 1);
+    }
     var rafId = 0, last = 0;
     function frame(now) {
       rafId = 0;
@@ -659,6 +824,7 @@ export function initHero(c) {
       last = now; time += dt;
       state.p = lerp(state.p, state.scroll, 0.1);
       state.smx = lerp(state.smx, state.mx, 0.04); state.smy = lerp(state.smy, state.my, 0.04);
+      stepIntro(dt);
       stepPulses(dt);
       render();
       hero.style.setProperty('--px', state.smx.toFixed(3));
@@ -693,6 +859,7 @@ export function initHero(c) {
           state.scroll = p; host.style.opacity = String(1 - p);
         }, { passive: true });
       }
+      U.uIntro.value = 0; U.uFx.value = 0; settle = 0;
       start();
     }
   })();

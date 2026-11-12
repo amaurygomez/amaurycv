@@ -1,0 +1,51 @@
+name: Dependabot auto-merge
+
+# Runs after CI finishes, so a Dependabot pull request is merged only once typecheck, lint,
+# unit tests, the production build and the end-to-end suite have passed on that exact commit.
+# Major npm upgrades (the "major" group) are left for a manual review.
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  merge:
+    name: Merge green Dependabot PR
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/') &&
+      !contains(github.event.workflow_run.head_branch, '/major-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+      HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Find the pull request
+        id: pr
+        run: |
+          number=$(gh pr list --head "$HEAD_BRANCH" --author 'app/dependabot' --state open --json number --jq '.[0].number // empty')
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+      - name: Approve (only counts where Actions may approve pull requests)
+        if: steps.pr.outputs.number
+        run: gh pr review "$PR" --approve || true
+        env:
+          PR: ${{ steps.pr.outputs.number }}
+      - name: Merge the commit CI verified
+        if: steps.pr.outputs.number
+        # --auto waits for branch protection where it applies; the plain merge covers
+        # repositories without the auto-merge setting.
+        run: |
+          gh pr merge "$PR" --merge --auto --match-head-commit "$HEAD_SHA" ||
+            gh pr merge "$PR" --merge --match-head-commit "$HEAD_SHA"
+        env:
+          PR: ${{ steps.pr.outputs.number }}
