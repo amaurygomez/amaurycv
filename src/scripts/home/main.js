@@ -1,5 +1,6 @@
 // Home (/) interactions: ported from the approved prototype.
 // Hero city (three.js), scroll reveals, count-ups, animated case diagrams, process rail, ES/EN and theme.
+import { faq } from "./faq.js";
 import { THREE } from "./three.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -74,7 +75,7 @@ import { initProjects } from "./projects.js";
       'hero.chip': 'Disponible para nuevos proyectos',
       'hero.h1': 'Ingeniería de software para operaciones que no pueden detenerse.',
       'hero.sub': 'Diseño, desarrollo y modernización de plataformas críticas para telecomunicaciones, gobierno y banca. Más de 11 años en producción continua con .NET, SQL Server y React.',
-      'hero.cta1': 'Ver proyectos', 'hero.cta2': 'Solicitar currículum completo',
+      'hero.cta1': 'Iniciar un proyecto', 'hero.cta2': 'Ver proyectos',
       'hero.trust': 'Sectores regulados', 'hero.t1': 'Telecomunicaciones', 'hero.t2': 'Gobierno', 'hero.t3': 'Banca', 'hero.scroll': 'Desplazar',
       'hc.title': 'Plataformas en producción', 'hc.live': 'En vivo', 'hc.ok': 'Operativo', 'hc.note': 'Operación 24/7 · auditoría activa',
       'hc.r1': 'CRM · Cobertura', 'hc.s1': 'Telecomunicaciones', 'hc.r2': 'Identidad · Middleware', 'hc.s2': 'Gobierno', 'hc.r3': 'Calidad · Monitoreo', 'hc.s3': 'Telecomunicaciones',
@@ -148,7 +149,13 @@ import { initProjects } from "./projects.js";
       'f.role': 'Posición o proyecto', 'f.privacy': 'Estos datos se usan únicamente para revisar su solicitud y responderle.', 'f.send': 'Enviar solicitud', 'f.cancel': 'Cancelar',
       'f.err': 'Complete todos los campos con un correo válido.', 'f.ok': 'Solicitud recibida. La respuesta llegará a {email}.', 'f.closeBtn': 'Cerrar',
       'contact.eyebrow': 'Contacto', 'contact.h': '¿Tiene una plataforma crítica que construir o modernizar?',
-      'contact.p': 'Escriba a este correo y recibirá respuesta en 24 a 48 horas.', 'contact.copy': 'Copiar', 'contact.copied': 'Copiado', 'contact.copyAria': 'Copiar correo',
+      'contact.p': 'Cuente qué necesita construir o modernizar. Cada mensaje se lee personalmente.',
+      'contact.b1': 'Respuesta en 24 a 48 horas', 'contact.b2': 'Llamada inicial de 20 minutos, sin costo', 'contact.b3': 'Diagnóstico bajo acuerdo de confidencialidad',
+      'contact.alt': 'O escriba directamente:',
+      'cf.name': 'Nombre', 'cf.email': 'Correo de trabajo', 'cf.type': 'Tipo de proyecto', 'cf.t5': 'Posición sénior remota', 'cf.message': '¿Qué necesita?',
+      'cf.hint': 'Sistema, sector, plazo y presupuesto estimado, si los tiene.', 'cf.send': 'Enviar mensaje', 'cf.privacy': 'Sus datos se usan únicamente para responder a este mensaje.',
+      'cf.okTitle': 'Mensaje recibido', 'cf.okText': 'Recibirá respuesta en 24 a 48 horas en el correo que indicó.',
+      'faq.eyebrow': 'Preguntas frecuentes', 'faq.title': 'Antes de escribir', 'contact.copy': 'Copiar', 'contact.copied': 'Copiado', 'contact.copyAria': 'Copiar correo',
       'footer.copy': '© Santo Domingo, República Dominicana', 'footer.line': 'Amaury Gómez · Ingeniería de software', 'footer.ag': 'Explorar AG World'
     },
     en: {
@@ -159,7 +166,7 @@ import { initProjects } from "./projects.js";
       'hero.chip': 'Available for new projects',
       'hero.h1': 'Software engineering for operations that cannot stop.',
       'hero.sub': 'Design, development and modernization of critical platforms for telecommunications, government and banking. More than 11 years in continuous production with .NET, SQL Server and React.',
-      'hero.cta1': 'View projects', 'hero.cta2': 'Request full résumé',
+      'hero.cta1': 'Start a project', 'hero.cta2': 'View projects',
       'hero.trust': 'Regulated sectors', 'hero.t1': 'Telecommunications', 'hero.t2': 'Government', 'hero.t3': 'Banking', 'hero.scroll': 'Scroll',
       'hc.title': 'Platforms in production', 'hc.live': 'Live', 'hc.ok': 'Operational', 'hc.note': '24/7 operation · audit trail active',
       'hc.r1': 'CRM · Coverage', 'hc.s1': 'Telecommunications', 'hc.r2': 'Identity · Middleware', 'hc.s2': 'Government', 'hc.r3': 'Quality · Monitoring', 'hc.s3': 'Telecommunications',
@@ -233,11 +240,20 @@ import { initProjects } from "./projects.js";
       'f.role': 'Position or project', 'f.privacy': 'This data is used solely to review your request and reply to you.', 'f.send': 'Send request', 'f.cancel': 'Cancel',
       'f.err': 'Fill in every field with a valid email.', 'f.ok': 'Request received. The reply will be sent to {email}.', 'f.closeBtn': 'Close',
       'contact.eyebrow': 'Contact', 'contact.h': 'Do you have a critical platform to build or modernize?',
-      'contact.p': 'Write to this address and you will receive a reply within 24 to 48 hours.', 'contact.copy': 'Copy', 'contact.copied': 'Copied', 'contact.copyAria': 'Copy email',
+      'contact.p': 'Describe what you need to build or modernize. Every message is read personally.',
+      'contact.b1': 'Reply within 24 to 48 hours', 'contact.b2': 'Free 20-minute initial call', 'contact.b3': 'Assessment under a non-disclosure agreement',
+      'contact.alt': 'Or write directly:',
+      'cf.name': 'Name', 'cf.email': 'Work email', 'cf.type': 'Project type', 'cf.t5': 'Senior remote position', 'cf.message': 'What do you need?',
+      'cf.hint': 'System, sector, timeline and estimated budget, if you have them.', 'cf.send': 'Send message', 'cf.privacy': 'Your details are used only to reply to this message.',
+      'cf.okTitle': 'Message received', 'cf.okText': 'You will get a reply within 24 to 48 hours at the address you gave.',
+      'faq.eyebrow': 'Frequently asked questions', 'faq.title': 'Before you write', 'contact.copy': 'Copy', 'contact.copied': 'Copied', 'contact.copyAria': 'Copy email',
       'footer.copy': '© Santo Domingo, Dominican Republic', 'footer.line': 'Amaury Gómez · Software engineering', 'footer.ag': 'Explore AG World'
     }
   };
   var LANG = 'es';
+  ['es', 'en'].forEach(function (l) {
+    faq[l].forEach(function (item, i) { I18N[l]['faq' + (i + 1) + '.q'] = item.q; I18N[l]['faq' + (i + 1) + '.a'] = item.a; });
+  });
   function t(k) { var d = I18N[LANG]; return (d && d[k] != null) ? d[k] : (I18N.es[k] || ''); }
   var langListeners = [];
   function applyLang(l, animate) {
