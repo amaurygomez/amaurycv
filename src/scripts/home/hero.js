@@ -25,6 +25,7 @@ export function initHero(c) {
     try {
       renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
       if (!renderer.getContext()) throw new Error('no context');
+      renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     } catch { renderer = null; }
     if (!renderer) { fallback(); return; }
 

@@ -1,6 +1,6 @@
 // Home (/) interactions: ported from the approved prototype.
 // Hero city (three.js), scroll reveals, count-ups, animated case diagrams, process rail, ES/EN and theme.
-import * as THREE from "three";
+import { THREE } from "./three.js";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { initHero } from "./hero.js";
