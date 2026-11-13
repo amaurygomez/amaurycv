@@ -20,6 +20,11 @@ updates:
         update-types: [minor, patch]
       major:
         update-types: [major]
+    ignore:
+      # TypeScript 7 is outside typescript-eslint's peer range, so Dependabot cannot resolve the
+      # upgrade and the run fails. Drop this once typescript-eslint supports it.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
