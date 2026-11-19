@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 
-const BASE_URL = "http://127.0.0.1:4321";
+const BASE_URL = process.env.E2E_EXTERNAL_URL ?? "http://127.0.0.1:4321";
 // Cloudflare's always-pass test key; the specs stub the widget script itself.
 const SITE_KEY = "1x00000000000000000000AA";
 
@@ -22,7 +22,7 @@ async function waitForServer(timeoutMs: number) {
 // In CI the daemon hand-off does not happen (`astro dev` stays attached and this setup would
 // block forever), so the workflow starts the server itself and sets E2E_EXTERNAL_SERVER=1.
 export default async function globalSetup() {
-  if (process.env.E2E_EXTERNAL_SERVER) {
+  if (process.env.E2E_EXTERNAL_SERVER || process.env.E2E_EXTERNAL_URL) {
     await waitForServer(120_000);
     return;
   }

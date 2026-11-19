@@ -61,12 +61,20 @@ jobs:
         env:
           # Cloudflare's always-pass test key; the specs stub the widget script itself.
           PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
-      # Only the DOM-driven suites run here. The AG World suites (desktop, mobile) drive a Pixi/WebGL
-      # scene that software rendering on GPU-less runners cannot keep within the test timeouts;
-      # they stay in the local `npm run test:e2e`.
-      - run: npx playwright test --project=home --project=cv-desktop --project=cv-mobile
+      - name: Verify home and CV
+        run: npx playwright test --project=home --project=cv-desktop --project=cv-mobile
         env:
           E2E_EXTERNAL_SERVER: "1"
+      # Compiled assets avoid the dev server's module overhead on software WebGL runners.
+      - name: Build and verify World with one Chromium worker
+        run: |
+          npx astro build
+          python3 -m http.server 4322 --bind 127.0.0.1 --directory dist/client > world-server.log 2>&1 &
+          world_server_pid=$!
+          trap 'kill "$world_server_pid" 2>/dev/null || true' EXIT
+          npx playwright test --project=desktop --project=mobile --workers=1
+        env:
+          E2E_EXTERNAL_URL: http://127.0.0.1:4322
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: failure()
         with:
@@ -74,4 +82,5 @@ jobs:
           path: |
             test-results/
             astro-dev.log
+            world-server.log
           retention-days: 7
