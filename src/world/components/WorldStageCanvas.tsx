@@ -136,11 +136,26 @@ function getZoneCamera(
 
 export default function WorldStageCanvas() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const cameraContainerRef = useRef<Container>(null);
   const cameraRef = useRef<CameraState>({ x: 0, y: 0, scale: 1 });
   const animationRef = useRef<number | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
-  const [camera, setCamera] = useState<CameraState>({ x: 0, y: 0, scale: 1 });
   const { activeZone, userZoom, setUserZoom, cameraResetNonce } = useWorld();
+
+  const moveCamera = useCallback((camera: CameraState) => {
+    cameraRef.current = camera;
+    const container = cameraContainerRef.current;
+    container?.position.set(camera.x, camera.y);
+    container?.scale.set(camera.scale);
+  }, []);
+
+  const mountCamera = useCallback(
+    (container: Container | null) => {
+      cameraContainerRef.current = container;
+      if (container) moveCamera(cameraRef.current);
+    },
+    [moveCamera],
+  );
 
   // After a touch pan or pinch the camera stays where the user left it until
   // the zone, zoom or reset changes.
@@ -199,10 +214,9 @@ export default function WorldStageCanvas() {
         animationRef.current = null;
       }
       const clamped = clampCamera(next, size.w, size.h, compactViewport ? 6 : 14);
-      cameraRef.current = clamped;
-      setCamera(clamped);
+      moveCamera(clamped);
     },
-    [compactViewport, size.h, size.w],
+    [compactViewport, moveCamera, size.h, size.w],
   );
 
   const handlePointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
@@ -339,8 +353,7 @@ export default function WorldStageCanvas() {
         compactViewport ? 6 : 14,
       );
 
-      cameraRef.current = next;
-      setCamera(next);
+      moveCamera(next);
 
       if (progress < 1) animationRef.current = requestAnimationFrame(animate);
       else animationRef.current = null;
@@ -350,7 +363,19 @@ export default function WorldStageCanvas() {
     return () => {
       if (animationRef.current !== null) cancelAnimationFrame(animationRef.current);
     };
-  }, [activeZone, cameraResetNonce, compactViewport, size.h, size.w, targetCamera, userZoom]);
+  }, [
+    activeZone,
+    cameraResetNonce,
+    compactViewport,
+    moveCamera,
+    size.h,
+    size.w,
+    targetCamera,
+    userZoom,
+  ]);
+
+  // Small screens can have a 3× pixel density. Keep the backing buffer compact.
+  const maxResolution = compactViewport ? 1.5 : Infinity;
 
   return (
     <div
@@ -370,10 +395,10 @@ export default function WorldStageCanvas() {
           background="#07090F"
           preference="webgl"
           antialias
-          resolution={window.devicePixelRatio || 1}
+          resolution={Math.min(window.devicePixelRatio || 1, maxResolution)}
           autoDensity
         >
-          <pixiContainer x={camera.x} y={camera.y} scale={camera.scale}>
+          <pixiContainer ref={mountCamera}>
             <WorldMap />
           </pixiContainer>
         </Application>

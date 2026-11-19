@@ -30,8 +30,10 @@ export function ZoneHotspot({
   onSelect,
 }: ZoneHotspotProps) {
   const [pulse, setPulse] = useState(0);
+  const showRing = Boolean(hovered || active);
 
   useEffect(() => {
+    if (!showRing) return;
     let raf = 0;
     const start = performance.now();
     const loop = (now: number) => {
@@ -41,7 +43,7 @@ export function ZoneHotspot({
     };
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [showRing]);
 
   const draw = useCallback(
     (g: Graphics) => {
@@ -55,8 +57,7 @@ export function ZoneHotspot({
       // Near-zero alpha keeps the whole room hit-testable while staying invisible.
       g.fill({ color: 0xffffff, alpha: 0.001 });
 
-      // Ring only on hover or active; an idle pulse on every room looked like debug UI.
-      if (hovered || active) {
+      if (showRing) {
         const center = iso(bounds.x + bounds.w / 2, bounds.y + bounds.h / 2);
         const baseR = Math.min(bounds.w, bounds.h) * TILE_W * 0.14;
         g.circle(center.x, center.y + floorY, baseR + pulse * 4);
@@ -67,7 +68,7 @@ export function ZoneHotspot({
         });
       }
     },
-    [bounds, accent, hovered, active, pulse],
+    [bounds, accent, showRing, active, pulse],
   );
 
   return (

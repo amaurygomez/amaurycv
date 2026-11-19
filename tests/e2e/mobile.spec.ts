@@ -8,8 +8,7 @@ test("mobile list opens a zone and closes back to cards", async ({ page }) => {
     name: /Telecom · (Cobertura y Operación|Coverage & Operations)/,
   });
   await expect(telecomCard).toBeVisible();
-  await telecomCard.click({ force: true });
-  await page.waitForTimeout(300);
+  await telecomCard.click();
 
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
@@ -28,7 +27,11 @@ test("mobile world mode opens the iso map, enters a room, and exits back to the 
 
   await page.getByRole("button", { name: /Explorar AG World|Explore AG World/ }).click();
 
-  await expect(page.locator("canvas")).toBeVisible({ timeout: 20000 });
+  const canvas = page.locator("canvas");
+  await expect(canvas).toBeVisible({ timeout: 20000 });
+  expect(
+    await canvas.evaluate((element) => (element as HTMLCanvasElement).width / element.clientWidth),
+  ).toBeCloseTo(1.5);
 
   const telecomChip = page.getByRole("button", { name: /(Capítulo|Chapter) 04 · Telecom/ });
   await expect(telecomChip).toBeVisible();
@@ -38,10 +41,11 @@ test("mobile world mode opens the iso map, enters a room, and exits back to the 
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText(/Telecom/).first()).toBeVisible();
 
-  await page
+  await dialog
     .getByRole("button", { name: /Cerrar|Close/i })
     .first()
     .click();
+  await expect(dialog).toBeHidden();
   await page.getByRole("button", { name: /Mi historia|My story/ }).click();
   await expect(
     page.getByRole("button", { name: /Explorar AG World|Explore AG World/ }),
