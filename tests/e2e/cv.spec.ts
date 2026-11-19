@@ -3,16 +3,23 @@ import { expect, test, type Page } from "@playwright/test";
 // Replaces Cloudflare's widget: it hands out a token at once and counts resets.
 const turnstileStub = `
   let options;
+  let tokenCount = 0;
+  function issueToken() {
+    const token = "test-token-" + ++tokenCount;
+    setTimeout(() => options.callback(token));
+  }
   window.turnstileResets = 0;
+  window.turnstileActions = [];
   window.turnstile = {
     render(container, config) {
       options = config;
-      setTimeout(() => options.callback("test-token"));
+      window.turnstileActions.push(config.action);
+      issueToken();
       return "widget";
     },
     reset() {
       window.turnstileResets += 1;
-      setTimeout(() => options.callback("test-token"));
+      issueToken();
     },
     remove() {},
   };
@@ -79,10 +86,10 @@ test.describe("full CV request dialog", () => {
     return dialog;
   }
 
-  test("a 200 shows the confirmation", async ({ page }) => {
-    let sent: unknown;
+  test("a 200 confirms the request and another request gets a new challenge", async ({ page }) => {
+    const sent: unknown[] = [];
     await page.route("**/api/cv-request", (route) => {
-      sent = route.request().postDataJSON();
+      sent.push(route.request().postDataJSON());
       return route.fulfill({ json: { ok: true } });
     });
 
@@ -91,15 +98,30 @@ test.describe("full CV request dialog", () => {
     await expect(
       dialog.getByRole("heading", { name: "Request received. I’ll reply to ana@example.com." }),
     ).toBeFocused();
-    expect(sent).toEqual({
-      name: "Ana Pérez",
-      company: "Acme",
-      email: "ana@example.com",
-      role: "Senior engineer",
-      lang: "en",
-      website: "",
-      turnstileToken: "test-token",
-    });
+    expect(sent).toEqual([
+      {
+        name: "Ana Pérez",
+        company: "Acme",
+        email: "ana@example.com",
+        role: "Senior engineer",
+        lang: "en",
+        website: "",
+        turnstileToken: "test-token-1",
+      },
+    ]);
+
+    await dialog.getByRole("button", { name: "Make another request" }).click();
+    await dialog.getByLabel("Work email").fill("other@example.com");
+    await dialog.getByRole("button", { name: "Send request" }).click();
+    await expect(
+      dialog.getByRole("heading", { name: "Request received. I’ll reply to other@example.com." }),
+    ).toBeFocused();
+    expect(sent).toHaveLength(2);
+    expect(sent[1]).toMatchObject({ email: "other@example.com", turnstileToken: "test-token-2" });
+    expect(await page.evaluate(() => Reflect.get(window, "turnstileActions"))).toEqual([
+      "cv-request",
+      "cv-request",
+    ]);
   });
 
   test("a 429 explains the wait and keeps sending locked", async ({ page }) => {

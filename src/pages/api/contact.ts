@@ -1,30 +1,28 @@
 import type { APIRoute } from "astro";
-import { exceeded, limiter, verifyTurnstile } from "@/lib/server/guard";
+import { limiter, rateLimit, verifyTurnstile } from "@/lib/server/guard";
 import {
   clientIp,
   invalidInput,
   json,
-  oversized,
-  payloadTooLarge,
-  readJson,
-  tooManyRequests,
+  readFormJson,
+  temporarilyUnavailable,
 } from "@/lib/server/http";
-import { escapeHtml, mailFrom, mailer, ownerInbox } from "@/lib/server/mail";
+import { escapeHtml, mailer, sendOwnerMail } from "@/lib/server/mail";
 import { ContactSchema } from "@/lib/server/validation";
+import { TURNSTILE_ACTIONS } from "@/lib/turnstile-actions";
 
 export const prerender = false;
 
 const hourly = limiter("contact:h", 3, "1 h");
 const daily = limiter("contact:d", 10, "1 d");
 const dayTotal = limiter("contact:day", 40, "1 d");
-const LINK = /https?:\/\//gi;
+const LINK = /https?:\/\/(?:www\.)?|\bwww\./gi;
 
 export const POST: APIRoute = async (context) => {
-  if (oversized(context.request)) return payloadTooLarge();
-  const body = await readJson(context.request);
-  if (body === undefined) return json({ error: "invalid_json" }, 400);
+  const payload = await readFormJson(context);
+  if (!payload.ok) return payload.response;
 
-  const parsed = ContactSchema.safeParse(body);
+  const parsed = ContactSchema.safeParse(payload.body);
   if (!parsed.success) return invalidInput(parsed.error);
   const { name, email, message, website, turnstileToken } = parsed.data;
 
@@ -33,34 +31,32 @@ export const POST: APIRoute = async (context) => {
   if ((message.match(LINK)?.length ?? 0) > 2) return json({ error: "too_many_links" }, 400);
 
   const resend = mailer();
-  if (!resend) return json({ error: "service_unavailable" }, 503);
+  if (!resend) return temporarilyUnavailable();
 
   const ip = clientIp(context);
-  const wait = await exceeded([hourly, ip], [daily, ip]);
-  if (wait) return tooManyRequests(wait);
-  if (!(await verifyTurnstile(turnstileToken, ip))) return json({ error: "captcha_failed" }, 400);
-  // Last check before the send, so a rejected request never spends the day's pool.
-  const dayWait = await exceeded([dayTotal, "all"]);
-  if (dayWait) return tooManyRequests(dayWait);
+  const ipKey = ip ?? "unknown";
+  const ipBlock = await rateLimit([hourly, ipKey], [daily, ipKey]);
+  if (ipBlock) return ipBlock;
+  const captchaBlock = await verifyTurnstile(
+    turnstileToken,
+    ip,
+    TURNSTILE_ACTIONS.contact,
+    context,
+  );
+  if (captchaBlock) return captchaBlock;
+  const dayBlock = await rateLimit([dayTotal, "all"]);
+  if (dayBlock) return dayBlock;
 
-  const { data, error } = await resend.emails.send({
-    from: mailFrom,
-    to: ownerInbox,
+  const sent = await sendOwnerMail(resend, {
     replyTo: email,
     subject: `Nuevo mensaje desde amaurygomez.dev — ${name}`,
-    text: `De: ${name} <${email}>\nIP: ${ip}\n\n${message}`,
+    text: `De: ${name} <${email}>\n\n${message}`,
     html: `<div style="font-family:Inter,system-ui,sans-serif;color:#0B1020;">
   <p><strong>De:</strong> ${escapeHtml(name)} &lt;${escapeHtml(email)}&gt;</p>
-  <p><strong>IP:</strong> ${escapeHtml(ip)}</p>
   <hr style="border:none;border-top:1px solid #ddd;margin:16px 0;" />
   <p>${escapeHtml(message).replace(/\n/g, "<br/>")}</p>
 </div>`,
   });
 
-  if (error) {
-    console.error("[contact] send failed", error);
-    return json({ error: "send_failed" }, 502);
-  }
-  console.log("[contact] sent", data.id);
-  return json({ ok: true });
+  return sent ? json({ ok: true }) : json({ error: "send_failed" }, 502);
 };

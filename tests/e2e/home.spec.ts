@@ -44,7 +44,11 @@ test("home contact form sends the message with the project type", async ({ page 
     route.fulfill({
       contentType: "text/javascript",
       body: `window.turnstile = {
-        render(_el, options) { setTimeout(() => options.callback("test-token-123"), 0); return "w1"; },
+        render(_el, options) {
+          window.turnstileAction = options.action;
+          setTimeout(() => options.callback("test-token-123"), 0);
+          return "w1";
+        },
         reset() {}, remove() {},
       };`,
     }),
@@ -71,6 +75,7 @@ test("home contact form sends the message with the project type", async ({ page 
   await form.getByRole("button", { name: "Enviar mensaje" }).click();
 
   await expect(page.getByRole("heading", { name: "Mensaje recibido" })).toBeVisible();
+  expect(await page.evaluate(() => Reflect.get(window, "turnstileAction"))).toBe("contact");
   expect(sent).toMatchObject({
     name: "Ada Lovelace",
     email: "ada@example.com",

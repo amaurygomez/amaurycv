@@ -1,5 +1,6 @@
 import type { Lang } from "@/i18n/content";
 import { requestCopy } from "@/i18n/cv";
+import { TURNSTILE_ACTIONS } from "@/lib/turnstile-actions";
 
 type Turnstile = {
   render(container: HTMLElement, options: Record<string, unknown>): string;
@@ -128,6 +129,7 @@ async function prepareTurnstile() {
   setToken("");
   const id = turnstile.render(captcha, {
     sitekey: SITE_KEY,
+    action: TURNSTILE_ACTIONS.cvRequest,
     theme: "dark",
     size: "flexible",
     appearance: "interaction-only",
@@ -211,7 +213,7 @@ function setAlert(template: string, wait = "") {
   alertBox.append(link, after);
 }
 
-async function send(): Promise<Response | null> {
+async function send(turnstileToken: string): Promise<Response | null> {
   const data = new FormData(form);
   const body = {
     name: data.get("name"),
@@ -220,7 +222,7 @@ async function send(): Promise<Response | null> {
     role: data.get("role"),
     lang: data.get("lang"),
     website: data.get("website") ?? "",
-    turnstileToken: token,
+    turnstileToken,
   };
   try {
     return await fetch("/api/cv-request", {
@@ -258,17 +260,23 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (sending || submit.disabled || !validate()) return;
   setAlert("");
+  const turnstileToken = token;
+  token = "";
   setSending(true);
-  const response = await send();
-  setSending(false);
+  const response = await send(turnstileToken);
 
   if (response?.ok) {
+    if (widget) window.turnstile?.remove(widget.id);
+    widget = null;
+    token = "";
+    setSending(false);
     const email = input("email").value;
     rememberSent(email);
     showSent(email);
     return;
   }
   const body = ((await response?.json().catch(() => null)) ?? {}) as ErrorBody;
+  setSending(false);
   handleFailure(response, body);
   resetTurnstile();
 });

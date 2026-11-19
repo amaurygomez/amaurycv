@@ -4,13 +4,10 @@
 // facades with lit floors, a scan that sweeps the streets and climbs the towers, street pulses, air traffic above
 // the avenues, rooftop links with flowing packets, holographic rings around the main tower and light beams on the
 // landmarks. Kept to the right of the headline.
-/* eslint-disable @typescript-eslint/no-unused-vars -- shared helper bag; each module uses a subset */
 import { THREE } from "./three.js";
 
 export function initHero(c) {
-  var gsap = c.gsap, $ = c.$, $$ = c.$$, clamp = c.clamp, lerp = c.lerp, mulberry32 = c.mulberry32, rgba = c.rgba, mixHex = c.mixHex,
-    tokens = c.tokens, onTheme = c.onTheme, t = c.t, langListeners = c.langListeners, REDUCED = c.REDUCED, hasGsap = c.hasGsap, hasST = c.hasST, hasIO = c.hasIO,
-    Ticker = c.Ticker, isoCity = c.isoCity, onceInView = c.onceInView, hero = c.hero;
+  const { gsap, $, clamp, lerp, mulberry32, tokens, onTheme, REDUCED, hasST, hasIO, isoCity, hero } = c;
   /* ---------- hero: 3D city-network ---------- */
   (function () {
     var host = $('#hero-scene'), canvas = $('#hero-canvas');
