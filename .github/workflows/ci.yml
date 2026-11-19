@@ -61,11 +61,16 @@ jobs:
         run: npx playwright test --project=home --project=cv-desktop --project=cv-mobile
         env:
           E2E_EXTERNAL_SERVER: "1"
-      # Software WebGL competes for CPU on runners without a GPU.
-      - name: Verify World with one Chromium worker
-        run: npx playwright test --project=desktop --project=mobile --workers=1
+      # Compiled assets avoid the dev server's module overhead on software WebGL runners.
+      - name: Build and verify World with one Chromium worker
+        run: |
+          npx astro build
+          python3 -m http.server 4322 --bind 127.0.0.1 --directory dist/client > world-server.log 2>&1 &
+          world_server_pid=$!
+          trap 'kill "$world_server_pid" 2>/dev/null || true' EXIT
+          npx playwright test --project=desktop --project=mobile --workers=1
         env:
-          E2E_EXTERNAL_SERVER: "1"
+          E2E_EXTERNAL_URL: http://127.0.0.1:4322
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
@@ -73,4 +78,5 @@ jobs:
           path: |
             test-results/
             astro-dev.log
+            world-server.log
           retention-days: 7
