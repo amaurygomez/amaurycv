@@ -57,10 +57,13 @@ jobs:
         env:
           # Cloudflare's always-pass test key; the specs stub the widget script itself.
           PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
-      # Only the DOM-driven suites run here. The AG World suites (desktop, mobile) drive a Pixi/WebGL
-      # scene that software rendering on GPU-less runners cannot keep within the test timeouts;
-      # they stay in the local `npm run test:e2e`.
-      - run: npx playwright test --project=home --project=cv-desktop --project=cv-mobile
+      - name: Verify home and CV
+        run: npx playwright test --project=home --project=cv-desktop --project=cv-mobile
+        env:
+          E2E_EXTERNAL_SERVER: "1"
+      # Software WebGL competes for CPU on runners without a GPU.
+      - name: Verify World with one Chromium worker
+        run: npx playwright test --project=desktop --project=mobile --workers=1
         env:
           E2E_EXTERNAL_SERVER: "1"
       - uses: actions/upload-artifact@v7
