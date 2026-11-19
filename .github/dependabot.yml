@@ -1,5 +1,6 @@
 # One grouped pull request per ecosystem per month keeps the inbox quiet; the
-# "Dependabot auto-merge" workflow merges everything except majors once CI is green.
+# "Dependabot auto-merge" workflow covers npm changes after CI. GitHub Actions updates and
+# the npm major group require manual review.
 version: 2
 updates:
   - package-ecosystem: npm
