@@ -12,6 +12,24 @@ export function mailer(): Resend | null {
   return client;
 }
 
+export async function sendOwnerMail(
+  resend: Resend,
+  message: { replyTo: string; subject: string; text: string; html: string },
+): Promise<boolean> {
+  try {
+    const { data, error } = await resend.emails.send({
+      from: mailFrom,
+      to: ownerInbox,
+      ...message,
+    });
+    if (error) console.error("[mail] provider rejected the send", error.name);
+    return Boolean(data && !error);
+  } catch {
+    console.error("[mail] provider unreachable");
+    return false;
+  }
+}
+
 export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")

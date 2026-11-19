@@ -1,18 +1,17 @@
 import type { APIRoute } from "astro";
 import { createHash } from "node:crypto";
 import type { Resend } from "resend";
-import { exceededStrict, limiter, rateLimiting, verifyTurnstile } from "@/lib/server/guard";
+import { limiter, rateLimit, verifyTurnstile } from "@/lib/server/guard";
 import {
   clientIp,
   invalidInput,
   json,
-  oversized,
-  payloadTooLarge,
-  readJson,
-  tooManyRequests,
+  readFormJson,
+  temporarilyUnavailable,
 } from "@/lib/server/http";
-import { escapeHtml, mailFrom, mailer, ownerInbox } from "@/lib/server/mail";
+import { escapeHtml, mailer, sendOwnerMail } from "@/lib/server/mail";
 import { CvRequestSchema, type CvRequest } from "@/lib/server/validation";
+import { TURNSTILE_ACTIONS } from "@/lib/turnstile-actions";
 
 export const prerender = false;
 
@@ -21,35 +20,35 @@ const perEmail = limiter("cv:email", 2, "1 d");
 const perDay = limiter("cv:day", 40, "1 d");
 
 export const POST: APIRoute = async (context) => {
-  if (oversized(context.request)) return payloadTooLarge();
-  const body = await readJson(context.request);
-  if (body === undefined) return json({ error: "invalid_json" }, 400);
+  const payload = await readFormJson(context);
+  if (!payload.ok) return payload.response;
 
-  const parsed = CvRequestSchema.safeParse(body);
+  const parsed = CvRequestSchema.safeParse(payload.body);
   if (!parsed.success) return invalidInput(parsed.error);
   const request = parsed.data;
 
   if (request.website) return json({ ok: true });
 
   const resend = mailer();
-  if (!resend || (!rateLimiting && import.meta.env.PROD)) {
-    return json({ error: "service_unavailable" }, 503);
-  }
+  if (!resend) return temporarilyUnavailable();
 
   const ip = clientIp(context);
-  const ipWait = await exceededStrict([perIp, ip]);
-  if (ipWait) return tooManyRequests(ipWait);
-  if (!(await verifyTurnstile(request.turnstileToken, ip))) {
-    return json({ error: "captcha_failed" }, 400);
-  }
-  const emailWait = await exceededStrict([perEmail, digest(request.email)]);
-  if (emailWait) return tooManyRequests(emailWait);
-  // Last check before the send, so a rejected request never spends the day's pool.
-  const dayWait = await exceededStrict([perDay, "all"]);
-  if (dayWait) return tooManyRequests(dayWait);
+  const ipBlock = await rateLimit([perIp, ip ?? "unknown"]);
+  if (ipBlock) return ipBlock;
+  const captchaBlock = await verifyTurnstile(
+    request.turnstileToken,
+    ip,
+    TURNSTILE_ACTIONS.cvRequest,
+    context,
+  );
+  if (captchaBlock) return captchaBlock;
+  const emailBlock = await rateLimit([perEmail, digest(request.email)]);
+  if (emailBlock) return emailBlock;
+  const dayBlock = await rateLimit([perDay, "all"]);
+  if (dayBlock) return dayBlock;
 
   // The full CV is never sent automatically: the owner reviews every request and replies by hand.
-  const noticed = await notifyOwner(resend, request, ip);
+  const noticed = await notifyOwner(resend, request);
   return noticed ? json({ ok: true }) : json({ error: "send_failed" }, 502);
 };
 
@@ -57,18 +56,15 @@ function digest(value: string): string {
   return createHash("sha256").update(value).digest("hex").slice(0, 32);
 }
 
-async function notifyOwner(resend: Resend, request: CvRequest, ip: string): Promise<boolean> {
+async function notifyOwner(resend: Resend, request: CvRequest): Promise<boolean> {
   const rows: [string, string][] = [
     ["Nombre", request.name],
     ["Empresa", request.company],
     ["Rol", request.role || "—"],
     ["Email", request.email],
     ["Idioma", request.lang.toUpperCase()],
-    ["IP", ip],
   ];
-  const { error } = await resend.emails.send({
-    from: mailFrom,
-    to: ownerInbox,
+  return sendOwnerMail(resend, {
     replyTo: request.email,
     subject: `Solicitud de CV pendiente — ${request.name} (${request.company})`,
     text: rows.map(([label, value]) => `${label}: ${value}`).join("\n"),
@@ -79,6 +75,4 @@ async function notifyOwner(resend: Resend, request: CvRequest, ip: string): Prom
       )
       .join("")}</table>`,
   });
-  if (error) console.error("[cv-request] owner notice failed", error);
-  return !error;
 }

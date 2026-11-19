@@ -1,25 +1,63 @@
 import type { APIContext } from "astro";
+import { isIP } from "node:net";
 import type { z } from "zod";
 
 export function json(body: unknown, status = 200, headers?: HeadersInit): Response {
-  return Response.json(body, { status, headers });
+  const responseHeaders = new Headers(headers);
+  responseHeaders.set("cache-control", "no-store");
+  return Response.json(body, { status, headers: responseHeaders });
 }
 
-/** Both forms fit in a few KB; anything larger is refused before it costs a JSON parse. */
 const MAX_BODY_BYTES = 16_384;
 
-export function oversized(request: Request): boolean {
-  const length = Number(request.headers.get("content-length"));
-  return Number.isFinite(length) && length > MAX_BODY_BYTES;
+type FormJson = { ok: true; body: unknown } | { ok: false; response: Response };
+
+/** Reject cross-origin browser submissions and cap the number of bytes read from the body. */
+export async function readFormJson({
+  request,
+  url,
+}: Pick<APIContext, "request" | "url">): Promise<FormJson> {
+  const origin = request.headers.get("origin");
+  if (
+    (origin !== null && origin !== url.origin) ||
+    request.headers.get("sec-fetch-site") === "cross-site"
+  ) {
+    return { ok: false, response: json({ error: "invalid_origin" }, 403) };
+  }
+  const mediaType = request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
+  if (mediaType !== "application/json") {
+    return { ok: false, response: json({ error: "unsupported_media_type" }, 415) };
+  }
+  if (Number(request.headers.get("content-length")) > MAX_BODY_BYTES) {
+    return { ok: false, response: json({ error: "payload_too_large" }, 413) };
+  }
+  if (!request.body) return { ok: false, response: json({ error: "invalid_json" }, 400) };
+
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder("utf-8", { fatal: true });
+  let bytes = 0;
+  let body = "";
+  try {
+    for (;;) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      bytes += chunk.value.byteLength;
+      if (bytes > MAX_BODY_BYTES) {
+        return { ok: false, response: json({ error: "payload_too_large" }, 413) };
+      }
+      body += decoder.decode(chunk.value, { stream: true });
+    }
+    return { ok: true, body: JSON.parse(body + decoder.decode()) as unknown };
+  } catch {
+    return { ok: false, response: json({ error: "invalid_json" }, 400) };
+  } finally {
+    void reader.cancel().catch(() => {});
+    reader.releaseLock();
+  }
 }
 
-export function payloadTooLarge(): Response {
-  return json({ error: "payload_too_large" }, 413);
-}
-
-export async function readJson(request: Request): Promise<unknown> {
-  if (!request.headers.get("content-type")?.includes("application/json")) return undefined;
-  return request.json().catch(() => undefined);
+export function temporarilyUnavailable(): Response {
+  return json({ error: "service_unavailable" }, 503, { "retry-after": "60" });
 }
 
 export function invalidInput(error: z.ZodError): Response {
@@ -30,11 +68,12 @@ export function invalidInput(error: z.ZodError): Response {
   );
 }
 
-export function clientIp(context: APIContext): string {
+export function clientIp(context: APIContext): string | undefined {
   try {
-    return context.clientAddress;
+    const address = context.clientAddress;
+    return isIP(address) ? address : undefined;
   } catch {
-    return "unknown";
+    return undefined;
   }
 }
 

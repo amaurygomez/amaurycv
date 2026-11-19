@@ -2,4 +2,11 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
+# Opt out of crawling for model training where the crawler honors robots.txt.
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: Google-Extended
+User-agent: CCBot
+Disallow: /
+
 Sitemap: https://amaurygomez.dev/sitemap-index.xml

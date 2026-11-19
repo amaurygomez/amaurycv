@@ -1,6 +1,8 @@
 // Home contact form: posts to /api/contact behind Cloudflare Turnstile. The widget script is
 // loaded on first interaction, so the form costs nothing until someone starts typing.
 
+import { TURNSTILE_ACTIONS } from "@/lib/turnstile-actions";
+
 type Turnstile = {
   render(container: HTMLElement, options: Record<string, unknown>): string;
   reset(widgetId: string): void;
@@ -100,6 +102,7 @@ function init(card: HTMLElement, form: HTMLFormElement, siteKey: string) {
     if (widgetId) return;
     widgetId = turnstile.render(captcha, {
       sitekey: siteKey,
+      action: TURNSTILE_ACTIONS.contact,
       theme: document.documentElement.dataset.theme === "dark" ? "dark" : "light",
       size: "flexible",
       appearance: "interaction-only",
