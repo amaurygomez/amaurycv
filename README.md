@@ -40,8 +40,8 @@ Tailwind CSS 4 · TypeScript · Zod · Vitest · Playwright.
 - `src/pages/api/contact.ts` and `src/pages/api/cv-request.ts` run as Vercel functions behind
   Cloudflare Turnstile and Upstash rate limits, and answer by email through Resend.
 - The full CV is not in the public tree. `sealed/cv.{es,en}.pdf.enc` holds AES-256-GCM ciphertext
-  produced by `npm run cv:seal` from a PDF kept outside the repo; `CV_FULL_KEY` exists only in the
-  deployment environment, so the sealed files are inert without it.
+  produced by `npm run cv:seal` from a PDF kept outside the repo. Keep `CV_FULL_KEY` in a private
+  secret store. The live request form sends the owner a notice for manual review.
 
 ## Scripts
 
@@ -78,11 +78,11 @@ tests/           Vitest units and Playwright end-to-end specs
 
 - CI runs typecheck, ESLint, unit tests, the production build, `npm audit` and the Playwright
   end-to-end suite (with axe accessibility checks) on every pull request.
-- Dependabot opens one grouped pull request per month. Minor, patch and security updates merge
-  on their own once CI is green (`.github/workflows/dependabot-auto-merge.yml`); major upgrades
-  wait for a review.
-- `tests/unit/privacy.test.ts` fails the build if an employer name, a date or an age leaks into
-  the public tree.
+- Dependabot groups monthly updates. Eligible npm minor, patch and security updates can merge
+  after CI. Review major npm upgrades and GitHub Actions updates manually.
+- `tests/unit/privacy.test.ts` checks for sensitive dates and ages. Provide the private
+  `.privacy-denylist` locally to also check names in the source tree and published PDFs.
+- Deployment checks and rollback steps are documented in [SECURITY.md](SECURITY.md).
 
 ## Privacy
 
