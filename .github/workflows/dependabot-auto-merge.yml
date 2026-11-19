@@ -1,8 +1,8 @@
 name: Dependabot auto-merge
 
-# Runs after CI finishes, so a Dependabot pull request is merged only once typecheck, lint,
+# Runs after CI finishes, so an eligible npm pull request is merged only once typecheck, lint,
 # unit tests, the production build and the end-to-end suite have passed on that exact commit.
-# Major npm upgrades (the "major" group) are left for a manual review.
+# Major npm upgrades and GitHub Actions updates require manual review.
 on:
   workflow_run:
     workflows: [CI]
@@ -12,12 +12,13 @@ permissions: {}
 
 jobs:
   merge:
-    name: Merge green Dependabot PR
+    name: Merge green Dependabot npm PR
     if: >-
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'pull_request' &&
       github.event.workflow_run.actor.login == 'dependabot[bot]' &&
-      startsWith(github.event.workflow_run.head_branch, 'dependabot/') &&
+      github.event.workflow_run.head_repository.full_name == github.repository &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/npm_and_yarn/') &&
       !contains(github.event.workflow_run.head_branch, '/major-')
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -30,10 +31,20 @@ jobs:
       HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
       HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
-      - name: Find the pull request
+      - name: Find an eligible pull request
         id: pr
         run: |
-          number=$(gh pr list --head "$HEAD_BRANCH" --author 'app/dependabot' --state open --json number --jq '.[0].number // empty')
+          number=$(gh pr list --base main --head "$HEAD_BRANCH" --author 'app/dependabot' --state open --json number --jq '.[0].number // empty')
+          if [[ -z "$number" ]]; then
+            exit 0
+          fi
+          files=$(gh pr diff "$number" --name-only)
+          while IFS= read -r file; do
+            case "$file" in
+              package.json|package-lock.json) ;;
+              *) exit 0 ;;
+            esac
+          done <<< "$files"
           echo "number=$number" >> "$GITHUB_OUTPUT"
       - name: Approve (only counts where Actions may approve pull requests)
         if: steps.pr.outputs.number
