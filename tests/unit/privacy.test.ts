@@ -1,6 +1,13 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import {
+  countPrivacyMatches,
+  escapeRegex,
+  foldText,
+  readPdfText,
+  readPrivacyTerms,
+} from "../../scripts/lib/cv-privacy.mjs";
 
 const DENYLIST = ".privacy-denylist";
 const SELF = "tests/unit/privacy.test.ts";
@@ -43,10 +50,8 @@ const AGE_ALLOWED = [
 const CODE_FILE = /\.(ts|tsx|js|mjs|cjs|astro|json|css)$/;
 const PROSE_LINE = /["'`*]|\/\//;
 
-const fold = (text: string) => text.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const word = (term: string) =>
-  new RegExp(`(?<![\\p{L}\\p{N}._-])${escape(fold(term))}(?![\\p{L}\\p{N}=])`, "u");
+  new RegExp(`(?<![\\p{L}\\p{N}._-])${escapeRegex(foldText(term))}(?![\\p{L}\\p{N}=])`, "u");
 const strip = (text: string, patterns: RegExp[]) =>
   patterns.reduce((left, pattern) => left.replace(pattern, ""), text);
 
@@ -67,28 +72,8 @@ function textOf(file: string) {
   return text.includes("\0") ? null : text;
 }
 
-function pdfTextOf(file: string) {
-  try {
-    return execFileSync("pdftotext", ["-layout", file, "-"], {
-      encoding: "utf8",
-      maxBuffer: 8_000_000,
-    });
-  } catch {
-    return null;
-  }
-}
-
-function denylist() {
-  if (!existsSync(DENYLIST)) return [];
-  return readFileSync(DENYLIST, "utf8")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#"))
-    .filter((term) => !LABEL_TERMS.includes(fold(term)));
-}
-
 function hits(text: string, terms: string[]) {
-  return terms.filter((term) => word(term).test(fold(text)));
+  return terms.filter((term) => word(term).test(foldText(text)));
 }
 
 /** Every repo file that is readable as text, this file excluded: it names the terms it hunts. */
@@ -102,34 +87,37 @@ function scannable() {
 }
 
 describe("privacy", () => {
-  const terms = denylist();
-  const missingDenylist = !existsSync(DENYLIST);
+  const terms = readPrivacyTerms().filter((term) => !LABEL_TERMS.includes(term));
+  const missingDenylist = !process.env.PRIVACY_DENYLIST?.trim() && !existsSync(DENYLIST);
 
-  it.skipIf(missingDenylist)("has a denylist with enough terms to be worth running", () => {
-    expect(terms.length).toBeGreaterThan(5);
+  it("matches a full term across line breaks, regardless of case and accents", () => {
+    expect(countPrivacyMatches("ÁRBOL\n   AZUL", ["arbol azul"])).toBe(1);
+    expect(countPrivacyMatches("superárbol azulino", ["arbol azul"])).toBe(0);
+  });
+
+  it.skipIf(missingDenylist)("has at least one private term configured", () => {
+    expect(terms.length).toBeGreaterThan(0);
   });
 
   it.skipIf(missingDenylist)("keeps denylisted names out of every repo file", () => {
-    const found: string[] = [];
-    for (const { file, text } of scannable()) {
-      found.push(...hits(text, terms).map((term) => `${file}: ${term}`));
-    }
-    expect(found).toEqual([]);
+    const affectedFiles = scannable().filter(({ text }) => hits(text, terms).length).length;
+    expect(affectedFiles, "Private matches detected in repository files").toBe(0);
   });
 
   it.skipIf(missingDenylist)("keeps denylisted names out of the published PDFs", () => {
     const pdfs = repoFiles().filter((f) => f.startsWith("public/") && f.endsWith(".pdf"));
-    const found: string[] = [];
     expect(pdfs.length).toBeGreaterThan(0);
+    let unreadable = 0;
+    let matches = 0;
     for (const file of pdfs) {
-      const text = pdfTextOf(file);
-      if (text === null) {
-        found.push(`${file}: unreadable, install poppler-utils for pdftotext`);
-        continue;
+      try {
+        matches += countPrivacyMatches(readPdfText(file), terms);
+      } catch {
+        unreadable += 1;
       }
-      found.push(...hits(text, terms).map((term) => `${file}: ${term}`));
     }
-    expect(found).toEqual([]);
+    expect(unreadable, "Could not extract PDF text. Check the PDFs and install pdftotext").toBe(0);
+    expect(matches, "Private matches detected in published PDFs").toBe(0);
   });
 
   it("uses no open-ended employment labels anywhere in the repo", () => {

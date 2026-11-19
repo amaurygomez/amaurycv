@@ -9,7 +9,8 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro check && astro build",
+    "build": "astro check && npm run build:vercel",
+    "build:vercel": "astro build && node scripts/csp-report-only.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
@@ -19,7 +20,8 @@
     "format:check": "prettier --check .",
     "test:unit": "vitest run",
     "test:e2e": "playwright test",
-    "cv:pdf": "node scripts/cv-pdf.mjs",
+    "cv:pdf": "node --env-file-if-exists=.env.local scripts/cv-pdf.mjs",
+    "cv:privacy": "node --env-file-if-exists=.env.local scripts/cv-privacy.mjs",
     "cv:seal": "node --env-file-if-exists=.env.local scripts/cv-seal.ts"
   },
   "dependencies": {
@@ -58,6 +60,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.14.0",
+    "parse5": "^8.1.1",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",

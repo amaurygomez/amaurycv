@@ -56,9 +56,15 @@ Tailwind CSS 4 · TypeScript · Zod · Vitest · Playwright.
 | `npm run test:unit`               | Vitest (`tests/unit`)                        |
 | `npm run test:e2e`                | Playwright (`tests/e2e`), needs a dev server |
 | `npm run cv:pdf`                  | Print `/cv` into the two PDFs in `public/`   |
+| `npm run cv:privacy`              | Check both PDF downloads for private terms   |
 | `npm run cv:seal`                 | Encrypt a full CV into `sealed/`             |
 
 Copy `.env.example` to `.env.local` for the API routes and `cv:seal`. Node 22.12+ (`.nvmrc`: 24).
+
+Run `npm run cv:privacy` locally before publishing PDF updates. Install `pdftotext` from
+Poppler and keep the private terms in `.privacy-denylist` (one per line) or in `PRIVACY_DENYLIST`
+in `.env.local` (comma-separated). Both local files are ignored by Git. The check identifies
+which file needs attention and reports the count of matches in its extractable text.
 
 ## Layout
 

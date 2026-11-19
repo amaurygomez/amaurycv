@@ -31,6 +31,14 @@ Resend); report those to their own programs.
   audited in CI. Minor, patch and security updates merge on their own once CI is green; major
   upgrades wait for a manual review.
 
+## Browser content security
+
+Vercel serves the enforced `Content-Security-Policy` from `vercel.json`. The build also emits
+`Content-Security-Policy-Report-Only` for the static HTML routes and custom error page. That
+policy allows each page's generated inline scripts by their SHA-256 hashes and flags inline
+event handlers. Inspect report-only violations in browser developer tools on a preview before
+enforcing the stricter script policy.
+
 ## Automated access to public pages
 
 The public pages, redacted PDF downloads and source repository can be read and copied by visitors
