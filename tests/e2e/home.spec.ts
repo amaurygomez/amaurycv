@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+const turnstileStub = `window.turnstile = {
+  render(_el, options) {
+    window.turnstileAction = options.action;
+    setTimeout(() => options.callback("test-token-123"), 0);
+    return "w1";
+  },
+  reset() {}, remove() {},
+};
+const loadCallbackName = new URL(document.currentScript.src).searchParams.get("onload");
+if (loadCallbackName) window[loadCallbackName]?.();`;
+
 test("home shows the brand pitch and routes to AG World and the full CV", async ({ page }) => {
   await page.goto("/");
   await expect(
@@ -41,17 +52,7 @@ test("home has no serious or critical accessibility violations", async ({ page }
 
 test("home contact form sends the message with the project type", async ({ page }) => {
   await page.route("**/turnstile/v0/api.js*", (route) =>
-    route.fulfill({
-      contentType: "text/javascript",
-      body: `window.turnstile = {
-        render(_el, options) {
-          window.turnstileAction = options.action;
-          setTimeout(() => options.callback("test-token-123"), 0);
-          return "w1";
-        },
-        reset() {}, remove() {},
-      };`,
-    }),
+    route.fulfill({ contentType: "text/javascript", body: turnstileStub }),
   );
   let sent: Record<string, string> | undefined;
   await page.route("**/api/contact", (route) => {
@@ -80,6 +81,41 @@ test("home contact form sends the message with the project type", async ({ page 
     name: "Ada Lovelace",
     email: "ada@example.com",
     message: "Tipo: Integración o API\n\nNecesitamos integrar dos sistemas internos.",
+    website: "",
+    turnstileToken: "test-token-123",
+  });
+});
+
+test("AG World contact uses the same Turnstile action as the home contact form", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/turnstile/v0/api.js*", (route) =>
+    route.fulfill({ contentType: "text/javascript", body: turnstileStub }),
+  );
+  let sent: unknown;
+  await page.route("**/api/contact", (route) => {
+    sent = route.request().postDataJSON();
+    return route.fulfill({ json: { ok: true } });
+  });
+
+  await page.goto("/world");
+  await page
+    .getByRole("button", { name: /^(Contacto|Contact)$/ })
+    .first()
+    .click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByLabel(/Tu nombre|Your name/).fill("Ada Lovelace");
+  await dialog.getByLabel(/Tu email|Your email/).fill("ada@example.com");
+  await dialog.getByLabel(/^(Mensaje|Message)$/).fill("We want to integrate two internal systems.");
+  await dialog.getByRole("button", { name: /Enviar mensaje|Send message/ }).click();
+
+  await expect(dialog.getByText(/Te respondo pronto|I'll reply soon/)).toBeVisible();
+  expect(await page.evaluate(() => Reflect.get(window, "turnstileAction"))).toBe("contact");
+  expect(sent).toEqual({
+    name: "Ada Lovelace",
+    email: "ada@example.com",
+    message: "We want to integrate two internal systems.",
     website: "",
     turnstileToken: "test-token-123",
   });

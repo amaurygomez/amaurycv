@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { CheckCircle2, Loader2, Mail, Send, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { TURNSTILE_ACTIONS } from "@/lib/turnstile-actions";
 import { useWorld } from "@/world/state/useWorld";
 
 const SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
@@ -347,7 +348,11 @@ export function ContactPanel() {
                       onSuccess={setToken}
                       onError={() => setToken("")}
                       onExpire={() => setToken("")}
-                      options={{ theme: "dark", size: "flexible" }}
+                      options={{
+                        action: TURNSTILE_ACTIONS.contact,
+                        theme: "dark",
+                        size: "flexible",
+                      }}
                     />
                   ) : (
                     <p className="text-[12px] text-red-300">{t.captchaMissing}</p>
